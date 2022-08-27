@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "token.h"
 
-void insertToken(Token **l, char *lexema, char *symbol) {
-    Token *new = (ListaE*)malloc(sizeof(Token));
+void insertToken(Token **l, char *lexeme, char *symbol) {
+    Token *new = malloc(sizeof(Token));
 
-    strcpy(new->lexema,lexema);
+    strcpy(new->lexeme,lexeme);
     strcpy(new->symbol,symbol);
     new->next = NULL;
 
