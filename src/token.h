@@ -14,3 +14,6 @@ void insertToken(Token **l, char *lexeme, char *symbol);
 
 // Free memory list
 void freeToken(Token **l);
+
+// Print all token list
+void printToken(Token *l);

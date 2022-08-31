@@ -5,16 +5,22 @@
 #include "token.h"
 
 void insertToken(Token **l, char *lexeme, char *symbol) {
-    Token *new = malloc(sizeof(Token));
 
+    //printf("\nDEBUG INSERT LEXEMA: %s - %s", lexeme, symbol);
+
+    Token *new = (Token *)malloc(sizeof(Token));
+    
     strcpy(new->lexeme,lexeme);
     strcpy(new->symbol,symbol);
     new->next = NULL;
 
     if(*l != NULL) {
-        while((*l)->next != NULL)
-            (*l) = (*l)->next;
-        (*l)->next = new;
+        Token *aux = (*l);
+        while(aux->next != NULL){
+            //printf("\nDEBUG PERCORRE LISTA: %s - %s", aux->lexeme, aux->symbol);
+            aux = aux->next;
+        }
+        aux->next = new;
     }
     else
         (*l) = new;
@@ -28,4 +34,11 @@ void freeToken(Token **l) {
         aux = aux2;
     }
     (*l) = NULL;
+}
+
+void printToken(Token *l){
+    while(l != NULL){
+        printf("\nLexeme: %-30s \t\t Symbol: %s\n", l->lexeme, l->symbol);
+        l = l->next;
+    }
 }

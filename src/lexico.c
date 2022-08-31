@@ -10,17 +10,24 @@
 
 // Control variables
 Token *tokenList = NULL;
-int lineCount = 0;
+int lineCount = 1;
 FILE *sourceFile;
+bool flagUpdate = true; // Flag to allow the update cursor
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
+    // DEBUG
+    //printf("%c ", *c);
 }
 
 bool isSpaceCode(char c) {
     if(c == '\n')
         lineCount++;
-    return c == ' ' || c == '\t' || c == '\n';
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+bool isNotEndOfFile(char c) {
+    return c != EOF;
 }
 
 bool isDigit(char c) {
@@ -31,25 +38,156 @@ bool isLetter(char c) {
     return c >= 65 && c <= 90 || c >= 97 && c <= 122;
 }
 
+bool isAritmeticOperator(char c) {
+    return c == '+' || c == '-' || c == '*';
+}
+
+bool isRelationalOperator(char c) {
+    return c == '!' || c == '>' || c == '<' || c == '=';
+}
+
+bool isPonctuation(char c) {
+    return c == ';' || c == ',' || c == '(' || c == ')' || c == '.';
+}
+
 bool isEqualString(char *str1, char *str2){
     return strcmp(str1, str2) == 0;
 }
 
+bool isIdentifier(char c) {
+    return isDigit(c) || isLetter(c) || c == '_';
+}
+
+void symbolError(char c) {
+    char error[2] = {0};
+    error[0] = c;
+    //printf("\nDEBUG: ERROR %d\n", c);
+    insertToken(&tokenList, error, "serro");
+    printf("\nSimbolo nao encontrado na linha %d\n", lineCount);
+    //exit(1);
+}
+
+void treatDigit(char *c){
+    char word[30] = {0};
+    int i=0;
+    word[i++] = *c;
+    updateCursor(&(*c));
+
+    while(isDigit(*c) && isNotEndOfFile(*c)){
+        word[i++] = *c;
+        updateCursor(&(*c));
+    }
+    flagUpdate = false;
+
+    insertToken(&tokenList, word, "snumero");
+}
+
+void treatAttribution(char *c) {
+    //printf("DEBUG - Trata atribuicao");
+    updateCursor(&(*c));
+    if(isNotEndOfFile(*c) && *c == '=')
+        insertToken(&tokenList, ":=", "satribuicao");
+    else {
+        insertToken(&tokenList, ":", "sdoispontos");
+        flagUpdate = false;
+    }
+}
+
+void treatArithmeticOperator(char *c) {
+    //printf("\nDEBUG - Trata operador aritmetico\n");
+    switch(*c){
+        case '+':
+            insertToken(&tokenList, "+", "smais");
+        break;
+        case '-':
+            insertToken(&tokenList, "-", "smenos");
+        break;
+        case '*':
+            insertToken(&tokenList, "*", "smult");
+        break;
+            symbolError(*c);
+    }
+}
+
+void treatRelationalOperator(char *c) {
+    //printf("\nDEBUG - Trata operador relacional\n");
+    switch(*c) {
+        case '!':
+            updateCursor(&(*c));
+            if(isNotEndOfFile(*c) && *c == '='){
+                insertToken(&tokenList, "!=", "sdif");
+                flagUpdate = false;
+            } else
+                symbolError('!');
+            break;
+        case '<': 
+            updateCursor(&(*c));
+            if(isNotEndOfFile(*c) && *c == '=')
+                insertToken(&tokenList, "<=", "smenorig");
+            else{
+                insertToken(&tokenList, "<", "smenor");
+                flagUpdate = false;
+            }
+            break;
+        case '>':
+            updateCursor(&(*c)); 
+            if(isNotEndOfFile(*c) && *c == '=')
+                insertToken(&tokenList,">=","smaiorig");
+            else{
+                insertToken(&tokenList, ">", "smaior");
+                flagUpdate = false;
+            }
+            break;
+        case '=': 
+            insertToken(&tokenList, "=", "sig");
+            break;
+        default:
+            symbolError(*c);
+    }
+}
+
+void treatPunctuation(char *c) {
+    //printf("\nDEBUG - Pontuacao\n");
+    switch(*c) {
+        case ';': 
+            insertToken(&tokenList, ";", "sponto_virgula");
+            break;
+        case ',': 
+            insertToken(&tokenList, ",", "svirgula");
+            break;
+        case '(': 
+            insertToken(&tokenList, "(", "sabre_parenteses");
+            break;
+        case ')': 
+            insertToken(&tokenList, ")", "sfecha_parenteses");
+            break;
+        case '.': 
+            insertToken(&tokenList, ".", "sponto");
+            break;
+        default:
+            symbolError(*c);
+    }
+}
 
 void identifyReservedWord(char *c) {
     char word[30] = {0};
-    int i = 0; // Verificar o tamanho máximo do identificador
+    int i = 0; // Contador para tamanho máximo do identificador
+    //printf("Teste0");
     if(!isLetter(*c)) {
         printf("DEBUG: ERRO - comeco do identificador");
         exit(1);
     }
+    
     word[i++] = *c;
+    //printf("Teste1");
     updateCursor(&(*c));
-    while(!isSpaceCode(*c) && *c != EOF && i < 30 && (isDigit(*c) || isLetter(*c) || *c == '_')) {
+    //printf("Teste2");
+    while(!isSpaceCode(*c) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
         word[i++] = *c;
         updateCursor(&(*c));
     }
-    // TODO: Adicionar lexema para a struct do token
+    flagUpdate = false;
+    //printf("Terminou de identificar a palavra");
     if(isEqualString(word, "programa"))
         insertToken(&tokenList, word, "sprograma");
     else if(isEqualString(word, "se"))
@@ -97,7 +235,23 @@ void identifyReservedWord(char *c) {
 }
 
 void colectToken(char *c) {
-    identifyReservedWord(c);
+    //printf("Teste coleta token:[%c]", *c);
+    if(isDigit(*c)){        
+        treatDigit(c);
+    }else if(isLetter(*c)){
+        identifyReservedWord(c);
+    }else if(*c == ':'){
+        treatAttribution(c);    
+    }else if(isAritmeticOperator(*c)){
+        treatArithmeticOperator(c);
+    }else if(isRelationalOperator(*c)){
+        treatRelationalOperator(c);
+    }else if(isPonctuation(*c)){
+        treatPunctuation(c);
+    }else{
+        symbolError(*c);
+    }
+        
 }
 
 int main(int argc, char *argv[]) {
@@ -113,28 +267,47 @@ int main(int argc, char *argv[]) {
         printf("Erro ao abrir o arquivo.");
         exit(1);
     }
+    else
+        printf("DEBUG - Arquivo aberto com sucesso.\n");
 
     char c;
     updateCursor(&c);
 
-    while(c != EOF) {
+    while(isNotEndOfFile(c)) {
         if(c == '{') {
             updateCursor(&c);
-            while(c != '}' && c != EOF)
+            while(c != '}' && isNotEndOfFile(c)) {//Adicionar erro n fechou comentario 
+                if(c == '\n')
+                    lineCount++;
                 updateCursor(&c);
+            }
+            if(c == EOF){
+                printf("\nErro: esperado simbolo } na linha %d\n", lineCount);
+                break;
+            }
             updateCursor(&c);
         } else if (isSpaceCode(c)) {
             updateCursor(&c);
-            while(isSpaceCode(c) && c != EOF)
+            while(isSpaceCode(c) && isNotEndOfFile(c))
                 updateCursor(&c);
-            updateCursor(&c);
-        } else {
+            if(c == EOF)
+                break;
+        } 
+        else {
             colectToken(&c);
-            updateCursor(&c);
+            
+            if(flagUpdate)
+                updateCursor(&c);
+            else 
+                flagUpdate = true;
         }
     }
 
     fclose(sourceFile);
+
+    printToken(tokenList);
+
+    freeToken(&tokenList);
 
     return 0;
 }
