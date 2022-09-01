@@ -13,11 +13,12 @@ Token *tokenList = NULL;
 int lineCount = 1;
 FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
+bool debug = false;
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
-    // DEBUG
-    //printf("%c ", *c);
+    if(debug)
+        printf("%c ", *c);
 }
 
 bool isSpaceCode(char c) {
@@ -61,7 +62,8 @@ bool isIdentifier(char c) {
 void symbolError(char c) {
     char error[2] = {0};
     error[0] = c;
-    //printf("\nDEBUG: ERROR %d\n", c);
+    if(debug)
+        printf("\nDEBUG: ERROR %d\n", c);
     insertToken(&tokenList, error, "serro");
     printf("\nSimbolo nao encontrado na linha %d\n", lineCount);
     //exit(1);
@@ -83,7 +85,8 @@ void treatDigit(char *c){
 }
 
 void treatAttribution(char *c) {
-    //printf("DEBUG - Trata atribuicao");
+    if(debug)
+        printf("\nDEBUG - Trata atribuicao\n");
     updateCursor(&(*c));
     if(isNotEndOfFile(*c) && *c == '=')
         insertToken(&tokenList, ":=", "satribuicao");
@@ -94,7 +97,8 @@ void treatAttribution(char *c) {
 }
 
 void treatArithmeticOperator(char *c) {
-    //printf("\nDEBUG - Trata operador aritmetico\n");
+    if(debug)
+        printf("\nDEBUG - Trata operador aritmetico\n");
     switch(*c){
         case '+':
             insertToken(&tokenList, "+", "smais");
@@ -110,7 +114,8 @@ void treatArithmeticOperator(char *c) {
 }
 
 void treatRelationalOperator(char *c) {
-    //printf("\nDEBUG - Trata operador relacional\n");
+    if(debug)
+        printf("\nDEBUG - Trata operador relacional\n");
     switch(*c) {
         case '!':
             updateCursor(&(*c));
@@ -147,7 +152,8 @@ void treatRelationalOperator(char *c) {
 }
 
 void treatPunctuation(char *c) {
-    //printf("\nDEBUG - Pontuacao\n");
+    if(debug)
+        printf("\nDEBUG - Pontuacao\n");
     switch(*c) {
         case ';': 
             insertToken(&tokenList, ";", "sponto_virgula");
@@ -172,22 +178,22 @@ void treatPunctuation(char *c) {
 void identifyReservedWord(char *c) {
     char word[30] = {0};
     int i = 0; // Contador para tamanho máximo do identificador
-    //printf("Teste0");
     if(!isLetter(*c)) {
-        printf("DEBUG: ERRO - comeco do identificador");
+        symbolError(*c);
+        if(debug)
+            printf("DEBUG: ERRO - comeco do identificador\n");
         exit(1);
     }
     
     word[i++] = *c;
-    //printf("Teste1");
     updateCursor(&(*c));
-    //printf("Teste2");
     while(!isSpaceCode(*c) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
         word[i++] = *c;
         updateCursor(&(*c));
     }
     flagUpdate = false;
-    //printf("Terminou de identificar a palavra");
+    if(debug)
+        printf("Terminou de identificar a palavra");
     if(isEqualString(word, "programa"))
         insertToken(&tokenList, word, "sprograma");
     else if(isEqualString(word, "se"))
@@ -235,7 +241,8 @@ void identifyReservedWord(char *c) {
 }
 
 void colectToken(char *c) {
-    //printf("Teste coleta token:[%c]", *c);
+    if(debug)
+        printf("Teste coleta token:[%c]\n", *c);
     if(isDigit(*c)){        
         treatDigit(c);
     }else if(isLetter(*c)){
@@ -259,30 +266,35 @@ int main(int argc, char *argv[]) {
     if(argc < 1) {
         printf("Erro! O nome do arquivo a ser analisado deve ser informado!");
         exit(1);
+    } else if(argc > 2 && strcmp(argv[2],"1") == 0) {
+        debug = true;
+        activateDebug();
     }
 
     sourceFile = fopen(argv[1], "r");
 
     if(!sourceFile) {
-        printf("Erro ao abrir o arquivo.");
+        printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
-    else
+    else if(debug)
         printf("DEBUG - Arquivo aberto com sucesso.\n");
 
     char c;
+    int openComment;
     updateCursor(&c);
 
     while(isNotEndOfFile(c)) {
         if(c == '{') {
+            openComment = lineCount;
             updateCursor(&c);
-            while(c != '}' && isNotEndOfFile(c)) {//Adicionar erro n fechou comentario 
+            while(c != '}' && isNotEndOfFile(c)) {
                 if(c == '\n')
                     lineCount++;
                 updateCursor(&c);
             }
             if(c == EOF){
-                printf("\nErro: esperado simbolo } na linha %d\n", lineCount);
+                printf("\nErro: Comentario nao concluido na linha %d\n", openComment);
                 break;
             }
             updateCursor(&c);

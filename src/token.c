@@ -4,9 +4,16 @@
 #include <string.h>
 #include "token.h"
 
+bool debugToken1 = false;
+
+void activateDebug() {
+    debugToken1 = true;
+}
+
 void insertToken(Token **l, char *lexeme, char *symbol) {
 
-    //printf("\nDEBUG INSERT LEXEMA: %s - %s", lexeme, symbol);
+    if(debugToken1)
+        printf("\nDEBUG INSERT LEXEMA: %s - %s\n", lexeme, symbol);
 
     Token *new = (Token *)malloc(sizeof(Token));
     
@@ -17,7 +24,8 @@ void insertToken(Token **l, char *lexeme, char *symbol) {
     if(*l != NULL) {
         Token *aux = (*l);
         while(aux->next != NULL){
-            //printf("\nDEBUG PERCORRE LISTA: %s - %s", aux->lexeme, aux->symbol);
+            if(debugToken1)
+                printf("\nDEBUG PERCORRE LISTA: %s - %s\n", aux->lexeme, aux->symbol);
             aux = aux->next;
         }
         aux->next = new;

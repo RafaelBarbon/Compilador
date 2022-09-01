@@ -15,7 +15,8 @@
 * Abra o terminal e execute o comando `.\exec.bat` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
 ### Linux && MAC
-
+* Abra o terminal e execute o comando `make` para compilar o programa
+* Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
 ## Autores
 [Derek Freire Quaresma](https://github.com/derekfq)
 
