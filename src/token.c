@@ -16,7 +16,7 @@ void insertToken(Token **l, char *lexeme, char *symbol) {
         printf("\nDEBUG INSERT LEXEMA: %s - %s\n", lexeme, symbol);
 
     Token *new = (Token *)malloc(sizeof(Token));
-    
+
     strcpy(new->lexeme,lexeme);
     strcpy(new->symbol,symbol);
     new->next = NULL;

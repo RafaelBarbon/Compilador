@@ -14,12 +14,21 @@
 ### Windows
 * Abra o terminal e execute o comando `.\exec.bat` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
+Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`
 ### Linux && MAC
 * Abra o terminal e execute o comando `make` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
+Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`
+
+## Descrição
+O presente compilador realiza a tradução da linguagem de programação conforme o diagrama sintático descrito a seguir:
+![Diagrama sintático](diagrama%20sintatico.png)
+
 ## Autores
 [Derek Freire Quaresma](https://github.com/derekfq)
 
 [Henrique Sartori Siqueira](https://github.com/h-ssiqueira)
+
+[Lucas Cicconi](https://github.com/LucasCicconi)
 
 [Rafael Silva Barbon](https://github.com/RafaelBarbon)
