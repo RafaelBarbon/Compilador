@@ -66,7 +66,6 @@ void symbolError(char c) {
         printf("\nDEBUG: ERROR %d\n", c);
     insertToken(&tokenList, error, "serro");
     printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", lineCount, c);
-    //exit(1);
 }
 
 void treatDigit(char *c){
@@ -196,12 +195,6 @@ void treatPunctuation(char *c) {
 void identifyReservedWord(char *c) {
     char word[30] = {0};
     int i = 0; // Contador para tamanho máximo do identificador
-    if(!isLetter(*c)) {
-        symbolError(*c);
-        if(debug)
-            printf("DEBUG: ERRO - comeco do identificador\n");
-        exit(1);
-    }
 
     word[i++] = *c;
     updateCursor(&(*c));
@@ -211,7 +204,7 @@ void identifyReservedWord(char *c) {
     }
     // identifier Length Error
     if(i == 30) {
-        printf("Erro L%d: identificador excede o tamanho limite de 30 caracteres.\n", lineCount);
+        printf("\nErro L%d: identificador excede o tamanho limite de 30 caracteres.\n", lineCount);
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(&(*c));
         insertToken(&tokenList, "Identificador muito longo", "serro");

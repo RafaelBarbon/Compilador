@@ -15,6 +15,7 @@
 * Abra o terminal e execute o comando `.\exec.bat` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
 Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`
+
 ### Linux && MAC
 * Abra o terminal e execute o comando `make` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
