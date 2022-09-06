@@ -1,3 +1,6 @@
+#ifndef _TOKEN_H_
+#define _TOKEN_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -9,6 +12,8 @@ typedef struct Token{
     struct Token *next;
 }Token;
 
+void activateDebug();
+
 // Insert a new Token in the end of the list
 void insertToken(Token **l, char *lexeme, char *symbol);
 
@@ -17,3 +22,5 @@ void freeToken(Token **l);
 
 // Print all token list
 void printToken(Token *l);
+
+#endif
