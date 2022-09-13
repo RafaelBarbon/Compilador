@@ -136,11 +136,12 @@ void treatRelationalOperator(char *c) {
     switch(*c) {
         case '!':
             updateCursor(&(*c));
-            if(isNotEndOfFile(*c) && *c == '='){
+            if(isNotEndOfFile(*c) && *c == '=')
                 insertToken(&tokenList, "!=", "sdif");
-                flagUpdate = false;
-            } else
-                symbolError('!');
+            else{
+               symbolError('!');
+               flagUpdate = false;
+            }
             break;
         case '<':
             updateCursor(&(*c));
