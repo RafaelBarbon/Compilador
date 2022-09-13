@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "error.h"
+#include "symbol.h"
 #include "token.h"
+#include "verifyChar.h"
 
 // Biblioteca QT para interface grafica
 
@@ -21,51 +24,13 @@ void updateCursor(char *c) {
         printf("%c ", *c);
 }
 
-bool isSpaceCode(char c) {
-    if(c == '\n')
-        lineCount++;
-    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-}
-
-bool isNotEndOfFile(char c) {
-    return c != EOF;
-}
-
-bool isDigit(char c) {
-    return c >= 48 && c <= 57;
-}
-
-bool isLetter(char c) {
-    return c >= 65 && c <= 90 || c >= 97 && c <= 122;
-}
-
-bool isAritmeticOperator(char c) {
-    return c == '+' || c == '-' || c == '*';
-}
-
-bool isRelationalOperator(char c) {
-    return c == '!' || c == '>' || c == '<' || c == '=';
-}
-
-bool isPonctuation(char c) {
-    return c == ';' || c == ',' || c == '(' || c == ')' || c == '.';
-}
-
-bool isEqualString(char *str1, char *str2){
-    return strcmp(str1, str2) == 0;
-}
-
-bool isIdentifier(char c) {
-    return isDigit(c) || isLetter(c) || c == '_';
-}
-
 void symbolError(char c) {
     char error[2] = {0};
     error[0] = c;
     if(debug)
         printf("\nDEBUG: ERROR %d\n", c);
     insertToken(&tokenList, error, "serro");
-    printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", lineCount, c);
+    detectError(1,lineCount,c);
 }
 
 void treatDigit(char *c){
@@ -87,13 +52,13 @@ void treatDigit(char *c){
     }
     // Identifier starting with digits
     if(isIdentifier(*c)) {
-        printf("\nErro L%d: identificador iniciando com digitos.\n", lineCount);
+        detectError(2,lineCount, '\0');
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(&(*c));
         insertToken(&tokenList, "Identificador inicio digito", "serro");
         erro = true;
     } else if(erro) {
-        printf("\nErro L%d: numero informado excede o limite de 30 digitos.\n", lineCount);
+        detectError(3,lineCount,'\0');
         insertToken(&tokenList, "Numero execede o limite", "serro");
     }
     flagUpdate = false;
@@ -199,13 +164,13 @@ void identifyReservedWord(char *c) {
 
     word[i++] = *c;
     updateCursor(&(*c));
-    while(!isSpaceCode(*c) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
+    while(!isSpaceCode(*c, &lineCount) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
         word[i++] = *c;
         updateCursor(&(*c));
     }
     // identifier Length Error
     if(i == 30) {
-        printf("\nErro L%d: identificador excede o tamanho limite de 30 caracteres.\n", lineCount);
+        detectError(4, lineCount, '\0');
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(&(*c));
         insertToken(&tokenList, "Identificador muito longo", "serro");
@@ -284,17 +249,18 @@ void colectToken(char *c) {
 int main(int argc, char *argv[]) {
 
     if(argc < 1) {
-        printf("Erro! O nome do arquivo a ser analisado deve ser informado!");
+        detectError(6, 0, '\0');
         exit(1);
     } else if(argc > 2 && strcmp(argv[2],"1") == 0) {
         debug = true;
-        activateDebug();
+        activateDebugToken();
+        activateDebugSymbol();
     }
 
     sourceFile = fopen(argv[1], "r");
 
     if(!sourceFile) {
-        printf("Erro ao abrir o arquivo.\n");
+        detectError(7, 0, '\0');
         exit(1);
     }
     else if(debug)
@@ -314,13 +280,13 @@ int main(int argc, char *argv[]) {
                 updateCursor(&c);
             }
             if(c == EOF){
-                printf("\nErro L%d: Comentario nao concluido.\n", openCommentLine);
+                detectError(5,openCommentLine,'\0');
                 break;
             }
             updateCursor(&c);
-        } else if (isSpaceCode(c)) {
+        } else if (isSpaceCode(c, &lineCount)) {
             updateCursor(&c);
-            while(isSpaceCode(c) && isNotEndOfFile(c))
+            while(isSpaceCode(c, &lineCount) && isNotEndOfFile(c))
                 updateCursor(&c);
             if(c == EOF)
                 break;
