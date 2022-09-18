@@ -15,7 +15,6 @@ typedef struct symbol{
     struct symbol *next;
 }Symbol;
 
-void activateDebugSymbol();
 
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, enum SymbolType type, int memory);

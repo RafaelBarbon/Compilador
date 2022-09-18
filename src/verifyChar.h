@@ -6,6 +6,12 @@
 #include <stdbool.h>
 #include <string.h>
 
+extern bool debug;
+
+extern bool flagUpdate;
+
+extern void updateCursor(char *c);
+
 bool isSpaceCode(char c, int *lineCount);
 
 bool isNotEndOfFile(char c);

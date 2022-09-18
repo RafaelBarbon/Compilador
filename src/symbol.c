@@ -5,11 +5,6 @@
 #include "symbol.h"
 #include "verifyChar.h"
 
-bool debugSymbol1 = false;
-
-void activateDebugSymbol() {
-    debugSymbol1 = true;
-}
 
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, enum SymbolType type, int memory) {
     Symbol *new = (Symbol *)malloc(sizeof(Symbol));
@@ -51,7 +46,7 @@ void printStack(Symbol *l){
 }
 
 char* symbolTypeToString(enum SymbolType type){
-    
+
     switch(type) {
         case Var: return "Var";
         case Func: return "Func";
@@ -62,5 +57,5 @@ char* symbolTypeToString(enum SymbolType type){
         case Procedimento: return "Procedimento";
         case Programa: return "Programa";
     }
-    
+
 }
