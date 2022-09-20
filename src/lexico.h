@@ -23,4 +23,6 @@ void identifyReservedWord(char *c, Token **tokenList, int lineCount);
 
 void colectToken(char *c, Token **tokenList, int lineCount);
 
+void getToken(char *c, Token **tokenList);
+
 #endif

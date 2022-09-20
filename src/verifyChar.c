@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool isSpaceCode(char c, int lineCount) {
+bool isSpaceCode(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 

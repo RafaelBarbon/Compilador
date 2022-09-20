@@ -7,7 +7,7 @@
 
 
 // Struct for identify a symbol
-typedef struct symbol{
+typedef struct symbol {
     char lexeme[30];
     bool scope;
     enum SymbolType{Var, Func, FuncInteira, FuncBooleana, VarInteira, VarBooleana, Procedimento, Programa} type;
@@ -31,6 +31,7 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
+// Convert enum to string
 char* symbolTypeToString(enum SymbolType type);
 
 #endif

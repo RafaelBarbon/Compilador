@@ -5,8 +5,10 @@
 #include "lexico.h"
 #include "error.h"
 #include "symbol.h"
+#include "sintatico.h"
 #include "token.h"
 #include "verifyChar.h"
+#include "sintatico.h"
 
 // Control variables
 Token *tokenList = NULL;
@@ -41,35 +43,16 @@ int main(int argc, char *argv[]) {
         printf("DEBUG - Arquivo aberto com sucesso.\n");
 
     char c;
-    int openCommentLine;
+
     updateCursor(&c);
 
-    while(isNotEndOfFile(c)) {
-        if(c == '{') {
-            openCommentLine = lineCount;
-            updateCursor(&c);
-            while(c != '}' && isNotEndOfFile(c)) {
-                updateCursor(&c);
-            }
-            if(c == EOF){
-                detectError(5,openCommentLine,'\0');
-                break;
-            }
-            updateCursor(&c);
-        } else if (isSpaceCode(c, &lineCount)) {
-            updateCursor(&c);
-            while(isSpaceCode(c, &lineCount) && isNotEndOfFile(c))
-                updateCursor(&c);
-        }
-        else {
-            colectToken(&c, &tokenList, lineCount);
-
-            if(flagUpdate)
-                updateCursor(&c);
-            else
-                flagUpdate = true;
-        }
-    }
+    Analisador_Sintatico(&c, &tokenList);
+    //bloco
+    //getToken(&c, &tokenList);//Sintático irá chamar ao invés da main e insere o token na lista 
+    //Acessar os valores e dar free 
+    //l->
+    //l->
+    //free()
 
     fclose(sourceFile);
 

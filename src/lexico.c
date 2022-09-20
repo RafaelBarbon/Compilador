@@ -11,7 +11,7 @@
 
 
 
-void symbolError(char c, Token **tokenList, int lineCount) {
+void symbolError(char c, Token **tokenList) {
     char error[2] = {0};
     error[0] = c;
     if(debug)
@@ -20,7 +20,7 @@ void symbolError(char c, Token **tokenList, int lineCount) {
     detectError(1,lineCount,c);
 }
 
-void treatDigit(char *c, Token **tokenList, int lineCount){
+void treatDigit(char *c, Token **tokenList){
     char word[30] = {0};
     int i=0;
     bool erro = false;
@@ -67,7 +67,7 @@ void treatAttribution(char *c, Token **tokenList) {
     }
 }
 
-void treatArithmeticOperator(char *c, Token **tokenList, int lineCount) {
+void treatArithmeticOperator(char *c, Token **tokenList) {
     if(debug)
         printf("\nDEBUG - Trata operador aritmetico\n");
     switch(*c){
@@ -80,11 +80,11 @@ void treatArithmeticOperator(char *c, Token **tokenList, int lineCount) {
         case '*':
             insertToken(&(*tokenList), "*", "smult");
         break;
-            symbolError(*c, &(*tokenList), lineCount);
+            symbolError(*c, &(*tokenList));
     }
 }
 
-void treatRelationalOperator(char *c, Token **tokenList, int lineCount) {
+void treatRelationalOperator(char *c, Token **tokenList) {
     if(debug)
         printf("\nDEBUG - Trata operador relacional\n");
     switch(*c) {
@@ -93,7 +93,7 @@ void treatRelationalOperator(char *c, Token **tokenList, int lineCount) {
             if(isNotEndOfFile(*c) && *c == '=')
                 insertToken(&(*tokenList), "!=", "sdif");
             else{
-               symbolError('!', &(*tokenList), lineCount);
+               symbolError('!', &(*tokenList));
                flagUpdate = false;
             }
             break;
@@ -119,11 +119,11 @@ void treatRelationalOperator(char *c, Token **tokenList, int lineCount) {
             insertToken(&(*tokenList), "=", "sig");
             break;
         default:
-            symbolError(*c, &(*tokenList), lineCount);
+            symbolError(*c, &(*tokenList));
     }
 }
 
-void treatPunctuation(char *c, Token **tokenList, int lineCount) {
+void treatPunctuation(char *c, Token **tokenList) {
     if(debug)
         printf("\nDEBUG - Pontuacao\n");
     switch(*c) {
@@ -143,11 +143,11 @@ void treatPunctuation(char *c, Token **tokenList, int lineCount) {
             insertToken(&(*tokenList), ".", "sponto");
             break;
         default:
-            symbolError(*c, &(*tokenList), lineCount);
+            symbolError(*c, &(*tokenList));
     }
 }
 
-void identifyReservedWord(char *c, Token **tokenList, int lineCount) {
+void identifyReservedWord(char *c, Token **tokenList) {
     char word[30] = {0};
     int i = 0; // Contador para tamanho máximo do identificador
 
@@ -155,13 +155,13 @@ void identifyReservedWord(char *c, Token **tokenList, int lineCount) {
         printf("\nDEBUG - Identificar palavra reservada\n");
     word[i++] = *c;
     updateCursor(&(*c));
-    while(!isSpaceCode(*c, &lineCount) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
+    while(!isSpaceCode(*c) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
         word[i++] = *c;
         updateCursor(&(*c));
     }
     // identifier Length Error
     if(i == 30) {
-        detectError(4, lineCount, '\0');
+        detectError(4,lineCount, '\0');
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(&(*c));
         insertToken(&(*tokenList), "Identificador muito longo", "serro");
@@ -214,24 +214,57 @@ void identifyReservedWord(char *c, Token **tokenList, int lineCount) {
         insertToken(&(*tokenList), word, "sidentificador");
 }
 
-void colectToken(char *c, Token **tokenList, int lineCount) {
+void colectToken(char *c, Token **tokenList) {
     if(debug)
         printf("\nDEBUG - Coleta token: [ %c ]\n", *c);
-    if(isDigit(*c)){
-        treatDigit(c, &(*tokenList), lineCount);
-    }else if(isLetter(*c)){
-        identifyReservedWord(c, &(*tokenList), lineCount);
-    }else if(*c == ':'){
+    if(isDigit(*c))
+        treatDigit(c, &(*tokenList));
+    else if(isLetter(*c))
+        identifyReservedWord(c, &(*tokenList));
+    else if(*c == ':')
         treatAttribution(c, &(*tokenList));
-    }else if(isAritmeticOperator(*c)){
-        treatArithmeticOperator(c, &(*tokenList), lineCount);
-    }else if(isRelationalOperator(*c)){
-        treatRelationalOperator(c, &(*tokenList), lineCount);
-    }else if(isPonctuation(*c)){
-        treatPunctuation(c, &(*tokenList), lineCount);
-    }else{
-        symbolError(*c, &(*tokenList), lineCount);
-    }
+    else if(isAritmeticOperator(*c))
+        treatArithmeticOperator(c, &(*tokenList));
+    else if(isRelationalOperator(*c))
+        treatRelationalOperator(c, &(*tokenList));
+    else if(isPonctuation(*c))
+        treatPunctuation(c, &(*tokenList));
+    else
+        symbolError(*c, &(*tokenList));
 }
 
+bool checkComment(char *c) {
+    if(*c == '{') {
+        int openCommentLine = lineCount;
+        updateCursor(&(*c));
+        while(*c != '}' && isNotEndOfFile(*c))
+            updateCursor(&(*c));
+        if(!isNotEndOfFile(*c)){
+            detectError(5,openCommentLine,'\0');
+            return false;
+        }
+        updateCursor(&(*c));
+        return true;
+    }
+    return false;
+}
 
+void getToken(char *c, Token **tokenList){
+     if(isNotEndOfFile(*c)) {
+        if(checkComment(&(*c))) {
+            if(debug)
+                printf("\nDEBUG - Analisando comentario\n");
+        } else if (isSpaceCode(*c)) {
+            updateCursor(c);
+            while(isSpaceCode(*c) && isNotEndOfFile(*c))
+                updateCursor(c);
+        } else {
+            colectToken(c, &(*tokenList));
+
+            if(flagUpdate)
+                updateCursor(c);
+            else
+                flagUpdate = true;
+        }
+    }
+}

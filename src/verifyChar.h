@@ -10,9 +10,11 @@ extern bool debug;
 
 extern bool flagUpdate;
 
+extern int lineCount;
+
 extern void updateCursor(char *c);
 
-bool isSpaceCode(char c, int *lineCount);
+bool isSpaceCode(char c);
 
 bool isNotEndOfFile(char c);
 
