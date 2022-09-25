@@ -47,12 +47,6 @@ int main(int argc, char *argv[]) {
     updateCursor(&c);
 
     Analisador_Sintatico(&c, &tokenList);
-    //bloco
-    //getToken(&c, &tokenList);//Sintático irá chamar ao invés da main e insere o token na lista 
-    //Acessar os valores e dar free 
-    //l->
-    //l->
-    //free()
 
     fclose(sourceFile);
 
