@@ -24,7 +24,6 @@ void updateCursor(char *c) {
 }
 
 int main(int argc, char *argv[]) {
-
     if(argc < 1) {
         detectError(6, 0, '\0');
         exit(1);

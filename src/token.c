@@ -9,7 +9,7 @@
 void insertToken(Token **l, char *lexeme, char *symbol) {
 
     if(debug)
-        printf("\nDEBUG - Inserindo lexema: { %s } - %s\n", lexeme, symbol);
+        printf("\nDEBUG - Token - Inserindo lexema: { %s } - %s\n", lexeme, symbol);
 
     Token *new = (Token *)malloc(sizeof(Token));
 

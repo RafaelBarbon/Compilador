@@ -15,7 +15,7 @@ void symbolError(char c, Token **tokenList) {
     char error[2] = {0};
     error[0] = c;
     if(debug)
-        printf("\nDEBUG - ERROR %d { %c }\n", c, c);
+        printf("\nDEBUG - Lexico - ERROR %d { %c }\n", c, c);
     insertToken(&(*tokenList), error, "serro");
     detectError(1,lineCount,c);
 }
@@ -27,7 +27,7 @@ void treatDigit(char *c, Token **tokenList){
     word[i++] = *c;
     updateCursor(&(*c));
     if(debug)
-        printf("\nDEBUG - Trata digito\n");
+        printf("\nDEBUG - Lexico - Trata digito\n");
 
     while(isDigit(*c) && i < 30 && isNotEndOfFile(*c)){
         word[i++] = *c;
@@ -57,7 +57,7 @@ void treatDigit(char *c, Token **tokenList){
 
 void treatAttribution(char *c, Token **tokenList) {
     if(debug)
-        printf("\nDEBUG - Trata atribuicao\n");
+        printf("\nDEBUG - Lexico - Trata atribuicao\n");
     updateCursor(&(*c));
     if(isNotEndOfFile(*c) && *c == '=')
         insertToken(&(*tokenList), ":=", "satribuicao");
@@ -69,7 +69,7 @@ void treatAttribution(char *c, Token **tokenList) {
 
 void treatArithmeticOperator(char *c, Token **tokenList) {
     if(debug)
-        printf("\nDEBUG - Trata operador aritmetico\n");
+        printf("\nDEBUG - Lexico - Trata operador aritmetico\n");
     switch(*c){
         case '+':
             insertToken(&(*tokenList), "+", "smais");
@@ -86,7 +86,7 @@ void treatArithmeticOperator(char *c, Token **tokenList) {
 
 void treatRelationalOperator(char *c, Token **tokenList) {
     if(debug)
-        printf("\nDEBUG - Trata operador relacional\n");
+        printf("\nDEBUG - Lexico - Trata operador relacional\n");
     switch(*c) {
         case '!':
             updateCursor(&(*c));
@@ -125,7 +125,7 @@ void treatRelationalOperator(char *c, Token **tokenList) {
 
 void treatPunctuation(char *c, Token **tokenList) {
     if(debug)
-        printf("\nDEBUG - Pontuacao\n");
+        printf("\nDEBUG - Lexico - Pontuacao\n");
     switch(*c) {
         case ';':
             insertToken(&(*tokenList), ";", "sponto_virgula");
@@ -152,7 +152,7 @@ void identifyReservedWord(char *c, Token **tokenList) {
     int i = 0; // Contador para tamanho máximo do identificador
 
     if(debug)
-        printf("\nDEBUG - Identificar palavra reservada\n");
+        printf("\nDEBUG - Lexico - Identificar palavra reservada\n");
     word[i++] = *c;
     updateCursor(&(*c));
     while(!isSpaceCode(*c) && isNotEndOfFile(*c) && i < 30 && isIdentifier(*c)) {
@@ -216,7 +216,7 @@ void identifyReservedWord(char *c, Token **tokenList) {
 
 void colectToken(char *c, Token **tokenList) {
     if(debug)
-        printf("\nDEBUG - Coleta token: [ %c ]\n", *c);
+        printf("\nDEBUG - Lexico - Coleta token: [ %c ]\n", *c);
     if(isDigit(*c))
         treatDigit(c, &(*tokenList));
     else if(isLetter(*c))
@@ -250,10 +250,10 @@ bool checkComment(char *c) {
 }
 
 void getToken(char *c, Token **tokenList){
-     if(isNotEndOfFile(*c)) {
+    while(isNotEndOfFile(*c) && *tokenList == NULL) {
         if(checkComment(&(*c))) {
             if(debug)
-                printf("\nDEBUG - Analisando comentario\n");
+                printf("\nDEBUG - Lexico - Analisando comentario\n");
         } else if (isSpaceCode(*c)) {
             updateCursor(c);
             while(isSpaceCode(*c) && isNotEndOfFile(*c))
