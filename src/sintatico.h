@@ -72,7 +72,7 @@ void Analisa_fator (char *c, Token **token);
 //usado no Analisa_expressao
 bool verificaSimboloRelacional(Token *token);
 
-void Chamada_procedimento(char *c, Token **token);
+void Chamada_procedimento(char *c, Token **token, char *nameProcedure);
 
 void Analisa_atribuicao(char *c, Token **token);
 

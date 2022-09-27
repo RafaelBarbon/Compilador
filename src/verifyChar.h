@@ -12,6 +12,8 @@ extern bool flagUpdate;
 
 extern int lineCount;
 
+extern FILE *sourceFile;
+
 extern void updateCursor(char *c);
 
 bool isSpaceCode(char c);

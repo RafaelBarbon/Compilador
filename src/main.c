@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     fclose(sourceFile);
 
-    printToken(tokenList);
+    //printToken(tokenList);
 
     freeToken(&tokenList);
 

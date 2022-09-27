@@ -61,6 +61,9 @@ void detectError(int errorCode, int line, char symbol) {
         case 19:
             printf("\nErro L%d: Palavra reservada \"faca\" nao encontrada\n", line);
             break;
+        case 20:
+            printf("\nErro L%d: Chamada de procedimento invalida\n", line);
+            break;
         default:
             printf("\nErro desconhecido!\n");
     }

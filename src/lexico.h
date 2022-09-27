@@ -27,4 +27,6 @@ void getToken(char *c, Token **tokenList);
 
 bool checkComment(char *c);
 
+bool checkSpaces(char *c);
+
 #endif
