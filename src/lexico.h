@@ -1,5 +1,5 @@
-#ifndef _SYMBOL_H_
-#define _SYMBOL_H_
+#ifndef _LEXICO_H_
+#define _LEXICO_H_
 
 #include <stdio.h>
 #include <stdlib.h>

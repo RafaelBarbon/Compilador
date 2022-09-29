@@ -272,4 +272,6 @@ void getToken(char *c, Token **tokenList) {
                 flagUpdate = true;
         }
     }
+    if(!isNotEndOfFile(*c))
+        insertToken(tokenList, "Fim de arquivo alcancado", "serro");
 }

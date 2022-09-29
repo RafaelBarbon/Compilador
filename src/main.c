@@ -45,11 +45,12 @@ int main(int argc, char *argv[]) {
 
     updateCursor(&c);
 
-    Analisador_Sintatico(&c, &tokenList);
+    syntacticAnalyzer(&c, &tokenList);
 
     fclose(sourceFile);
 
     //printToken(tokenList);
+    printf("\n\nCOMPILOU\n\n");
 
     freeToken(&tokenList);
 
