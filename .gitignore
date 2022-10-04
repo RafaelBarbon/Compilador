@@ -4,3 +4,6 @@
 compilador
 /bin
 all
+.vscode
+output.txt
+log.txt

@@ -12,7 +12,6 @@ typedef struct Token{
     struct Token *next;
 }Token;
 
-void activateDebug();
 
 // Insert a new Token in the end of the list
 void insertToken(Token **l, char *lexeme, char *symbol);
