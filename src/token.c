@@ -3,17 +3,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include "token.h"
+#include "verifyChar.h"
 
-bool debugToken1 = false;
-
-void activateDebug() {
-    debugToken1 = true;
-}
 
 void insertToken(Token **l, char *lexeme, char *symbol) {
 
-    if(debugToken1)
-        printf("\nDEBUG INSERT LEXEMA: %s - %s\n", lexeme, symbol);
+    if(debug)
+        printf("\nDEBUG - Token - Inserindo lexema: { %s } - %s\n", lexeme, symbol);
 
     Token *new = (Token *)malloc(sizeof(Token));
 
@@ -23,11 +19,8 @@ void insertToken(Token **l, char *lexeme, char *symbol) {
 
     if(*l != NULL) {
         Token *aux = (*l);
-        while(aux->next != NULL){
-            if(debugToken1)
-                printf("\nDEBUG PERCORRE LISTA: %s - %s\n", aux->lexeme, aux->symbol);
+        while(aux->next != NULL)
             aux = aux->next;
-        }
         aux->next = new;
     }
     else
