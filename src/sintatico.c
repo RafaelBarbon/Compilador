@@ -22,18 +22,18 @@ bool verifyRelationalSymbol(Token *token) {
 		   isEqualString(token->symbol, "smenorig") || isEqualString(token->symbol, "sdif");
 }
 
-void syntacticAnalyzer(char *c, Token **token) {
+void syntacticAnalyzer(char *c, Token **token, Symbol **symbol) {
     //int rotulo = 1;
 	getToken(c, token);
 	if (isEqualString((*token)->symbol, "sprograma")) {
 		freeToken(token);
 		getToken(c, token);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-            //insere_tabela(token.lexema,"nomedeprograma"," "," ");
+            insertSymbol(symbol, (*token)->lexeme, NULL, Programa, NULL);
 			freeToken(token);
 			getToken(c, token);
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
-				analyzeBlock(c, (token)); // Deve sair com o token lido
+				analyzeBlock(c, (token), symbol);
 				if (isEqualString((*token)->symbol, "sponto")) {
 					if (!isNotEndOfFile(*c) || checkComment(c) || checkSpaces(c)) {
 						if(debug)
@@ -51,18 +51,18 @@ void syntacticAnalyzer(char *c, Token **token) {
 }
 
 // bloco
-void analyzeBlock(char *c, Token **token) {
+void analyzeBlock(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa bloco\n");
 	freeToken(token);
 	getToken(c, token);
-	analyzeEtVariables(c, token); // Saindo com o prox token lido
-	analyzeSubroutines(c, token); // Saindo com o prox lido
+	analyzeEtVariables(c, token, symbol);
+	analyzeSubroutines(c, token, symbol);
 	analyzeCommands(c, token);
 }
 
 // declaração de variáveis
-void analyzeEtVariables(char *c, Token **token) {
+void analyzeEtVariables(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa et variaveis\n");
 	if (isEqualString((*token)->symbol, "svar")) {
@@ -70,7 +70,7 @@ void analyzeEtVariables(char *c, Token **token) {
 		getToken(c, token);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
 			while (isEqualString((*token)->symbol, "sidentificador")) {
-				analyzeVariables(c, token); //Ja retorna com o prox lido
+				analyzeVariables(c, token, symbol);
 				if (isEqualString((*token)->symbol, "sponto_virgula")) {
 					freeToken(token);
 					getToken(c, token);
@@ -82,14 +82,13 @@ void analyzeEtVariables(char *c, Token **token) {
 }
 
 // declaração de variáveis
-void analyzeVariables(char *c, Token **token) { //Verificar os FreeToken
+void analyzeVariables(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa variaveis\n");
 	do {
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-            // Pesquisa_duplicvar_tabela(token.lexema);
-            // if (nao_encontrou_duplicidade() ) {
-            	// insere_tabela(token.lexema, variavel ," "," ");
+            if (searchDuplicity(*symbol, (*token)->lexeme)) {
+            	insertSymbol(symbol, (*token)->lexeme, NULL, Var, NULL);
 				freeToken(token);
 				getToken(c, token);
 				if (isEqualString((*token)->symbol,"svirgula") || isEqualString((*token)->symbol,"sdoispontos")) {
@@ -100,21 +99,21 @@ void analyzeVariables(char *c, Token **token) { //Verificar os FreeToken
 							errorSintax(token, 11, '\0');
 					}
 				} else errorSintax(token, 12, '\0');
-        	//}else errorSintax(token,1,'\0');
+        	} else errorSintax(token,21,'\0');
 		} else errorSintax(token, 11, '\0');
 
 	} while (!isEqualString((*token)->symbol, "sdoispontos"));
 	freeToken(token);
 	getToken(c, token);
-	analyzeType(c, token);
+	analyzeType(c, token, symbol);
 }
 
 // tipo
-void analyzeType(char *c, Token **token) {
+void analyzeType(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa tipo\n");
 	if (isEqualString((*token)->symbol, "sinteiro") || isEqualString((*token)->symbol, "sbooleano")){
-		//coloca_tipo_tabela(token.lexema);
+		putType(symbol,(*token)->lexeme); 
 		freeToken(token);
 		getToken(c, token);
 	} else errorSintax(token, 13, '\0');
@@ -205,12 +204,8 @@ void analyzeFunctionCall(char *c, Token **token) {
 	getToken(c, token);
 }
 
-// Usado na Analisa_leia
-void pesquisar_em_toda_a_tabela() {
-}
-
 // comando leitura
-void analyzeRead(char *c, Token **token) {
+void analyzeRead(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa leia\n");
 	freeToken(token);
@@ -219,21 +214,21 @@ void analyzeRead(char *c, Token **token) {
 		freeToken(token);
 		getToken(c, token);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-            //if (pesquisa_declvar_tabela(token.lexema)) {
-				//pesquisa_em_toda_a_tabela();
+            if (verfyVarDeclaration((*symbol), (*token)->lexeme)){//pesquisa_declvar_tabela(token.lexema)) {
+				(*symbol) = query(*symbol, (*token)->lexeme);
 				freeToken(token);
 				getToken(c, token);
 				if (isEqualString((*token)->symbol,"sfecha_parenteses")) {
 					freeToken(token);
 					getToken(c, token);
 				} else errorSintax(token, 1, ')');
-        	//}else errorSintax(token,1,lineCount,'\0');
+        	} else errorSintax(token,22,'\0');
         } else errorSintax(token, 11, '\0');
 	} else errorSintax(token, 1, '(');
 }
 
 // comando escrita
-void analyzeWrite(char *c, Token **token) {
+void analyzeWrite(char *c, Token **token, Symbol **Symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa escreva\n");
 	freeToken(token);
@@ -242,14 +237,14 @@ void analyzeWrite(char *c, Token **token) {
 		freeToken(token);
 		getToken(c, token);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-			// if (pesquisa_declvarfunc_tabela(token.lexema)) {
+			if (verfyVarFuncDeclaration(*symbol, (*token)->lexeme)){//pesquisa_declvarfunc_tabela(token.lexema)) {
 				freeToken(token);
 				getToken(c, token);
 				if (isEqualString((*token)->symbol,"sfecha_parenteses")) {
 					freeToken(token);
 					getToken(c, token);
 				} else errorSintax(token, 1, ')');
-			//}else errorSintax(token,1,lineCount,'\0');
+			} else errorSintax(token,22,'\0');
 		} else errorSintax(token, 11, '\0');
 	} else errorSintax(token, 1, '(');
 }
@@ -301,7 +296,7 @@ void analyzeConditional(char *c, Token **token) {
 }
 
 // etapa de declaração de sub-rotinas
-void analyzeSubroutines(char *c, Token **token/*, int rotulo*/) {
+void analyzeSubroutines(char *c, Token **token, Symbol **symbol/*, int rotulo*/) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Subrotina\n");
 	//int auxrot, flag = 0;
@@ -315,9 +310,9 @@ void analyzeSubroutines(char *c, Token **token/*, int rotulo*/) {
 
 	while (isEqualString((*token)->symbol, "sprocedimento") || isEqualString((*token)->symbol, "sfuncao")) {
 		if (isEqualString((*token)->symbol, "sprocedimento"))
-			analyzeProcedureDeclaration(c, token);
+			analyzeProcedureDeclaration(c, token, symbol);
 		else
-			analyzeFunctionDeclaration(c, token);
+			analyzeFunctionDeclaration(c, token, symbol);
 		if (isEqualString((*token)->symbol, "sponto_virgula")) {
 			freeToken(token);
 			getToken(c, token);
@@ -330,16 +325,16 @@ void analyzeSubroutines(char *c, Token **token/*, int rotulo*/) {
 }
 
 // declaração de procedimento
-void analyzeProcedureDeclaration(char *c, Token **token) {
+void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa declaracao procedimento\n");
 	freeToken(token);
 	getToken(c, token);
 	//nivel = "L" // marca ou novo galho
 	if (isEqualString((*token)->symbol, "sidentificador")) {
-		//pesquisa_declproc_tabela(token.lexema);
-		//if (nao_encontrou();) {
-			//Insere_tabela(token.lexema, "procedimento", nivel, rotulo); // guarda na TabSimb
+
+		if (verfyProcedureDeclaration(*symbol, (*token)->lexeme)){//pesquisa_declproc_tabela(token.lexema)) {
+			insertSymbol(symbol, token.lexema, true, Procedimento, NULL); // guarda na TabSimb
 			//Gera(rotulo, NULL, ' ', ' ');								// CALL irá buscar este rotulo na TabSimb}
 			//rotulo++;
 			freeToken(token);
@@ -347,32 +342,31 @@ void analyzeProcedureDeclaration(char *c, Token **token) {
 			if (isEqualString((*token)->symbol, "sponto_virgula"))
 				analyzeBlock(c, token);
 			else errorSintax(token, 1, ';');
-		//} else errorSintax(token,1,lineCount,'\0');
+		} else errorSintax(token, 21, '\0');
 	} else errorSintax(token, 14, '\0');
-	// DESEMPILHA OU VOLTA NÍVEL();
+	unStack(&symbol);// DESEMPILHA OU VOLTA NÍVEL();
 }
 
 // declaração de função
-void analyzeFunctionDeclaration(char *c, Token **token) {
+void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa declaracao Funcao\n");
 	freeToken(token);
 	getToken(c, token);
-	//nivel = "L" // marca ou novo galho
+	//nivel = "L" // marca ou novo galho // troço confuso tbm
 	if (isEqualString((*token)->symbol, "sidentificador")) {
-		//pesquisa_declfunc_tabela(token.lexema);
-		//if (nao_encontrou();) {
-			//Insere_tabela(token.lexema, " ", nivel, rotulo);
+		if (verfyFunctionDeclaration(*symbol, (*token)->lexeme)){//pesquisa_declfunc_tabela(token.lexema)) {
+			//insertSymbol(symbol, token.lexema,true,nivel,NULL); VER DIREITO ESSE TROÇO, TA MT CONFUSO
 			freeToken(token);
 			getToken(c, token);
 			if (isEqualString((*token)->symbol, "sdoispontos")) {
 				freeToken(token);
 				getToken(c, token);
 				if (isEqualString((*token)->symbol, "sinteiro") || isEqualString((*token)->symbol, "sbooleano")){
-					//if (isEqualString((*token)->symbol, "Sinteger"))
-						//TABSIMB[pc].tipo = "funcao inteiro";
-					//else
-						//TABSIMB[pc].tipo = "funcao booleana";
+					if (isEqualString((*token)->symbol, "Sinteger"))
+						putType(symbol,);//TABSIMB[pc].tipo = "funcao inteiro";
+					else
+						putType(symbol,);//TABSIMB[pc].tipo = "funcao booleana";
 					freeToken(token);
 					getToken(c, token);
 					if (isEqualString((*token)->symbol, "sponto_virgula"))
@@ -381,10 +375,10 @@ void analyzeFunctionDeclaration(char *c, Token **token) {
 					errorSintax(token, 13, '\0');
 			} else
 				errorSintax(token, 1, ':');
-		//} else
-			//errorSintax(token,1,'\0');
+		} else
+			errorSintax(token,23,'\0');
 	} else errorSintax(token, 15, '\0');
-	// DESEMPILHA OU VOLTA NÍVEL();
+	unStack(&symbol);// DESEMPILHA OU VOLTA NÍVEL();
 }
 
 // expressão
@@ -432,22 +426,22 @@ void analyzeFactor(char *c, Token **token) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Fator\n");
     if (isEqualString((*token)->symbol,"sidentificador")) { // Variável ou Função
-		//if (pesquisa_tabela(token.lexema, nível, ind)) {
-			//if (TabSimb[ind].tipo = "função inteiro" || TabSimb[ind].tipo = "função booleano")
+		if (pesquisa_tabela(token.lexema, nível, ind)) {
+			if (TabSimb[ind].tipo = "função inteiro" || TabSimb[ind].tipo = "função booleano")
         		analyzeFunctionCall(c, token);
-			//else{
-				//freeToken(token);
-				//getToken(token);
-			//}
-		//} else errorSintax(token,1,lineCount,'\0');
-	} else if (isEqualString((*token)->symbol,"snumero")) { // Número
+			else {
+				freeToken(token);
+				getToken(token);
+			}
+		} else errorSintax(token,24,lineCount,'\0');
+	} else if (isEqualString((*token)->symbol,"snumero")) {
 		freeToken(token);
 		getToken(c, token);
-	} else if (isEqualString((*token)->symbol,"snao")) { // NAO
+	} else if (isEqualString((*token)->symbol,"snao")) {
 		freeToken(token);
 		getToken(c, token);
 		analyzeFactor(c, token);
-	} else if (isEqualString((*token)->symbol,"sabre_parenteses")) { // expressão entre parenteses
+	} else if (isEqualString((*token)->symbol,"sabre_parenteses")) {
 		freeToken(token);
 		getToken(c, token);
 		analyzeExpression(c, token);

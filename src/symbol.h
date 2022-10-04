@@ -5,25 +5,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// Enum for identify the symbol type declared
+typedef enum SymbolType{
+    Var,
+    Func,
+    FuncInteira,
+    FuncBooleana,
+    VarInteira,
+    VarBooleana,
+    Procedimento,
+    Programa
+}SymbolType;
 
 // Struct for identify a symbol
 typedef struct symbol {
     char lexeme[30];
     bool scope;
-    enum SymbolType{Var, Func, FuncInteira, FuncBooleana, VarInteira, VarBooleana, Procedimento, Programa} type;
+    SymbolType type;
     int memory;
     struct symbol *next;
 }Symbol;
 
 
 // Insert a new symbol into stack
-void insertSymbol(Symbol **stack, char *lexeme, bool scope, enum SymbolType type, int memory);
+void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
 
 // Query a lexeme based on a position
-Symbol* query(Symbol *stack, char *lexeme, int position);
+bool query(Symbol *stack, char *lexeme);
 
 // Insert the type of symbol
-void putType(Symbol **stack, enum SymbolType type);
+void putType(Symbol **stack, SymbolType type);
 
 // Print all symbols in stack
 void printStack(Symbol *stack);
@@ -32,6 +43,24 @@ void printStack(Symbol *stack);
 void freeSymbol(Symbol **l);
 
 // Convert enum to string
-char* symbolTypeToString(enum SymbolType type);
+char* symbolTypeToString(SymbolType type);
+
+// finds variable duplication
+bool searchDuplicity(Symbol *stack, char *lexeme);
+
+// Verify if the lexeme have been declared as function
+bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
+
+// Verify if the lexeme have been declared as procedure
+bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
+
+// finds variable para for function already used
+bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
+
+// encontra variavel declarada já utilizada
+bool verifyVarDeclaration(Symbol *stack, char *lexeme);
+
+// Unstack until the next scope (local variable region)
+void unStack(Symbol **symbol);
 
 #endif

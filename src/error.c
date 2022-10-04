@@ -64,6 +64,18 @@ void detectError(int errorCode, int line, char symbol) {
         case 20:
             printf("\nErro L%d: Chamada de procedimento invalida\n", line);
             break;
+        case 21:
+            printf("\nErro L%d: Variavel duplicada\n", line);
+            break;
+        case 22:
+            printf("\nErro L%d: Variavel nao declarada\n", line);
+            break;
+        case 23:
+            printf("\nErro L%d: Funcao duplicada\n", line);
+            break;
+        case 24:
+            printf("\nErro L%d: Funcao nao declarada\n", line);
+            break;
         default:
             printf("\nErro desconhecido!\n");
     }
