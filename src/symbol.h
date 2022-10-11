@@ -27,11 +27,23 @@ typedef struct symbol {
 }Symbol;
 
 
+//#################################################################
+//Simple stack functions (Posfix conversion)
+typedef struct simpleStack {
+    char *c;
+    struct simpleStack *next;
+}simpleStack; 
+
+void push(simpleStack **stack, char c);
+
+char pop(simpleStack **stack, char c);
+
+char* convertPosFix(char inFix[], int size);
+//#################################################################
+
+
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
-
-// Query a lexeme based on a position
-bool query(Symbol *stack, char *lexeme);
 
 // Insert the type of symbol
 void putType(Symbol **stack, SymbolType type);

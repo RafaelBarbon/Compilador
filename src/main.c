@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     updateCursor(&c);
 
-    syntacticAnalyzer(&c, &tokenList, $symbolList);
+    syntacticAnalyzer(&c, &tokenList, &symbolList);
 
     fclose(sourceFile);
 

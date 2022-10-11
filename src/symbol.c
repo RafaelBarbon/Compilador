@@ -18,14 +18,9 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
     *stack = new;
 }
 
-bool query(Symbol *stack, char *lexeme) {
-    for(; !isEqualString(stack->lexeme, lexeme) && stack != NULL; stack = stack->next);
-    return stack;
-}
-
 
 void putType(Symbol **stack, SymbolType type) {
-    
+    (*stack)->type = type;
 }
 
 void freeSymbol(Symbol **l) {
@@ -61,9 +56,9 @@ char* symbolTypeToString(SymbolType type){
 
 bool searchDuplicity(Symbol *l, char *lexeme){
     for(; l != NULL; l = l->next)
-        if(srtcmp(l->lexeme, lexeme) == 0)
-            return true; 
-    return false; 
+        if(isEqualString(l->lexeme, lexeme))
+            return false; 
+    return true;  //Se não tiver duplicidade retorna true. 
 }
 
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
@@ -103,3 +98,81 @@ void unStack(Symbol **symbol) {
     }
     *symbol = aux;
 }
+
+//################################################################# Posfix conversion
+//Simple stack functions (Posfix conversion)
+void push(simpleStack **stack, char c){
+    simpleStack *new = (simpleStack *)malloc(sizeof(simpleStack));
+    new->c = c;
+    new->next = *stack;
+    *stack = new;
+}
+
+char pop(simpleStack **stack, char c){
+    if((*stack) == NULL)
+        return '%';
+    
+    char ret = (*stack)->c;
+    
+    simpleStack *old = (*stack);
+    (*stack) = (*stack)->prox;
+    
+    free(old);
+    return ret;
+}
+
+char searchStachMorePrecedence(simpleStack *stack, char op){
+    while()
+}
+
+char* convertPosFix(char inFix[], int size){
+    simpleStack *stack = NULL;
+    int j = 0;
+    char *ret = (char *)malloc(size * sizeof(char));
+    char aux;
+    for(int i =0; i < tam; i++){
+        
+        //Verificar numero com dois digitos (Ex. 30)
+        if((inFix[i] >= 65 && inFix[i] <= 90) || (inFix[i] >= 97 && inFix[i] <= 122) || (inFix[i] >= 48 && inFix[i] <= 57)){//variable or number
+            ret[j++] = c;
+            if(j < size && inFix[j + 1] != ' '){ //Adicionar espaço no em cada um
+                ret[j++] = c;
+            }
+            continue;    
+        }
+
+        if(inFix[i] == '('){//Emplinha
+            push(&stack, '(');
+            continue;
+        }
+
+        if(inFix[i] == ')'){//Desempilha
+            do{
+                aux = pop(&stack);//Joga no vetor de retorno
+                ret[j++] = aux;
+            }while(aux != '(');
+
+            continue;
+        }
+
+        if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == '>' || inFix[i] == '<' || inFix[i] == '='){//Operator (INSERIR '/' AO INVÉS DE DIV)
+            char cPrec = searchStachMorePrecedence(stack, inFix[i]);
+            if(cPrec != '%')
+                do{
+                    aux = pop(&stack);//Joga no vetor de retorno
+                    ret[j++] = aux;
+                }while(aux != cPrec);
+
+            continue;
+        }
+    }
+
+    if(stack != NULL)
+        do{
+            ret[j++] =  pop(&stack);
+        }while(stack != NULL);  
+    
+    return ret;
+}
+
+//################################################################
