@@ -38,7 +38,7 @@ void detectError(int errorCode, int line, char symbol) {
             printf("\nErro L%d: Nome da variavel esperado nao encontrado\n", line);
             break;
         case 12:
-            printf("\nErro L%d: Simbolo ',' ou ';' esperado nao encontrado\n", line);
+            printf("\nErro L%d: Simbolo ',' ou ':' esperado nao encontrado\n", line);
             break;
         case 13:
             printf("\nErro L%d: Tipo de argumento desconhecido\n", line);
