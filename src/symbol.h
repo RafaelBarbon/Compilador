@@ -39,6 +39,11 @@ void push(simpleStack **stack, char c);
 char pop(simpleStack **stack, char c);
 
 char* convertPosFix(char inFix[], int size);
+
+char unstackOperator();
+
+char searchStackMorePrecedence();
+
 //#################################################################
 
 
@@ -68,6 +73,9 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 
 // finds variable para for function already used
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
+
+// finds variable para for function already used
+bool verifyIntVarFuncDeclaration(Symbol *stack, char *lexeme);
 
 // encontra variavel declarada já utilizada
 bool verifyVarDeclaration(Symbol *stack, char *lexeme);

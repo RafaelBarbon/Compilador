@@ -54,6 +54,7 @@ char* symbolTypeToString(SymbolType type){
     }
 }
 
+// Verify variable duplicity (need to check if duplicity on global variabes are allowed)
 bool searchDuplicity(Symbol *l, char *lexeme){
     for(; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme))
@@ -61,6 +62,7 @@ bool searchDuplicity(Symbol *l, char *lexeme){
     return true;  //Se não tiver duplicidade retorna true. 
 }
 
+// Verify if the procedure was already declared (check if search duplicity can overwrite this)
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(strcmp(symbol->lexeme, lexeme) == 0 && symbol->type == Procedimento)
@@ -68,6 +70,7 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
+// Verify if the function was already declared (check if search duplicity can overwrite this)
 bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(strcmp(symbol->lexeme, lexeme) == 0 && (symbol->type == FuncBooleana || symbol->type == FuncInteira))
@@ -75,13 +78,23 @@ bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
-bool verifyVarFuncDeclaration(Symbol *symbol, char *lexeme){ //
+// Verify if the int var/func was declared
+bool verifyIntVarFuncDeclaration(Symbol *symbol, char *lexeme){ //
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(strcmp(symbol->lexeme, lexeme) == 0 && (symbol->type == VarInteira || symbol->type == FuncInteira))
             return true;
     return false;
 }
 
+// verify if the var/func was declared
+bool verifyVarFuncDeclaration(Symbol *symbol. char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(strcmp(symbol->lexeme, lexeme) == 0)
+            return true;
+    return false;
+}
+
+// Verify if the int var was declared
 bool verifyVarDeclaration(Symbol *symbol, char *lexeme){
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(strcmp(symbol->lexeme, lexeme) == 0 && symbol->type == VarInteira)
@@ -91,7 +104,7 @@ bool verifyVarDeclaration(Symbol *symbol, char *lexeme){
 
 void unStack(Symbol **symbol) {
     Symbol *aux = (*symbol), *aux2;
-    while(aux != NULL || aux->scope){
+    while(aux != NULL || !aux->scope){
         aux2 = aux->next;
         free(aux);
         aux = aux2;
@@ -108,7 +121,7 @@ void push(simpleStack **stack, char c){
     *stack = new;
 }
 
-char pop(simpleStack **stack, char c){
+char pop(simpleStack **stack){
     if((*stack) == NULL)
         return '%';
     
@@ -121,23 +134,145 @@ char pop(simpleStack **stack, char c){
     return ret;
 }
 
-char searchStachMorePrecedence(simpleStack *stack, char op){
-    while()
+char unstackOperator(simpleStack **stack, char op){
+    simpleStack *aux = (*stack), before = NULL;
+    char ret;
+    while(aux != NULL){
+        if(aux->c != 'op'){
+            before = aux;
+            aux = aux->next;
+        } 
+        ret = aux->c;
+        before->next = aux->next;
+        return ret;
+    } 
+    return '%'; //pilha vazia
 }
 
-char* convertPosFix(char inFix[], int size){
+char* searchStackMorePrecedence(simpleStack **stack, char op, int *j){
+    simpleStack *aux = (*stack);
+    int i = 0;
+    char ret[] = {0};//Ver como vai ficar o tamanho do ret 
+    switch (aux->c){
+        case '*':
+            while(aux != NULL){
+                if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar '(', final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '/' || aux->c == '*') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '+':
+            while(aux != NULL){
+                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '/' || aux->c == '*' || aux->c == '-' || aux->c == '+') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '-':
+            while(aux != NULL){
+                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '/' || aux->c == '*' || aux->c == '+' || aux->c == '-')//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '/':
+            while(aux != NULL){
+                if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '*' || aux->c == '/') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '&':
+            while(aux != NULL){
+                if(aux->c == '(' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '!', aux->c == '&') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '!':
+             while(aux != NULL){
+                if(aux->c == '(' || aux->c == '&' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '!') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        case '|':
+            while(aux != NULL){
+                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return; 
+                if(aux->c == '&' || aux->c == '!' || aux->c == '|') //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    if(ant == NULL)
+                        ret[i++] = pop(stack);
+                    else{
+                        ret[i++] = unstackOperator(stack, op);//desempilha
+                    }
+                aux = aux->next;
+            }
+            break;
+        
+        default:
+            continue;
+        }
+        *j = (*j) + (--i);
+        return ret;
+}
+
+
+//Numero     -> N
+//Relação    -> R
+//div        -> /
+//variavel   -> V
+//Boleano    -> B
+//E          -> &
+//NAO        -> !             
+//OU         -> |
+//UniárioNeg -> 
+//UnárioPos  ->  
+
+char* convertPosFix(char *inFix, int size){
     simpleStack *stack = NULL;
     int j = 0;
     char *ret = (char *)malloc(size * sizeof(char));
     char aux;
     for(int i =0; i < tam; i++){
-        
-        //Verificar numero com dois digitos (Ex. 30)
-        if((inFix[i] >= 65 && inFix[i] <= 90) || (inFix[i] >= 97 && inFix[i] <= 122) || (inFix[i] >= 48 && inFix[i] <= 57)){//variable or number
-            ret[j++] = c;
-            if(j < size && inFix[j + 1] != ' '){ //Adicionar espaço no em cada um
-                ret[j++] = c;
-            }
+        if(inFix[i] == 'N' || inFix[i] == 'V'){//variable or number
+            ret[j++] = inFix[i];
             continue;    
         }
 
@@ -148,15 +283,13 @@ char* convertPosFix(char inFix[], int size){
 
         if(inFix[i] == ')'){//Desempilha
             do{
-                aux = pop(&stack);//Joga no vetor de retorno
-                ret[j++] = aux;
+                ret[j++] = aux = pop(&stack);//Joga no vetor de retorno
             }while(aux != '(');
-
             continue;
         }
 
-        if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == '>' || inFix[i] == '<' || inFix[i] == '='){//Operator (INSERIR '/' AO INVÉS DE DIV)
-            char cPrec = searchStachMorePrecedence(stack, inFix[i]);
+        if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == 'R'){
+            char cPrec = searchStachMorePrecedence(&stack, inFix[i], &j); //Vai retornar uma string, concatenar com a  *ret
             if(cPrec != '%')
                 do{
                     aux = pop(&stack);//Joga no vetor de retorno
