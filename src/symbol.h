@@ -30,19 +30,30 @@ typedef struct symbol {
 //#################################################################
 //Simple stack functions (Posfix conversion)
 typedef struct simpleStack {
-    char *c;
+    char c;
     struct simpleStack *next;
 }simpleStack; 
 
 void push(simpleStack **stack, char c);
 
-char pop(simpleStack **stack, char c);
+char pop(simpleStack **stack);
 
-char* convertPosFix(char inFix[], int size);
+//Numero     -> N
+//Relação    -> R
+//div        -> /
+//variavel   -> V
+//Boleano    -> B
+//E          -> &
+//NAO        -> !             
+//OU         -> |
+//UniárioNeg -> 
+//UnárioPos  ->  
 
-char unstackOperator();
+char* convertPosFix(char *inFix, int size);
 
-char searchStackMorePrecedence();
+char unstackOperator(simpleStack **stack, char op);
+
+void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *stringRet);
 
 //#################################################################
 
@@ -62,22 +73,22 @@ void freeSymbol(Symbol **l);
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);
 
-// finds variable duplication
+// Verify variable duplicity (need to check if duplicity on global variables are allowed)
 bool searchDuplicity(Symbol *stack, char *lexeme);
 
-// Verify if the lexeme have been declared as function
+// Verify if the function was already declared (check if search duplicity can overwrite this)
 bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
 
-// Verify if the lexeme have been declared as procedure
+// Verify if the procedure was already declared (check if search duplicity can overwrite this)
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 
-// finds variable para for function already used
+// verify if the var/func was declared
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
 
-// finds variable para for function already used
+// Verify if the int var/func was declared
 bool verifyIntVarFuncDeclaration(Symbol *stack, char *lexeme);
 
-// encontra variavel declarada já utilizada
+// Verify if the int var was declared
 bool verifyVarDeclaration(Symbol *stack, char *lexeme);
 
 // Unstack until the next scope (local variable region)

@@ -17,6 +17,7 @@ int lineCount = 1;
 FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
+bool insertArray = false;
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);

@@ -76,6 +76,12 @@ void detectError(int errorCode, int line, char symbol) {
         case 24:
             printf("\nErro L%d: Funcao nao declarada\n", line);
             break;
+        case 25:
+            printf("\nErro L%d: Procedimento nao declarado\n", line);
+            break;
+        case 26:
+            printf("\nErro L%d: Procedimento duplicado\n", line);
+            break;
         default:
             printf("\nErro desconhecido!\n");
     }

@@ -10,6 +10,8 @@ extern bool debug;
 
 extern bool flagUpdate;
 
+extern bool insertArray;
+
 extern int lineCount;
 
 extern FILE *sourceFile;

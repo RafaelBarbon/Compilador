@@ -34,7 +34,7 @@ void analyzeCommands(char *c, Token **token, Symbol **symbol);
 void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol);
 
 //atribuição_chprocedimento
-void analyzeAttributionProcedureCall(char *c, Token **token);
+void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol);
 
 //comando leitura
 void analyzeRead(char *c, Token **token, Symbol **symbol);
@@ -58,23 +58,23 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol);
 void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol);
 
 //expressão
-void analyzeExpression(char *c, Token **token);
+void analyzeExpression(char *c, Token **token, Symbol *symbol);
 
 //expressão simples
-void analyzeSimpleExpression(char *c, Token **token);
+void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol);
 
 //termo
-void analyzeTerm(char *c, Token **token);
+void analyzeTerm(char *c, Token **token, Symbol *symbol);
 
 //fator
-void analyzeFactor(char *c, Token **token);
+void analyzeFactor(char *c, Token **token, Symbol *symbol);
 
 //usado no Analisa_expressao
 bool verifyRelationalSymbol(Token *token);
 
-void procedureCall(char *c, Token **token, char *nameProcedure);
+void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol);
 
-void analyzeAttribution(char *c, Token **token);
+void analyzeAttribution(char *c, Token **token, Symbol *symbol);
 
 void analyzeFunctionCall(char *c, Token **token);
 
