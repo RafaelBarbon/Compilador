@@ -8,11 +8,11 @@
 #include "sintatico.h"
 #include "token.h"
 #include "verifyChar.h"
-#include "sintatico.h" 
+#include "sintatico.h"
 
 // Control variables
 Token *tokenList = NULL;
-Symbol *symbolList = NULL; 
+Symbol *symbolList = NULL;
 int lineCount = 1;
 FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
     printf("\n\nCOMPILOU\n\n");
 
     freeToken(&tokenList);
+    freeSymbol(&symbolList);
 
     return 0;
 }

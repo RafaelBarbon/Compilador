@@ -86,7 +86,7 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
-bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) { 
+bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && (l->type == FuncBooleana || l->type == FuncInteira)){
             return true;
@@ -109,16 +109,15 @@ bool verifyVarFuncDeclaration(Symbol *symbol, char *lexeme) {
 }
 
 bool verifyVarDeclaration(Symbol *symbol, char *lexeme){
-    printStack(symbol);
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && l->type == VarInteira)
             return true;
     return false;
-} 
+}
 
 void unStack(Symbol **symbol) {
     Symbol *aux = (*symbol), *aux2;
-    while(aux != NULL || !aux->scope){
+    while(aux != NULL && !aux->scope){
         aux2 = aux->next;
         free(aux);
         aux = aux2;
@@ -138,12 +137,12 @@ void push(simpleStack **stack, char c){
 char pop(simpleStack **stack){
     if((*stack) == NULL)
         return '%';
-    
+
     char ret = (*stack)->c;
-    
+
     simpleStack *old = (*stack);
     (*stack) = (*stack)->next;
-    
+
     free(old);
     return ret;
 }
@@ -155,11 +154,11 @@ char unstackOperator(simpleStack **stack, char op){
         if(aux->c != op){
             before = aux;
             aux = aux->next;
-        } 
+        }
         ret = aux->c;
         before->next = aux->next;
         return ret;
-    } 
+    }
     return '%'; //pilha vazia
 }
 
@@ -172,7 +171,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '*':
             while(aux != NULL){
                 if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar '(', final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '/' || aux->c == '*') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -186,7 +185,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '+':
             while(aux != NULL){
                 if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '/' || aux->c == '*' || aux->c == '-' || aux->c == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -201,7 +200,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '-':
             while(aux != NULL){
                 if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '/' || aux->c == '*' || aux->c == '+' || aux->c == '-') {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -215,7 +214,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '/':
             while(aux != NULL){
                 if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '*' || aux->c == '/') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -229,7 +228,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '&':
             while(aux != NULL){
                 if(aux->c == '(' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '!' || aux->c == '&') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -243,7 +242,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '!':
              while(aux != NULL){
                 if(aux->c == '(' || aux->c == '&' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '!') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -257,7 +256,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         case '|':
             while(aux != NULL){
                 if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return; 
+                    return;
                 if(aux->c == '&' || aux->c == '!' || aux->c == '|'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
@@ -269,7 +268,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
                 first = false;
             }
             break;
-        
+
         default:
             return;
         }
@@ -284,10 +283,10 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
 //variavel   -> V
 //Boleano    -> B
 //E          -> &
-//NAO        -> !             
+//NAO        -> !
 //OU         -> |
-//UniárioNeg -> 
-//UnárioPos  ->  
+//UniárioNeg ->
+//UnárioPos  ->
 
 char* convertPosFix(char *inFix, int size){
     simpleStack *stack = NULL;
@@ -297,7 +296,7 @@ char* convertPosFix(char *inFix, int size){
     for(int i =0; i < size; i++){
         if(inFix[i] == 'N' || inFix[i] == 'V'){//variable or number
             ret[j++] = inFix[i];
-            continue;    
+            continue;
         }
 
         if(inFix[i] == '('){//Emplinha
@@ -325,8 +324,8 @@ char* convertPosFix(char *inFix, int size){
     if(stack != NULL)
         do{
             ret[j++] =  pop(&stack);
-        }while(stack != NULL);  
-    
+        }while(stack != NULL);
+
     return ret;
 }
 

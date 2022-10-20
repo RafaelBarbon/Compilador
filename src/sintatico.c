@@ -113,7 +113,7 @@ void analyzeType(char *c, Token **token, Symbol **symbol) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa tipo\n");
 	if (isEqualString((*token)->symbol, "sinteiro") || isEqualString((*token)->symbol, "sbooleano")){
-		putType(symbol,isEqualString((*token)->symbol, "sinteiro") ? VarInteira : VarBooleana); 
+		putType(symbol,isEqualString((*token)->symbol, "sinteiro") ? VarInteira : VarBooleana);
 		getNewToken(c, token);
 	} else errorSintax(token, 13, '\0');
 }
@@ -174,10 +174,10 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol) {
 
 	getNewToken(c, token);
 	// Ativa booleano
-	
+
 
 	analyzeExpression(c, token, symbol);
-	
+
 	// TODO
 	// Implementação do posfix
 	// Verificar chamada de função e identificador seguido de expressões aritméticas e/ou booleana, terminando por ;

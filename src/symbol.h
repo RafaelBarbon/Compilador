@@ -32,7 +32,7 @@ typedef struct symbol {
 typedef struct simpleStack {
     char c;
     struct simpleStack *next;
-}simpleStack; 
+}simpleStack;
 
 void push(simpleStack **stack, char c);
 
@@ -44,10 +44,10 @@ char pop(simpleStack **stack);
 //variavel   -> V
 //Boleano    -> B
 //E          -> &
-//NAO        -> !             
+//NAO        -> !
 //OU         -> |
-//UniárioNeg -> 
-//UnárioPos  ->  
+//UniárioNeg ->
+//UnárioPos  ->
 
 char* convertPosFix(char *inFix, int size);
 
