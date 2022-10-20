@@ -315,7 +315,7 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol) {
 	getNewToken(c, token);
 	//nivel = "L" // marca ou novo galho
 	if (isEqualString((*token)->symbol, "sidentificador")) {
-		if (!verifyProcedureDeclaration(*symbol, (*token)->lexeme)){// Pesquisa se o procedimento não existe
+		if (!verifyProcedureFunctionDuplicity(*symbol, (*token)->lexeme)){// Pesquisa se o procedimento não existe
 			insertSymbol(symbol, (*token)->lexeme, true, Procedimento, 0); // guarda na TabSimb
 			//Gera(rotulo, NULL, ' ', ' ');								// CALL irá buscar este rotulo na TabSimb}
 			//rotulo++;
@@ -334,13 +334,13 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol) {
         printf("\nDEBUG - Sintatico - Analisa declaracao Funcao\n");
 	getNewToken(c, token);
 	if (isEqualString((*token)->symbol, "sidentificador")) {
-		if (!verifyFunctionDeclaration(*symbol, (*token)->lexeme)){// Verifica se a função não foi declarada
+		if (!verifyProcedureFunctionDuplicity(*symbol, (*token)->lexeme)){// Verifica se a função não foi declarada
 			insertSymbol(symbol, (*token)->lexeme, true, Func, 0);
 			getNewToken(c, token);
 			if (isEqualString((*token)->symbol, "sdoispontos")) {
 				getNewToken(c, token);
 				if (isEqualString((*token)->symbol, "sinteiro") || isEqualString((*token)->symbol, "sbooleano")){
-					putType(symbol,isEqualString((*token)->symbol, "sinteger") ? FuncInteira : FuncBooleana);//TABSIMB[pc].tipo = "funcao inteiro";//TABSIMB[pc].tipo = "funcao booleana";
+					putTypeFunc(symbol,isEqualString((*token)->symbol, "sinteger") ? FuncInteira : FuncBooleana);//TABSIMB[pc].tipo = "funcao inteiro";//TABSIMB[pc].tipo = "funcao booleana";
 					getNewToken(c, token);
 					if (isEqualString((*token)->symbol, "sponto_virgula"))
 						analyzeBlock(c, token, symbol);
@@ -393,9 +393,10 @@ void analyzeTerm(char *c, Token **token, Symbol *symbol) {
 
 // fator
 void analyzeFactor(char *c, Token **token, Symbol *symbol) {
-        printf("\nDEBUG - Sintatico - Analisa Fator\n");
+    if(debug)
+		printf("\nDEBUG - Sintatico - Analisa Fator\n");
     if (isEqualString((*token)->symbol,"sidentificador")) { // Variável ou Função
-		if (!verifyVarFuncDeclaration(symbol,  (*token)->lexeme)) { // Coleta o identificador correspondente para verificar seu tipo
+		if (verifyVarFuncDeclaration(symbol,  (*token)->lexeme)) { // Coleta o identificador correspondente para verificar seu tipo
 			if (verifyFunctionDeclaration(symbol, (*token)->lexeme))
         		analyzeFunctionCall(c, token);
 			else {

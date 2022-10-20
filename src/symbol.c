@@ -20,6 +20,13 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
 
 
 void putType(Symbol **stack, SymbolType type) {
+    Symbol *l = *stack;
+    for(; l != NULL && l->type == Var; l = l->next) {
+        l->type = type;
+    }
+}
+
+void putTypeFunc(Symbol **stack, SymbolType type) {
     (*stack)->type = type;
 }
 
@@ -55,43 +62,56 @@ char* symbolTypeToString(SymbolType type){
 }
 
 bool searchDuplicity(Symbol *l, char *lexeme){
-    for(; l != NULL; l = l->next)
+    bool sameScope = true;
+    for(; l != NULL; l = l->next) {
+        if(l->scope)
+            sameScope = false;
+        if(isEqualString(l->lexeme, lexeme) && sameScope || l->scope && isEqualString(l->lexeme, lexeme))//Pesquisa as var no escopo local  || Verifica com os nomes do procedimentos/funções do escopo anterior
+            return true;
+    }
+    return false;
+}
+
+bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme))
-            return true; 
+            return true;
     return false;
 }
 
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(strcmp(symbol->lexeme, lexeme) == 0 && symbol->type == Procedimento)
+        if(isEqualString(l->lexeme, lexeme) && l->type == Procedimento)
             return true;
     return false;
 }
 
-bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
+bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) { 
     for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(strcmp(symbol->lexeme, lexeme) == 0 && (symbol->type == FuncBooleana || symbol->type == FuncInteira))
+        if(isEqualString(l->lexeme, lexeme) && (l->type == FuncBooleana || l->type == FuncInteira)){
             return true;
+        }
     return false;
 }
 
 bool verifyIntVarFuncDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(strcmp(symbol->lexeme, lexeme) == 0 && (symbol->type == VarInteira || symbol->type == FuncInteira))
+        if(isEqualString(l->lexeme, lexeme) && (l->type == VarInteira || l->type == FuncInteira))
             return true;
     return false;
 }
 
 bool verifyVarFuncDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(strcmp(symbol->lexeme, lexeme) == 0 && (symbol->type == VarBooleana || symbol->type == FuncBooleana || symbol->type == VarInteira || symbol->type == FuncInteira))
+        if(isEqualString(l->lexeme, lexeme) && (l->type == VarBooleana || l->type == FuncBooleana || l->type == VarInteira || l->type == FuncInteira))
             return true;
     return false;
 }
 
 bool verifyVarDeclaration(Symbol *symbol, char *lexeme){
+    printStack(symbol);
     for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(strcmp(symbol->lexeme, lexeme) == 0 && symbol->type == VarInteira)
+        if(isEqualString(l->lexeme, lexeme) && l->type == VarInteira)
             return true;
     return false;
 } 

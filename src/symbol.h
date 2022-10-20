@@ -61,8 +61,11 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
 
-// Insert the type of symbol
+// Insert the type of symbol of variables
 void putType(Symbol **stack, SymbolType type);
+
+// Insert the type of symbol of function
+void putTypeFunc(Symbol **stack, SymbolType type);
 
 // Print all symbols in stack
 void printStack(Symbol *stack);
@@ -93,5 +96,8 @@ bool verifyVarDeclaration(Symbol *stack, char *lexeme);
 
 // Unstack until the next scope (local variable region)
 void unStack(Symbol **symbol);
+
+
+bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
 
 #endif
