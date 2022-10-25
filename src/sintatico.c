@@ -174,9 +174,12 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol) {
 
 	getNewToken(c, token);
 	// Ativa booleano
+	insertArray = true;
 
 
 	analyzeExpression(c, token, symbol);
+
+	insertArray = false;
 
 	// TODO
 	// Implementação do posfix
@@ -213,9 +216,9 @@ void analyzeRead(char *c, Token **token, Symbol **symbol) {
 		if (isEqualString((*token)->symbol, "sidentificador")) {
             if (verifyVarDeclaration(*symbol, (*token)->lexeme)){ // Pesquisa a declaração da variável e se é inteira
 				getNewToken(c, token);
-				if (isEqualString((*token)->symbol,"sfecha_parenteses")) {
+				if (isEqualString((*token)->symbol,"sfecha_parenteses"))
 					getNewToken(c, token);
-				} else errorSintax(token, 1, ')');
+				else errorSintax(token, 1, ')');
         	} else errorSintax(token,22,'\0');
         } else errorSintax(token, 11, '\0');
 	} else errorSintax(token, 1, '(');

@@ -170,9 +170,9 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
     switch (compare){
         case '*':
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar '(', final da pilha ou primeiro operador com precedência menor
+                if(compare == '(' || compare == '+' || compare == '-')//Até encontrar '(', final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '/' || aux->c == '*') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '/' || compare == '*') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
                     else
@@ -184,14 +184,13 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             break;
         case '+':
             while(aux != NULL){
-                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(compare == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '/' || aux->c == '*' || aux->c == '-' || aux->c == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '/' || compare == '*' || compare == '-' || compare == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
-                    else{
+                    else
                         stringRet[i++] = unstackOperator(stack, op);//desempilha
-                    }
                 }
                 aux = aux->next;
                 first = false;
@@ -199,9 +198,9 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             break;
         case '-':
             while(aux != NULL){
-                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(compare == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '/' || aux->c == '*' || aux->c == '+' || aux->c == '-') {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '/' || compare == '*' || compare == '+' || compare == '-') {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
                     else
@@ -213,9 +212,9 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             break;
         case '/':
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '+' || aux->c == '-')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(compare == '(' || compare == '+' || compare == '-')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '*' || aux->c == '/') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '*' || compare == '/') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
                     else
@@ -227,9 +226,9 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             break;
         case '&':
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(compare == '(' || compare == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '!' || aux->c == '&') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '!' || compare == '&') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
                     else
@@ -240,10 +239,10 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             }
             break;
         case '!':
-             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '&' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+            while(aux != NULL){
+                if(compare == '(' || compare == '&' || compare == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '!') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '!') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
                     else
@@ -255,38 +254,36 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
             break;
         case '|':
             while(aux != NULL){
-                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(compare == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '&' || aux->c == '!' || aux->c == '|'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(compare == '&' || compare == '!' || compare == '|'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
                     if(first)
                         stringRet[i++] = pop(stack);
-                    else{
+                    else
                         stringRet[i++] = unstackOperator(stack, op);//desempilha
-                    }
                 }
                 aux = aux->next;
                 first = false;
             }
             break;
-
         default:
             return;
-        }
-        *j = (*j) + (--i);
-        return;
+    }
+    *j = (*j) + (--i);
+    return;
 }
 
 
-//Numero     -> N
-//Relação    -> R
-//div        -> /
-//variavel   -> V
-//Boleano    -> B
-//E          -> &
-//NAO        -> !
-//OU         -> |
-//UniárioNeg ->
-//UnárioPos  ->
+//Número               -> N
+//Relação              -> R
+//div                  -> /
+//variável ou função   -> V
+//Boleano              -> B
+//E                    -> &
+//NAO                  -> !
+//OU                   -> |
+//UniárioNeg           -> U
+//UnárioPos            -> N
 
 char* convertPosFix(char *inFix, int size){
     simpleStack *stack = NULL;
@@ -294,37 +291,29 @@ char* convertPosFix(char *inFix, int size){
     char *ret = (char *)malloc(size * sizeof(char));
     char aux;
     for(int i =0; i < size; i++){
-        if(inFix[i] == 'N' || inFix[i] == 'V'){//variable or number
+        if(inFix[i] == 'N' || inFix[i] == 'V')//variable or number
             ret[j++] = inFix[i];
-            continue;
-        }
-
-        if(inFix[i] == '('){//Emplinha
+        else if(inFix[i] == '(')//Empilha
             push(&stack, '(');
-            continue;
-        }
-
-        if(inFix[i] == ')'){//Desempilha
+        else if(inFix[i] == ')'){//Desempilha
             do{
                 ret[j++] = aux = pop(&stack);//Joga no vetor de retorno
             }while(aux != '(');
-            continue;
         }
-
-        if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == 'R'){
+        else if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == 'R'){
             char ret[30] = {0};
             searchStackMorePrecedence(&stack, inFix[i], &j, ret); //Vai retornar uma string, concatenar com a  *ret
             if(strlen(ret) != 0)
                 for(int k = 0; k < strlen(ret); k++)
                     ret[j++] = ret[k];
-            continue;
         }
     }
 
-    if(stack != NULL)
+    if(stack != NULL) {
         do{
-            ret[j++] =  pop(&stack);
+            ret[j++] = pop(&stack);
         }while(stack != NULL);
+    }
 
     return ret;
 }
