@@ -47,7 +47,9 @@ int main(int argc, char *argv[]) {
 
     updateCursor(&c);
 
-    syntacticAnalyzer(&c, &tokenList, &symbolList);
+    //syntacticAnalyzer(&c, &tokenList, &symbolList);
+
+    printf("%s",convertPosFix("(V+N*N/(N+V)R(V*V+N))E(VRN)",27));
 
     fclose(sourceFile);
 

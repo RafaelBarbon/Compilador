@@ -168,34 +168,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
     bool first = true;
     char compare = aux->c;
     switch (compare){
-        case '*':
-            while(aux != NULL){
-                if(compare == '(' || compare == '+' || compare == '-')//Até encontrar '(', final da pilha ou primeiro operador com precedência menor
-                    return;
-                if(compare == '/' || compare == '*') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    if(first)
-                        stringRet[i++] = pop(stack);
-                    else
-                        stringRet[i++] = unstackOperator(stack, op);//desempilha
-                }
-                aux = aux->next;
-                first = false;
-            }
-            break;
         case '+':
-            while(aux != NULL){
-                if(compare == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
-                    return;
-                if(compare == '/' || compare == '*' || compare == '-' || compare == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    if(first)
-                        stringRet[i++] = pop(stack);
-                    else
-                        stringRet[i++] = unstackOperator(stack, op);//desempilha
-                }
-                aux = aux->next;
-                first = false;
-            }
-            break;
         case '-':
             while(aux != NULL){
                 if(compare == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
@@ -210,6 +183,7 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
                 first = false;
             }
             break;
+        case '*':
         case '/':
             while(aux != NULL){
                 if(compare == '(' || compare == '+' || compare == '-')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
