@@ -49,7 +49,7 @@ char pop(simpleStack **stack);
 //UniárioNeg ->
 //UnárioPos  ->
 
-char* convertPosFix(char *inFix, int size);
+char* convertPosFix(char *inFix, int size, char *ret);
 
 char unstackOperator(simpleStack **stack, char op);
 
