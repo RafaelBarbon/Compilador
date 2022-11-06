@@ -9,72 +9,72 @@
 //
 void errorSintax(Token **token, int errorCode, char symbol);
 
+// Get a new token
+void getNewToken(char *c, Token **token);
+
 // programa
-void syntacticAnalyzer(char *c, Token **token);
+void syntacticAnalyzer(char *c, Token **token, Symbol **symbol);
 
 //bloco
-void analyzeBlock(char *c, Token **token);
+void analyzeBlock(char *c, Token **token, Symbol **symbol);
 
 //declaração de variáveis
-void analyzeEtVariables(char *c, Token **token);
+void analyzeEtVariables(char *c, Token **token, Symbol **symbol);
 
 //declaração de variáveis
-void analyzeVariables(char *c, Token **token);
+void analyzeVariables(char *c, Token **token, Symbol **symbol);
 
 //tipo
-void analyzeType(char *c, Token **token);
+void analyzeType(char *c, Token **token, Symbol **symbol);
 
 //comandos
-void analyzeCommands(char *c, Token **token);
+void analyzeCommands(char *c, Token **token, Symbol **symbol);
 
 //comandos
-void analyzeSimpleCommand(char *c, Token **token);
+void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol);
 
 //atribuição_chprocedimento
-void analyzeAttributionProcedureCall(char *c, Token **token);
-
-// Usado na Analisa_leia
-//void pesquisar_em_toda_a_tabela();
+void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol);
 
 //comando leitura
-void analyzeRead(char *c, Token **token);
+void analyzeRead(char *c, Token **token, Symbol **symbol);
 
 // comando escrita
-void analyzeWrite(char *c, Token **token);
+void analyzeWrite(char *c, Token **token, Symbol **Symbol);
 
 //comando repetição
-void analyzeWhile(char *c, Token **token);
+void analyzeWhile(char *c, Token **token, Symbol **symbol);
 
 // comando condicional
-void analyzeConditional(char *c, Token **token);
+void analyzeConditional(char *c, Token **token, Symbol **symbol);
 
 // etapa de declaração de sub-rotinas
-void analyzeSubroutines(char *c, Token **token/*, int rotulo*/);
+void analyzeSubroutines(char *c, Token **token, Symbol **symbol/*, int rotulo*/);
 
 //declaração de procedimento
-void analyzeProcedureDeclaration(char *c, Token **token);
+void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol);
 
 //declaração de função
-void analyzeFunctionDeclaration(char *c, Token **token);
+void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol);
 
 //expressão
-void analyzeExpression(char *c, Token **token);
+void analyzeExpression(char *c, Token **token, Symbol *symbol);
 
 //expressão simples
-void analyzeSimpleExpression(char *c, Token **token);
+void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol);
 
 //termo
-void analyzeTerm(char *c, Token **token);
+void analyzeTerm(char *c, Token **token, Symbol *symbol);
 
 //fator
-void analyzeFactor(char *c, Token **token);
+void analyzeFactor(char *c, Token **token, Symbol *symbol);
 
 //usado no Analisa_expressao
 bool verifyRelationalSymbol(Token *token);
 
-void procedureCall(char *c, Token **token, char *nameProcedure);
+void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol);
 
-void analyzeAttribution(char *c, Token **token);
+void analyzeAttribution(char *c, Token **token, Symbol *symbol);
 
 void analyzeFunctionCall(char *c, Token **token);
 

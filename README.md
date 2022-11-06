@@ -25,6 +25,9 @@ Obs: é possível obter os logs de debug executando o programa com o comando `.\
 O presente compilador realiza a tradução da linguagem de programação conforme o diagrama sintático descrito a seguir:
 ![Diagrama sintático](diagrama%20sintatico.png)
 
+Os tokens utlizados para identificar cada tipo de palavra reservada ou símbolo reservado são descritos na tabela a seguir:
+![Tabela lexema-símbolo](Tabela_Lexama-Simbolo.jpeg)
+
 ## Autores
 [Derek Freire Quaresma](https://github.com/derekfq)
 

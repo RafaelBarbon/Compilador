@@ -38,7 +38,7 @@ void detectError(int errorCode, int line, char symbol) {
             printf("\nErro L%d: Nome da variavel esperado nao encontrado\n", line);
             break;
         case 12:
-            printf("\nErro L%d: Simbolo ',' ou ';' esperado nao encontrado\n", line);
+            printf("\nErro L%d: Simbolo ',' ou ':' esperado nao encontrado\n", line);
             break;
         case 13:
             printf("\nErro L%d: Tipo de argumento desconhecido\n", line);
@@ -63,6 +63,24 @@ void detectError(int errorCode, int line, char symbol) {
             break;
         case 20:
             printf("\nErro L%d: Chamada de procedimento invalida\n", line);
+            break;
+        case 21:
+            printf("\nErro L%d: Variavel duplicada\n", line);
+            break;
+        case 22:
+            printf("\nErro L%d: Variavel nao declarada\n", line);
+            break;
+        case 23:
+            printf("\nErro L%d: Funcao duplicada\n", line);
+            break;
+        case 24:
+            printf("\nErro L%d: Funcao nao declarada\n", line);
+            break;
+        case 25:
+            printf("\nErro L%d: Procedimento nao declarado\n", line);
+            break;
+        case 26:
+            printf("\nErro L%d: Procedimento duplicado\n", line);
             break;
         default:
             printf("\nErro desconhecido!\n");
