@@ -18,6 +18,46 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
     *stack = new;
 }
 
+void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
+    ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    strcpy(new->lexeme,lexeme);
+    new->type = type;
+    new->next = NULL;
+
+    if((*list) == NULL) {
+        (*list) = new;
+        return;
+    }
+
+    ExpressionAnalyzer *aux = *list;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+}
+
+void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
+     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    strcpy(new->lexeme, Expression->lexeme);
+    new->type = Expression->type;
+    new->next = NULL;
+
+    if((*PosFix) == NULL) {
+        (*PosFix) = new;
+        return;
+    }
+
+    ExpressionAnalyzer *aux = *PosFix;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+
+}
 
 void putType(Symbol **stack, SymbolType type) {
     Symbol *l = *stack;
@@ -70,6 +110,14 @@ bool searchDuplicity(Symbol *l, char *lexeme){
             return true;
     }
     return false;
+}
+
+//Return the type of the var/func (Used on expression analyzer)
+SymbolType searchVarFuncType(Symbol *l, char *lexeme){
+    for(; l != NULL; l = l->next) {
+        if(isEqualString(l->lexeme, lexeme))
+            return l->type;
+    }
 }
 
 bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
@@ -127,18 +175,18 @@ void unStack(Symbol **symbol) {
 
 //################################################################# Posfix conversion
 //Simple stack functions (Posfix conversion)
-void push(simpleStack **stack, char c){
+void push(simpleStack **stack, ExpressionAnalyzer *op){
     simpleStack *new = (simpleStack *)malloc(sizeof(simpleStack));
-    new->c = c;
+    new->c = op;
     new->next = *stack;
     *stack = new;
 }
 
-char pop(simpleStack **stack){
+ExpressionAnalyzer* pop(simpleStack **stack) {
     if((*stack) == NULL)
-        return '%';
+        return NULL;
 
-    char ret = (*stack)->c;
+    ExpressionAnalyzer *ret = (*stack)->c;
 
     simpleStack *old = (*stack);
     (*stack) = (*stack)->next;
@@ -147,70 +195,81 @@ char pop(simpleStack **stack){
     return ret;
 }
 
-void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *stringRet){
+//searchStackMorePrecedence(&stack, inFix, PosFix)
+void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix){
     simpleStack *aux = (*stack);
     int i = 0;
-    switch (op){
-        case '+':
-        case '-':
+    LexemeType auxType = op->type;
+    switch (auxType){
+        case OpMaisMenos:
             while(aux != NULL){
                 //printf("loop? %c   %c", op, aux->c);
                 //getchar();
-                if(aux->c == '(' || aux->c == '!' || aux->c == '|' || aux->c == '&' || aux->c == 'R')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '/' || aux->c == '*' || aux->c == '+' || aux->c == '-') {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    stringRet[i++] = pop(stack);
+                if(aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
             break;
-        case '*':
-        case '/':
+        case OpMultDiv:
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '+' || aux->c == '-' || aux->c == '!' || aux->c == '|' || aux->c == '&' || aux->c == 'R')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == OpMaisMenos || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '*' || aux->c == '/') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    stringRet[i++] = pop(stack);
+                if(aux->c->type == OpMultDiv || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
             break;
-        case '&':
+        case E:
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == OU)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '!' || aux->c == '&' || aux->c == 'R' || aux->c == '*' || aux->c == '/' || aux->c == '-' || aux->c == '+') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    stringRet[i++] = pop(stack);
+                if(aux->c->type == Nao || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
             break;
-        case '!':
+        case Nao:
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '&' || aux->c == '|')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == E || aux->c->type == OU)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '!' || aux->c == 'R' || aux->c == '*' || aux->c == '/' || aux->c == '-' || aux->c == '+') { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    stringRet[i++] = pop(stack);
+                if(aux->c->type == Nao || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
             break;
-        case '|':
+        case OU:
             while(aux != NULL){
-                if(aux->c == '(')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == '&' || aux->c == '!' || aux->c == '|' || aux->c == 'R' || aux->c == '*' || aux->c == '/' || aux->c == '-' || aux->c == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                        stringRet[i++] = pop(stack);
+                if(aux->c->type == E || aux->c->type == Nao || aux->c->type == OU || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
             break;
-        case 'R':
+        case Rel:
             while(aux != NULL){
-                if(aux->c == '(' || aux->c == '!' || aux->c == '|' || aux->c == '&')//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
-                if(aux->c == 'R' || aux->c == '*' || aux->c == '/' || aux->c == '-' || aux->c == '+'){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
-                    stringRet[i++] = pop(stack);
+                if(aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
+                }
+                aux = aux->next;
+            }
+            break;
+        case UnarioN:
+        case UnarioP:
+            while(aux != NULL){
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                    return;
+                if(aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                    insertPosFix(PosFix, pop(stack));
                 }
                 aux = aux->next;
             }
@@ -218,69 +277,99 @@ void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *strin
         default:
             return;
     }
-    *j = (*j) + (--i);
-    return;
+}
+
+void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
+    /*
+    Se é o primeiro:
+        Se é +, descarta
+        Se é -, atribui unario
+    loop
+        Se atual for + ou - e atual não for varint/funcint/num, atribui unario
+    */
+
+    ExpressionAnalyzer *aux = (*inFix), *auxFree = NULL, *last = NULL;
+    while(aux != NULL) {
+        if(aux->type == OpMaisMenos && aux->next != NULL) {
+            if(last == NULL && isEqualString(aux->lexeme, "-")) { //unário negativo
+                aux->type = UnarioN;
+            } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
+                aux->type = UnarioP;
+            } else if((last->type != FuncInt || last->type != VarInt || last->type != Num)) { //unário positivo (remove)
+                if(isEqualString(aux->lexeme, "+")){
+                    aux->type = UnarioP;
+                } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
+                    aux->type = UnarioN;
+                }
+            }
+        }
+        last = aux;
+        aux = aux->next;
+    }
+
 }
 
 
-//Número               -> N
-//Relação              -> R
+//Número               -> N(simbolo)
+//Relação              -> R(simbolo)
 //div                  -> /
-//variável ou função   -> V
-//Boleano              -> B
+//variável ou função   -> V(simbolo)
+//Boleano              -> B(simbolo)
 //E                    -> &
 //NAO                  -> !
 //OU                   -> |
 //UniárioNeg           -> U
 //UnárioPos            -> N
 
-char* convertPosFix(char *inFix, int size, char *ret){
+//[V, +, R]
+//[Vestrela, +, Rmenor]
+
+
+void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
+    verifyUnaryOperators(inFixIn);
     //printf("ENTROU POSFIX");
     simpleStack *stack = NULL;
-    int j = 0;
-    //char *ret = (char *)malloc(size * sizeof(char));
-    char aux;
-    for(int i = 0; i < size; i++){
+
+    /*
+    Se num ou var ou func, copia
+    Se (, empilha
+    Se ), desempilha até o primeiro (
+    Se o tipo for OpMultDiv, OpMaisMenos, Rel, Nao, E, OU
+    */
+
+    ExpressionAnalyzer *aux;
+    for(ExpressionAnalyzer *inFix = (*inFixIn); inFix != NULL; inFix = inFix->next) {
         //printf("%c", inFix[i]);
         //getchar();
-        if(inFix[i] == 'N' || inFix[i] == 'V')//variable or number
-            ret[j++] = inFix[i];
-        else if(inFix[i] == '(')//Empilha
-            push(&stack, '(');
-        else if(inFix[i] == ')'){//Desempilha
+        if(inFix->type == VarInt || inFix->type == VarBool || inFix->type == Num || inFix->type == FuncBool || inFix->type == FuncInt)//variable or number or function
+            insertPosFix(PosFix, inFix);
+        else if(inFix->type == AbreP)//Empilha
+            push(&stack, inFix);
+        else if(inFix->type == FechaP){//Desempilha
             do{
-                aux = pop(&stack);//Joga no vetor de retorno
-                if(aux != '(')
-                    ret[j++] = aux;
-            } while(aux != '(');
+                aux = pop(&stack);//Joga na PosFix até achar o '('
+                if(aux->type != AbreP)
+                    insertPosFix(PosFix, aux);
+            } while(aux->type != AbreP);
         }
-        else if(inFix[i] == '*' || inFix[i] == '+' || inFix[i] == '-' || inFix[i] == '/' || inFix[i] == 'R' || inFix[i] == '!' || inFix[i] == '|' || inFix[i] == '&'){
-            char retMorePrecedence[30] = {0};
+        else if(inFix->type == OpMaisMenos || inFix->type == OpMultDiv || inFix->type == Rel || inFix->type == Nao || inFix->type == E || inFix->type == OU || inFix->type == UnarioN || inFix->type == UnarioP) {
             if(stack == NULL)
-                push(&stack, inFix[i]);
+                push(&stack, inFix);
             else{
-                searchStackMorePrecedence(&stack, inFix[i], &j, retMorePrecedence); //Vai retornar uma string, concatenar com a  *ret
-                push(&stack,inFix[i]);
+                searchStackMorePrecedence(&stack, inFix, PosFix); //Vai retornar uma string, concatenar com a  *ret
+                push(&stack,inFix);
                 //printf("AQUI O %s %d", ret, strlen(ret));
                 //getchar();
-                for(int k = 0; k < strlen(retMorePrecedence); k++){
-                    //printf("\nJJJ  %d KKK %d\n%s\n\n", j, k, ret);
-                    //getchar();
-                    if(retMorePrecedence[k] != '(')
-                        ret[j++] = retMorePrecedence[k];
-                }
             }
         }
     }
 
     if(stack != NULL) {
         do{
-            ret[j++] = pop(&stack);
+            insertPosFix(PosFix, pop(&stack));
             //printf("LOOP?");
         }while(stack != NULL);
     }
-
-    return ret;
 }
 
 //################################################################

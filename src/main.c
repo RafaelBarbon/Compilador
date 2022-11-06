@@ -50,12 +50,9 @@ int main(int argc, char *argv[]) {
     //syntacticAnalyzer(&c, &tokenList, &symbolList);
     char ret[30] = {0};
 
-    //VVAR+VRAFA
-    // TODO - atribuir o nome e os operadores no infix para ser analisado no posFix, colocar espaços após o nome de var para não ocorrer de: Z<0 = VzR>N0
-    //TODO - Tratar Unário 
-    // TODO implementar no sintático
-
-    printf("%s",convertPosFix("(V+N*N/(N+V)R(V*V+N))&(VRN)",27, ret));
+    // TODO implementar no sintático o PosFix
+    // TODO Fazer a análise da expressão posFix
+    // TODO Geração de código
 
     fclose(sourceFile);
 

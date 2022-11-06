@@ -10,7 +10,7 @@
 void errorSintax(Token **token, int errorCode, char symbol);
 
 // Get a new token
-void getNewToken(char *c, Token **token);
+void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix);
 
 // programa
 void syntacticAnalyzer(char *c, Token **token, Symbol **symbol);
