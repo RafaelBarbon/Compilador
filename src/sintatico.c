@@ -29,8 +29,11 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	if(insertArray) {
 		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo 
 		// TODO Posfix
-		if(isEqualString((*token)->symbol, "svar") || isEqualString((*token)->symbol, "sfuncao")){
+		printf("\nTOKEN_TYPE_INSERT - %s - %s", (*token)->lexeme, (*token)->symbol);
+		if(isEqualString((*token)->symbol, "sidentificador")){
 			SymbolType type = searchVarFuncType(symbolList, (*token)->lexeme);
+			printf("\nswitch %s",symbolTypeToString(type));
+			getchar();
 			switch(type) {
 				case FuncBooleana:
 					insertInFix(InFix, (*token)->lexeme, FuncBool);
@@ -43,6 +46,9 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 					break;
 				case VarBooleana:
 					insertInFix(InFix, (*token)->lexeme, VarBool);
+					break;
+				default:
+					printf("\nDeu errado o switch\n");
 					break;
 			}
 		} else if(verifyRelationalSymbol((*token)))
@@ -66,7 +72,23 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	}
 }
 
-void syntacticAnalyzer(char *c, Token **token, Symbol **symbol) {
+void analyzeExpressionType(ExpressionAnalyzer **expression, SymbolType expectedType) {
+	
+}
+
+void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
+	ExpressionAnalyzer *posFix = NULL;
+	ExpressionAnalyzer *analyze = NULL;
+	convertPosFix(inFix, &posFix);
+
+	//analyzeExpressionType(copyExpression(analyze,*posFix), type);
+	//generateExpressionCode(posFix);
+	freeExpression(inFix);
+	freeExpression(&posFix);
+	freeExpression(&analyze);
+}
+
+void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
     //int rotulo = 1;
 	getNewToken(c, token, NULL, NULL);
 	if (isEqualString((*token)->symbol, "sprograma")) {
@@ -75,7 +97,7 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol) {
             insertSymbol(symbol, (*token)->lexeme, false, Programa, 0);
 			getNewToken(c, token, NULL, NULL);
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
-				analyzeBlock(c, token, symbol);
+				analyzeBlock(c, token, symbol, inFix);
 				if (isEqualString((*token)->symbol, "sponto")) {
 					if (!isNotEndOfFile(*c) || checkComment(c) || checkSpaces(c)) {
 						if(debug)
@@ -93,13 +115,13 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol) {
 }
 
 // bloco
-void analyzeBlock(char *c, Token **token, Symbol **symbol) {
+void analyzeBlock(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa bloco\n");
 	getNewToken(c, token, NULL, NULL);
 	analyzeEtVariables(c, token, symbol);
-	analyzeSubroutines(c, token, symbol);
-	analyzeCommands(c, token, symbol);
+	analyzeSubroutines(c, token, symbol, inFix);
+	analyzeCommands(c, token, symbol, inFix);
 }
 
 // declaração de variáveis
@@ -155,17 +177,17 @@ void analyzeType(char *c, Token **token, Symbol **symbol) {
 }
 
 // comandos
-void analyzeCommands(char *c, Token **token, Symbol **symbol) {
+void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa comandos\n");
 	if (isEqualString((*token)->symbol, "sinicio")) {
 		getNewToken(c, token, NULL, NULL);
-		analyzeSimpleCommand(c, token, symbol);
+		analyzeSimpleCommand(c, token, symbol, inFix);
 		while (!isEqualString((*token)->symbol, "sfim")) {
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
 				getNewToken(c, token, NULL, NULL);
 				if (!isEqualString((*token)->symbol, "sfim")) {
-					analyzeSimpleCommand(c, token, symbol);
+					analyzeSimpleCommand(c, token, symbol, inFix);
 				}
 			} else errorSintax(token, 1, ';');
 		}
@@ -174,48 +196,47 @@ void analyzeCommands(char *c, Token **token, Symbol **symbol) {
 }
 
 // comandos
-void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol) {
+void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa comando simples\n");
     if(isEqualString((*token)->symbol, "sidentificador"))
-		analyzeAttributionProcedureCall(c, token, symbol);
+		analyzeAttributionProcedureCall(c, token, symbol, inFix);
 	else if(isEqualString((*token)->symbol, "sse"))
-		analyzeConditional(c, token, symbol);
+		analyzeConditional(c, token, symbol, inFix);
 	else if(isEqualString((*token)->symbol, "senquanto"))
-		analyzeWhile(c, token, symbol);
+		analyzeWhile(c, token, symbol, inFix);
 	else if(isEqualString((*token)->symbol, "sleia"))
 		analyzeRead(c, token, symbol);
 	else if(isEqualString((*token)->symbol, "sescreva"))
 		analyzeWrite(c, token, symbol);
 	else
-		analyzeCommands(c, token, symbol);
+		analyzeCommands(c, token, symbol, inFix);
 }
 
 // atribuição_chprocedimento
-void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol) {
+void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa atribuicao chamada procedimento\n");
-	char nameProcedure[30];
-	strcpy(nameProcedure, (*token)->lexeme);
+	char nameVarOrProcedure[30];
+	strcpy(nameVarOrProcedure, (*token)->lexeme);
 	getNewToken(c, token, NULL, NULL);
 	if (isEqualString((*token)->symbol, "satribuicao"))
-		analyzeAttribution(c, token, (*symbol));
+		analyzeAttribution(c, token, (*symbol), inFix, nameVarOrProcedure);
 	else
-		procedureCall(c, token, nameProcedure, symbol);
+		procedureCall(c, token, nameVarOrProcedure, symbol);
 }
 
-void analyzeAttribution(char *c, Token **token, Symbol *symbol) {
+void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, char *name) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa atribuicao\n");
 
-	getNewToken(c, token, NULL, NULL);
-	// Ativa booleano
 	insertArray = true;
+	getNewToken(c, token, NULL, NULL);
 
-
-	analyzeExpression(c, token, symbol);
+	analyzeExpression(c, token, symbol, inFix);
 
 	insertArray = false;
+	semanticAnalyzer(inFix, getVarType(symbol, name));
 
 	// TODO
 	// Implementação do posfix
@@ -268,7 +289,7 @@ void analyzeWrite(char *c, Token **token, Symbol **Symbol) {
 	if (isEqualString((*token)->symbol, "sabre_parenteses")) {
 		getNewToken(c, token, NULL, NULL);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-			if (verifyIntVarFuncDeclaration(*Symbol, (*token)->lexeme)){// Pesquisa declaração de função e variável do tipo inteiro
+			if (verifyIntVarFuncDeclaration(*Symbol, (*token)->lexeme)){// Pesquisa declaração de função e variável do tipo inteiro /////// TODO escreva é só p/ variáveis
 				getNewToken(c, token, NULL, NULL);
 				if (isEqualString((*token)->symbol,"sfecha_parenteses")) {
 					getNewToken(c, token, NULL, NULL);
@@ -279,21 +300,24 @@ void analyzeWrite(char *c, Token **token, Symbol **Symbol) {
 }
 
 // comando repetição
-void analyzeWhile(char *c, Token **token, Symbol **symbol/*, int rotulo*/) {
+void analyzeWhile(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix/*, int rotulo*/) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa enquanto\n");
     //int auxrot1 = rutulo,auxrot2;
     //Gera(rotulo,NULL,' ',' ')
     //while (Gera(auxrot2, NULL, auxrot1, ' ') == true) {
         //rotulo++;
+		insertArray = true;
 		getNewToken(c, token, NULL, NULL);
-		analyzeExpression(c, token, (*symbol));
+		analyzeExpression(c, token, (*symbol), inFix);
+		insertArray = false;
+		semanticAnalyzer(inFix, booleano);
 		if (isEqualString((*token)->symbol, "sfaca")) {
             //auxrot2 = rotulo;
             //if (Gera(' ', JMPF, rotulo, ' ') == true)
             	//rotulo = rotulo + 1;
 			getNewToken(c, token, NULL, NULL);
-			analyzeSimpleCommand(c, token, symbol);
+			analyzeSimpleCommand(c, token, symbol, inFix);
             // Gera(' ',JMP,auxrot1,' ')  {retorna início loop}
             // if(Gera(auxrot2,NULL,' ', ' ')  == false)
             //    exit;
@@ -303,24 +327,27 @@ void analyzeWhile(char *c, Token **token, Symbol **symbol/*, int rotulo*/) {
 }
 
 // comando condicional
-void analyzeConditional(char *c, Token **token, Symbol **symbol) {
+void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Se\n");
+	insertArray = true;
 	getNewToken(c, token, NULL, NULL);
-	analyzeExpression(c, token, (*symbol));
+	analyzeExpression(c, token, (*symbol), inFix);
+	insertArray = false;
+	semanticAnalyzer(inFix, booleano);
 	if (isEqualString((*token)->symbol, "sentao")) {
 		getNewToken(c, token, NULL, NULL);
-		analyzeSimpleCommand(c, token, symbol);
+		analyzeSimpleCommand(c, token, symbol, inFix);
 		if (isEqualString((*token)->symbol, "ssenao")) {
 			getNewToken(c, token, NULL, NULL);
-			analyzeSimpleCommand(c, token, symbol);
+			analyzeSimpleCommand(c, token, symbol, inFix);
 		}
 	} else
 		errorSintax(token, 18, '\0');
 }
 
 // etapa de declaração de sub-rotinas
-void analyzeSubroutines(char *c, Token **token, Symbol **symbol/*, int rotulo*/) {
+void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix/*, int rotulo*/) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Subrotina\n");
 	//int auxrot, flag = 0;
@@ -334,9 +361,9 @@ void analyzeSubroutines(char *c, Token **token, Symbol **symbol/*, int rotulo*/)
 
 	while (isEqualString((*token)->symbol, "sprocedimento") || isEqualString((*token)->symbol, "sfuncao")) {
 		if (isEqualString((*token)->symbol, "sprocedimento"))
-			analyzeProcedureDeclaration(c, token, symbol);
+			analyzeProcedureDeclaration(c, token, symbol, inFix);
 		else
-			analyzeFunctionDeclaration(c, token, symbol);
+			analyzeFunctionDeclaration(c, token, symbol, inFix);
 		if (isEqualString((*token)->symbol, "sponto_virgula")) {
 			getNewToken(c, token, NULL, NULL);
 		}else
@@ -348,7 +375,7 @@ void analyzeSubroutines(char *c, Token **token, Symbol **symbol/*, int rotulo*/)
 }
 
 // declaração de procedimento
-void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol) {
+void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa declaracao procedimento\n");
 	getNewToken(c, token, NULL, NULL);
@@ -360,7 +387,7 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol) {
 			//rotulo++;
 			getNewToken(c, token, NULL, NULL);
 			if (isEqualString((*token)->symbol, "sponto_virgula"))
-				analyzeBlock(c, token, symbol);
+				analyzeBlock(c, token, symbol, inFix);
 			else errorSintax(token, 1, ';');
 		} else errorSintax(token, 26, '\0');
 	} else errorSintax(token, 14, '\0');
@@ -368,7 +395,7 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol) {
 }
 
 // declaração de função
-void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol) {
+void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa declaracao Funcao\n");
 	getNewToken(c, token, NULL, NULL);
@@ -382,7 +409,7 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol) {
 					putTypeFunc(symbol,isEqualString((*token)->symbol, "sinteger") ? FuncInteira : FuncBooleana);//TABSIMB[pc].tipo = "funcao inteiro";//TABSIMB[pc].tipo = "funcao booleana";
 					getNewToken(c, token, NULL, NULL);
 					if (isEqualString((*token)->symbol, "sponto_virgula"))
-						analyzeBlock(c, token, symbol);
+						analyzeBlock(c, token, symbol, inFix);
 				} else
 					errorSintax(token, 13, '\0');
 			} else
@@ -394,44 +421,44 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol) {
 }
 
 // expressão
-void analyzeExpression(char *c, Token **token, Symbol *symbol) {
+void analyzeExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Expressao\n");
-	analyzeSimpleExpression(c, token, symbol);
+	analyzeSimpleExpression(c, token, symbol, inFix);
 	if (verifyRelationalSymbol(*token)) {
-		getNewToken(c, token, NULL, NULL);
-		analyzeSimpleExpression(c, token, symbol);
+		getNewToken(c, token, NULL, NULL); //Adicionar no InFix
+		analyzeSimpleExpression(c, token, symbol, inFix);
 	}
 }
 
 // expressão simples
-void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol) {
+void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Expressao Simples\n");
 	if (isEqualString((*token)->symbol,"smais") || isEqualString((*token)->symbol,"smenos")){
-		getNewToken(c, token, NULL, NULL);
+		getNewToken(c, token, NULL, NULL); //Adicionar no InFix
 	}
-	analyzeTerm(c, token, symbol);
+	analyzeTerm(c, token, symbol, inFix);
 	while (isEqualString((*token)->symbol,"smais") || isEqualString((*token)->symbol,"smenos") || isEqualString((*token)->symbol,"sou")) {
-		getNewToken(c, token, NULL, NULL);
-		analyzeTerm(c, token, symbol);
+		getNewToken(c, token, NULL, NULL); //Adicionar no IxFix
+		analyzeTerm(c, token, symbol, inFix);
 	}
 }
 
 // termo
-void analyzeTerm(char *c, Token **token, Symbol *symbol) {
+void analyzeTerm(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa termo\n");
-	analyzeFactor(c, token, symbol);
+	analyzeFactor(c, token, symbol, inFix);
 	while (isEqualString((*token)->symbol, "smult") || isEqualString((*token)->symbol, "sdiv") || isEqualString((*token)->symbol, "se")) {
-		getNewToken(c, token, NULL, NULL);
-		analyzeFactor(c, token, symbol);
+		getNewToken(c, token, NULL, NULL); //Adicionar no InFix
+		analyzeFactor(c, token, symbol, inFix);
 	}
 }
 
 
 // fator
-void analyzeFactor(char *c, Token **token, Symbol *symbol) {
+void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
     if(debug)
 		printf("\nDEBUG - Sintatico - Analisa Fator\n");
     if (isEqualString((*token)->symbol,"sidentificador")) { // Variável ou Função
@@ -446,10 +473,10 @@ void analyzeFactor(char *c, Token **token, Symbol *symbol) {
 		getNewToken(c, token, NULL, NULL);
 	} else if (isEqualString((*token)->symbol,"snao")) {
 		getNewToken(c, token, NULL, NULL);
-		analyzeFactor(c, token, symbol);
+		analyzeFactor(c, token, symbol, inFix);
 	} else if (isEqualString((*token)->symbol,"sabre_parenteses")) {
 		getNewToken(c, token, NULL, NULL);
-		analyzeExpression(c, token, symbol);
+		analyzeExpression(c, token, symbol, inFix);
 		if (isEqualString((*token)->symbol,"sfecha_parenteses")){
 			getNewToken(c, token, NULL, NULL);
 		} else

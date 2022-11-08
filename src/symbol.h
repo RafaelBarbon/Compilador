@@ -80,6 +80,10 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
+void freeExpression(ExpressionAnalyzer **l);
+
+LexemeType getVarType(Symbol *l, char *lexeme);
+
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);
 

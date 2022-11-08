@@ -20,22 +20,29 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+    
+    printf("\nInsert INFIX - %s", lexeme);
+    getchar();
 
     strcpy(new->lexeme,lexeme);
     new->type = type;
+    
     new->next = NULL;
 
-    if((*list) == NULL) {
-        (*list) = new;
+    if(*list == NULL) {
+        *list = new;
         return;
     }
-
+    printf("\nSegmentation1");
+    getchar();
     ExpressionAnalyzer *aux = *list;
     while(aux->next != NULL) {
         aux = aux->next;
     }
 
     aux->next = new;
+    printf("\nSegmentation2");
+    getchar();
 }
 
 void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
@@ -113,10 +120,18 @@ bool searchDuplicity(Symbol *l, char *lexeme){
 }
 
 //Return the type of the var/func (Used on expression analyzer)
-SymbolType searchVarFuncType(Symbol *l, char *lexeme){
+SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
     for(; l != NULL; l = l->next) {
         if(isEqualString(l->lexeme, lexeme))
             return l->type;
+    }
+}
+
+LexemeType getVarType(Symbol *l, char *lexeme) {
+    for(; l != NULL; l = l->next) {
+        if(isEqualString(l->lexeme, lexeme)){
+            return l->type == VarBooleana ? VarBool : VarInt;
+        }
     }
 }
 
@@ -194,6 +209,20 @@ ExpressionAnalyzer* pop(simpleStack **stack) {
     free(old);
     return ret;
 }
+
+void freeExpression(ExpressionAnalyzer **l) {
+    ExpressionAnalyzer *aux = (*l), *aux2;
+    while(aux != NULL){
+        aux2 = aux->next;
+        free(aux);
+        aux = aux2;
+    }
+    (*l) = NULL;
+}
+
+/*void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
+
+}*/
 
 //searchStackMorePrecedence(&stack, inFix, PosFix)
 void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix){

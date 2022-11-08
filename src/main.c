@@ -13,6 +13,8 @@
 // Control variables
 Token *tokenList = NULL;
 Symbol *symbolList = NULL;
+ExpressionAnalyzer *inFix = NULL;
+
 int lineCount = 1;
 FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     updateCursor(&c);
 
-    //syntacticAnalyzer(&c, &tokenList, &symbolList);
+    syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
     char ret[30] = {0};
 
     // TODO implementar no sintático o PosFix
