@@ -5,15 +5,17 @@ programa test;
 var a,b,s: inteiro;                 
                               
  funcao soma: inteiro;
- var c,a,s: inteiro;                   
-     z: booleano;                    
-  procedimento ler;          
-  inicio
-     leia (c);
-     leia (a);
-     s := soma;                  
-     escreva (s);
-  fim;
+  var c,a,s,x: inteiro;                   
+  {z: booleano;  }                  
+    procedimento ler;          
+    inicio
+      leia (c);
+      se x < 10
+    entao ler;      leia (a);
+      s := a + 1-2*3;                  
+      a := 1+1;
+      escreva (s);
+    fim;
   procedimento loop;         
   var x: inteiro;
   inicio

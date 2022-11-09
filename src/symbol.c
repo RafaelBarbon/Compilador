@@ -8,14 +8,14 @@
 
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory) {
     Symbol *new = (Symbol *)malloc(sizeof(Symbol));
-
+    
     strcpy(new->lexeme,lexeme);
     new->scope = scope;
     new->type = type;
     new->memory = memory;
     new->next = *stack;
 
-    *stack = new;
+    (*stack) = new;
 }
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
@@ -25,24 +25,29 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     getchar();
 
     strcpy(new->lexeme,lexeme);
+    // printf("\nPassou STRCPY");
+    // getchar();
     new->type = type;
     
     new->next = NULL;
-
-    if(*list == NULL) {
+    printf("\n%s %d",new->lexeme, new->type);
+    getchar();
+    if((*list) == NULL) {
+        //printf("\nSegmentation0");
+        //getchar();
         *list = new;
         return;
     }
-    printf("\nSegmentation1");
-    getchar();
+    //printf("\nSegmentation1");
+    //getchar();
     ExpressionAnalyzer *aux = *list;
     while(aux->next != NULL) {
         aux = aux->next;
     }
 
     aux->next = new;
-    printf("\nSegmentation2");
-    getchar();
+    // printf("\nSegmentation2");
+    // getchar();
 }
 
 void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
@@ -110,10 +115,10 @@ char* symbolTypeToString(SymbolType type){
 
 bool searchDuplicity(Symbol *l, char *lexeme){
     bool sameScope = true;
-    for(; l != NULL; l = l->next) {
-        if(l->scope)
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(aux->scope)
             sameScope = false;
-        if(isEqualString(l->lexeme, lexeme) && sameScope || l->scope && isEqualString(l->lexeme, lexeme))//Pesquisa as var no escopo local  || Verifica com os nomes do procedimentos/funções do escopo anterior
+        if(isEqualString(aux->lexeme, lexeme) && sameScope || aux->scope && isEqualString(aux->lexeme, lexeme))//Pesquisa as var no escopo local  || Verifica com os nomes do procedimentos/funções do escopo anterior
             return true;
     }
     return false;
@@ -121,16 +126,16 @@ bool searchDuplicity(Symbol *l, char *lexeme){
 
 //Return the type of the var/func (Used on expression analyzer)
 SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
-    for(; l != NULL; l = l->next) {
-        if(isEqualString(l->lexeme, lexeme))
-            return l->type;
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme))
+            return aux->type;
     }
 }
 
 LexemeType getVarType(Symbol *l, char *lexeme) {
-    for(; l != NULL; l = l->next) {
-        if(isEqualString(l->lexeme, lexeme)){
-            return l->type == VarBooleana ? VarBool : VarInt;
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme)){
+            return aux->type == VarBooleana ? VarBool : VarInt;
         }
     }
 }
@@ -192,7 +197,10 @@ void unStack(Symbol **symbol) {
 //Simple stack functions (Posfix conversion)
 void push(simpleStack **stack, ExpressionAnalyzer *op){
     simpleStack *new = (simpleStack *)malloc(sizeof(simpleStack));
-    new->c = op;
+    ExpressionAnalyzer *ex = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+    ex->type = op->type;
+    strcpy(ex->lexeme, op->lexeme);
+    new->c = ex;
     new->next = *stack;
     *stack = new;
 }
@@ -201,7 +209,7 @@ ExpressionAnalyzer* pop(simpleStack **stack) {
     if((*stack) == NULL)
         return NULL;
 
-    ExpressionAnalyzer *ret = (*stack)->c;
+    ExpressionAnalyzer *ret = (*stack)->c; // TODO COPIAR VALOR POR MALLOC
 
     simpleStack *old = (*stack);
     (*stack) = (*stack)->next;
@@ -218,6 +226,16 @@ void freeExpression(ExpressionAnalyzer **l) {
         aux = aux2;
     }
     (*l) = NULL;
+}
+
+void printExpression(ExpressionAnalyzer *ex) {
+    ExpressionAnalyzer *aux = ex;
+    printf("\nIN_FIX\n");
+    while(aux != NULL) {
+        printf(" %s ",aux->lexeme);
+        aux = aux->next;
+    }
+    printf("\n\n");
 }
 
 /*void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
@@ -316,7 +334,6 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
     loop
         Se atual for + ou - e atual não for varint/funcint/num, atribui unario
     */
-
     ExpressionAnalyzer *aux = (*inFix), *auxFree = NULL, *last = NULL;
     while(aux != NULL) {
         if(aux->type == OpMaisMenos && aux->next != NULL) {
@@ -356,7 +373,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
     verifyUnaryOperators(inFixIn);
-    //printf("ENTROU POSFIX");
+    printf("\nENTROU POSFIX");
     simpleStack *stack = NULL;
 
     /*
@@ -372,8 +389,9 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
         //getchar();
         if(inFix->type == VarInt || inFix->type == VarBool || inFix->type == Num || inFix->type == FuncBool || inFix->type == FuncInt)//variable or number or function
             insertPosFix(PosFix, inFix);
-        else if(inFix->type == AbreP)//Empilha
+        else if(inFix->type == AbreP){//Empilha
             push(&stack, inFix);
+        }
         else if(inFix->type == FechaP){//Desempilha
             do{
                 aux = pop(&stack);//Joga na PosFix até achar o '('
@@ -382,8 +400,9 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
             } while(aux->type != AbreP);
         }
         else if(inFix->type == OpMaisMenos || inFix->type == OpMultDiv || inFix->type == Rel || inFix->type == Nao || inFix->type == E || inFix->type == OU || inFix->type == UnarioN || inFix->type == UnarioP) {
-            if(stack == NULL)
+            if(stack == NULL){
                 push(&stack, inFix);
+            }
             else{
                 searchStackMorePrecedence(&stack, inFix, PosFix); //Vai retornar uma string, concatenar com a  *ret
                 push(&stack,inFix);

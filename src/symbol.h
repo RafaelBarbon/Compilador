@@ -62,6 +62,8 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type);
 
+void printExpression(ExpressionAnalyzer *ex);
+
 //#################################################################
 
 
