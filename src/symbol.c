@@ -244,9 +244,26 @@ void printExpression(ExpressionAnalyzer *ex, char *ty) {
     printf("\n\n");
 }
 
-/*void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
-
-}*/
+void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
+    ExpressionAnalyzer *aux = src;
+    while(aux != NULL){
+        ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer)), *nextInsert = NULL;
+        new->next = NULL;
+        strcpy(new->lexeme, aux->lexeme);
+        new->type = aux->type;
+        if((*dest) == NULL){
+            (*dest) = new;
+        }else{ 
+            nextInsert =(*dest);
+            while(nextInsert->next != NULL) {
+                nextInsert = nextInsert->next;
+            }
+            nextInsert->next = new; 
+        }
+        
+        aux = aux->next;
+    }
+}
 
 //searchStackMorePrecedence(&stack, inFix, PosFix)
 void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix){

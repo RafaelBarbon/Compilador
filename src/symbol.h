@@ -82,6 +82,8 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
+void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
+
 void freeExpression(ExpressionAnalyzer **l);
 
 LexemeType getVarType(Symbol *l, char *lexeme);

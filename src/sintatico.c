@@ -85,12 +85,15 @@ void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	convertPosFix(inFix, &posFix);
+	printExpression(posFix, "POS_FIX");
+	copyExpression(&analyze, posFix);
+	printExpression(analyze, "COPY_POS_FIX");
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	//analyzeExpressionType(copyExpression(analyze,*posFix), type);
 	//generateExpressionCode(posFix);
 	//printExpression(*inFix);
-	printExpression(posFix, "POS_FIX");
+	
 	freeExpression(inFix);
 	freeExpression(&posFix);
 	freeExpression(&analyze);
