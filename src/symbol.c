@@ -21,8 +21,8 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
     
-    printf("\nInsert INFIX - %s", lexeme);
-    getchar();
+    //printf("\nInsert INFIX - %s", lexeme);
+    //getchar();
 
     strcpy(new->lexeme,lexeme);
     // printf("\nPassou STRCPY");
@@ -30,8 +30,8 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     new->type = type;
     
     new->next = NULL;
-    printf("\n%s %d",new->lexeme, new->type);
-    getchar();
+    //printf("\n%s %d",new->lexeme, new->type);
+    //getchar();
     if((*list) == NULL) {
         //printf("\nSegmentation0");
         //getchar();
@@ -209,7 +209,13 @@ ExpressionAnalyzer* pop(simpleStack **stack) {
     if((*stack) == NULL)
         return NULL;
 
-    ExpressionAnalyzer *ret = (*stack)->c; // TODO COPIAR VALOR POR MALLOC
+    ExpressionAnalyzer *ret = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    strcpy(ret->lexeme, (*stack)->c->lexeme);
+
+    ret->type = (*stack)->c->type;
+    
+    // TODO COPIAR VALOR POR MALLOC
 
     simpleStack *old = (*stack);
     (*stack) = (*stack)->next;
@@ -228,9 +234,9 @@ void freeExpression(ExpressionAnalyzer **l) {
     (*l) = NULL;
 }
 
-void printExpression(ExpressionAnalyzer *ex) {
+void printExpression(ExpressionAnalyzer *ex, char *ty) {
     ExpressionAnalyzer *aux = ex;
-    printf("\nIN_FIX\n");
+    printf("\n\n%s\n",ty);
     while(aux != NULL) {
         printf(" %s ",aux->lexeme);
         aux = aux->next;
@@ -247,10 +253,12 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
     simpleStack *aux = (*stack);
     int i = 0;
     LexemeType auxType = op->type;
+    printf("\nAUXTYPE - %s %d", op->lexeme, auxType);
     switch (auxType){
         case OpMaisMenos:
             while(aux != NULL){
-                //printf("loop? %c   %c", op, aux->c);
+                
+                printf("\nDEBUG - %s   %d", aux->c->lexeme, aux->c->type);
                 //getchar();
                 if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
                     return;
@@ -341,7 +349,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
                 aux->type = UnarioN;
             } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
                 aux->type = UnarioP;
-            } else if((last->type != FuncInt || last->type != VarInt || last->type != Num)) { //unário positivo (remove)
+            } else if((last->type != FuncInt && last->type != VarInt && last->type != Num)) { //unário positivo (remove)
                 if(isEqualString(aux->lexeme, "+")){
                     aux->type = UnarioP;
                 } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
@@ -373,7 +381,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
     verifyUnaryOperators(inFixIn);
-    printf("\nENTROU POSFIX");
+    //printf("\nENTROU POSFIX");
     simpleStack *stack = NULL;
 
     /*
@@ -414,7 +422,9 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
 
     if(stack != NULL) {
         do{
-            insertPosFix(PosFix, pop(&stack));
+            aux = pop(&stack);
+            if(aux->type != AbreP || aux->type != FechaP)
+                insertPosFix(PosFix, aux);
             //printf("LOOP?");
         }while(stack != NULL);
     }

@@ -26,19 +26,15 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	freeToken(token);
 	getToken(c, token);
 	//printf("\n%s\n", (*token)->lexeme);
-	if((*token) == NULL){
-		printf("TOKEN NULL");
-		getchar();
-	}
 	//Used on expression analyzer
 	if(insertArray) {
 		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo 
 		// TODO Posfix
-		printf("\nTOKEN_TYPE_INSERT - %s - %s\n", (*token)->lexeme, (*token)->symbol);
+		//printf("\nTOKEN_TYPE_INSERT - %s - %s\n", (*token)->lexeme, (*token)->symbol);
 		if(isEqualString((*token)->symbol, "sidentificador")){
 			SymbolType type = searchVarFuncType(symbolList, (*token)->lexeme);
-			printf("\nswitch %s - %s\n",symbolTypeToString(type),(*token)->lexeme);
-			getchar();
+			//printf("\nswitch %s - %s\n",symbolTypeToString(type),(*token)->lexeme);
+			//getchar();
 			switch(type) {
 				case FuncBooleana:
 					insertInFix(InFix, (*token)->lexeme, FuncBool);
@@ -72,8 +68,9 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 			insertInFix(InFix, (*token)->lexeme, OU);
 		else if(isEqualString((*token)->symbol, "sabre_parenteses"))
 			insertInFix(InFix, (*token)->lexeme, AbreP);
-		else if(isEqualString((*token)->symbol, "sfecha_parentese"))
+		else if(isEqualString((*token)->symbol, "sfecha_parenteses")){
 			insertInFix(InFix, (*token)->lexeme, FechaP);
+		}
 	}
 }
 
@@ -84,16 +81,16 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, SymbolType expectedT
 void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	ExpressionAnalyzer *posFix = NULL;
 	ExpressionAnalyzer *analyze = NULL;
-	printExpression(*inFix);
-	printf("\nSEGMENTATION?\n");
-	getchar();
+	printExpression(*inFix, "IN_FIX");
+	//printf("\nSEGMENTATION?\n");
+	//getchar();
 	convertPosFix(inFix, &posFix);
-	printf("\nSEGMENTATION?\n");
-	getchar();
+	//printf("\nSEGMENTATION?\n");
+	//getchar();
 	//analyzeExpressionType(copyExpression(analyze,*posFix), type);
 	//generateExpressionCode(posFix);
-	printExpression(*inFix);
-	printExpression(posFix);
+	//printExpression(*inFix);
+	printExpression(posFix, "POS_FIX");
 	freeExpression(inFix);
 	freeExpression(&posFix);
 	freeExpression(&analyze);
@@ -246,6 +243,7 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 
 	analyzeExpression(c, token, symbol, inFix);
 
+	//printf("\nToken in buffer after getti TOKEN: %s\n", (*token)->lexeme);
 	insertArray = false;
 	semanticAnalyzer(inFix, getVarType(symbol, name));
 
