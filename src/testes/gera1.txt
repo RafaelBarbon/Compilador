@@ -7,7 +7,8 @@ var a,b,s: inteiro;
  funcao soma: inteiro;
   var c,a,s,x: inteiro;                   
   {z: booleano;  }                  
-    procedimento ler;          
+    procedimento ler;  
+    var h: booleano;        
     inicio
       leia (c);
       se x < 10

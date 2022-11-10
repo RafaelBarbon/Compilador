@@ -100,7 +100,6 @@ void printStack(Symbol *l){
 }
 
 char* symbolTypeToString(SymbolType type){
-
     switch(type) {
         case Var: return "Var";
         case Func: return "Func";
@@ -133,9 +132,19 @@ SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
 }
 
 LexemeType getVarType(Symbol *l, char *lexeme) {
+    bool sameScope = true;
+    //printStack(l);
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(aux->scope){
+            sameScope = false;
+        }
         if(isEqualString(aux->lexeme, lexeme)){
-            return aux->type == VarBooleana ? VarBool : VarInt;
+            if(aux->type == VarBooleana || aux->type == VarInteira)
+                return aux->type == VarBooleana ? Booleano : Inteiro;
+            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncBooleana))
+                return aux->type == FuncBooleana ? Booleano : Inteiro;
+            else
+                return Rel;// Error
         }
     }
 }
@@ -222,6 +231,16 @@ ExpressionAnalyzer* pop(simpleStack **stack) {
 
     free(old);
     return ret;
+}
+
+void freeSimpleStack(simpleStack **st) {
+    simpleStack *aux = (*st), *aux2;
+    while(aux != NULL){
+        aux2 = aux->next;
+        free(aux);
+        aux = aux2;
+    }
+    *st = aux;
 }
 
 void freeExpression(ExpressionAnalyzer **l) {
@@ -366,7 +385,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
                 aux->type = UnarioN;
             } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
                 aux->type = UnarioP;
-            } else if((last->type != FuncInt && last->type != VarInt && last->type != Num)) { //unário positivo (remove)
+            } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { //unário positivo (remove)
                 if(isEqualString(aux->lexeme, "+")){
                     aux->type = UnarioP;
                 } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
@@ -412,7 +431,7 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
     for(ExpressionAnalyzer *inFix = (*inFixIn); inFix != NULL; inFix = inFix->next) {
         //printf("%c", inFix[i]);
         //getchar();
-        if(inFix->type == VarInt || inFix->type == VarBool || inFix->type == Num || inFix->type == FuncBool || inFix->type == FuncInt)//variable or number or function
+        if(inFix->type == VarInt || inFix->type == VarBool || inFix->type == Inteiro || inFix->type == FuncBool || inFix->type == FuncInt || inFix->type == Booleano)//variable or number or function
             insertPosFix(PosFix, inFix);
         else if(inFix->type == AbreP){//Empilha
             push(&stack, inFix);
@@ -442,7 +461,6 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
             aux = pop(&stack);
             if(aux->type != AbreP || aux->type != FechaP)
                 insertPosFix(PosFix, aux);
-            //printf("LOOP?");
         }while(stack != NULL);
     }
 }

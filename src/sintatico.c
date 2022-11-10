@@ -59,7 +59,7 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 		else if(isEqualString((*token)->symbol, "smult") || isEqualString((*token)->symbol, "sdiv"))
 			insertInFix(InFix, (*token)->lexeme, OpMultDiv);
 		else if(isEqualString((*token)->symbol, "snumero"))
-			insertInFix(InFix, (*token)->lexeme, Num);
+			insertInFix(InFix, (*token)->lexeme, Inteiro);
 		else if(isEqualString((*token)->symbol, "snao"))
 			insertInFix(InFix, (*token)->lexeme, Nao);
 		else if(isEqualString((*token)->symbol, "se"))
@@ -68,14 +68,90 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 			insertInFix(InFix, (*token)->lexeme, OU);
 		else if(isEqualString((*token)->symbol, "sabre_parenteses"))
 			insertInFix(InFix, (*token)->lexeme, AbreP);
-		else if(isEqualString((*token)->symbol, "sfecha_parenteses")){
+		else if(isEqualString((*token)->symbol, "sfecha_parenteses"))
 			insertInFix(InFix, (*token)->lexeme, FechaP);
-		}
+		else if(isEqualString((*token)->symbol, "sverdadeiro"))
+			insertInFix(InFix, (*token)->lexeme, Booleano);
+		else if(isEqualString((*token)->symbol, "sfalso"))
+			insertInFix(InFix, (*token)->lexeme, Booleano);
 	}
 }
 
-void analyzeExpressionType(ExpressionAnalyzer **expression, SymbolType expectedType) {
-	
+void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType) {
+	ExpressionAnalyzer *aux = (*expression), *Op1, *Op2;
+	simpleStack *stack = NULL;
+	ExpressionAnalyzer *typeResult = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+	strcpy(typeResult->lexeme, "RESULT");
+
+	while(aux != NULL) {
+		if(aux->type == OpMultDiv || aux->type == OpMaisMenos){
+			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo inteiro para realizar push do tipo final
+			Op1 = pop(&stack);
+			Op2 = pop(&stack);
+			if((Op1->type == FuncInt || Op1->type == VarInt || Op1->type == Inteiro) && (Op2->type == FuncInt || Op2->type == VarInt || Op2->type == Inteiro)){
+				typeResult->type = Inteiro;
+				push(&stack, typeResult);
+			}else{
+				detectError(27, lineCount,'\0');
+			}
+			free(Op1);
+			free(Op2);
+		} else if(aux->type == E || aux->type == OU) {
+			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
+			Op1 = pop(&stack);
+			Op2 = pop(&stack);
+
+			if((Op1->type == FuncBool || Op1->type == VarBool || Op1->type == Booleano ) && (Op2->type == FuncBool || Op2->type == VarBool || Op2->type == Booleano)){
+				typeResult->type = Booleano;
+				push(&stack, typeResult);
+			}else{
+				detectError(27, lineCount,'\0');
+			}
+			free(Op1);
+			free(Op2);
+		} else if(aux->type == UnarioN || aux->type == UnarioP || aux->type == Nao) {
+			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento 
+			if(aux->next != NULL) {
+				if(aux->next->type == FuncInt || aux->next->type == VarInt || aux->next->type == Inteiro) {
+					typeResult->type = Inteiro;
+					push(&stack, aux);
+					aux = aux->next->next;
+					continue;
+				} else {
+					detectError(27, lineCount,'\0');
+				}
+			}	
+
+		}else if(aux->type == Rel){ //Relacional (Pode ser inteiro ou boleano )
+			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
+			Op1 = pop(&stack);
+			Op2 = pop(&stack);
+
+			if((Op1->type == FuncInt || Op1->type == VarInt || Op1->type == Inteiro || Op1->type == FuncBool || Op1->type == VarBool || Op1->type == Booleano ) && (Op2->type == FuncInt || Op2->type == VarInt || Op2->type == Inteiro || Op2->type == FuncBool || Op2->type == VarBool || Op2->type == Booleano)){
+				typeResult->type = Booleano;
+				push(&stack, typeResult);
+			}else{
+				detectError(27, lineCount,'\0');
+			}
+			free(Op1);
+			free(Op2);
+		}else {
+			// Variáveis e constantes
+			push(&stack, aux);
+		}
+		aux = aux->next;
+	}
+	// No final deve haver a verificação do tipo do elemento restante, se houver mais de um: erro
+	Op1 = pop(&stack);
+	if(stack != NULL){//ainda tem operandos na pilhar (A expressão não esta correta)
+		freeSimpleStack(&stack);
+		detectError(27, lineCount,'\0');
+	}else if(Op1->type != expectedType){
+		detectError(17, lineCount,'\0');
+	}
+	free(typeResult);
+	free(Op1);
+	printf("\nType %d - Expected %d", Op1->type,  expectedType);
 }
 
 void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
@@ -90,7 +166,7 @@ void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	printExpression(analyze, "COPY_POS_FIX");
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
-	//analyzeExpressionType(copyExpression(analyze,*posFix), type);
+	analyzeExpressionType(&analyze, type);
 	//generateExpressionCode(posFix);
 	//printExpression(*inFix);
 	
@@ -248,7 +324,10 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 
 	//printf("\nToken in buffer after getti TOKEN: %s\n", (*token)->lexeme);
 	insertArray = false;
-	semanticAnalyzer(inFix, getVarType(symbol, name));
+	LexemeType type = getVarType(symbol, name);
+	if(type == Rel)
+		errorSintax(token,28,'\0');
+	semanticAnalyzer(inFix, type);
 
 	// TODO
 	// Implementação do posfix
@@ -323,7 +402,7 @@ void analyzeWhile(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **
 		getNewToken(c, token, *symbol, inFix);
 		analyzeExpression(c, token, (*symbol), inFix);
 		insertArray = false;
-		semanticAnalyzer(inFix, booleano);
+		semanticAnalyzer(inFix, Booleano);
 		if (isEqualString((*token)->symbol, "sfaca")) {
             //auxrot2 = rotulo;
             //if (Gera(' ', JMPF, rotulo, ' ') == true)
@@ -346,7 +425,7 @@ void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 	getNewToken(c, token, *symbol, inFix);
 	analyzeExpression(c, token, (*symbol), inFix);
 	insertArray = false;
-	semanticAnalyzer(inFix, booleano);
+	semanticAnalyzer(inFix, Booleano);
 	if (isEqualString((*token)->symbol, "sentao")) {
 		getNewToken(c, token, *symbol, inFix);
 		analyzeSimpleCommand(c, token, symbol, inFix);
@@ -403,7 +482,11 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, Expres
 			else errorSintax(token, 1, ';');
 		} else errorSintax(token, 26, '\0');
 	} else errorSintax(token, 14, '\0');
+	printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
+	printStack((*symbol));
 	unStack(symbol);// DESEMPILHA OU VOLTA NÍVEL();
+	printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
+	printStack((*symbol));
 }
 
 // declaração de função
@@ -429,7 +512,11 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, Express
 		} else
 			errorSintax(token,23,'\0');
 	} else errorSintax(token, 15, '\0');
+	printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
+	printStack((*symbol));
 	unStack(symbol);// DESEMPILHA OU VOLTA NÍVEL();
+	printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
+	printStack((*symbol));
 }
 
 // expressão

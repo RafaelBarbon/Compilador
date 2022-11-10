@@ -29,11 +29,11 @@ typedef struct symbol {
 //#################################################################
 
 typedef enum LexemeType{
-    VarInt, VarBool, FuncInt, FuncBool, Num, AbreP, FechaP,
+    VarInt, VarBool, FuncInt, FuncBool, AbreP, FechaP,
     UnarioN, UnarioP,
     OpMultDiv, OpMaisMenos, Rel,
     Nao, E, OU,
-    inteiro, booleano
+    Inteiro, Booleano
 }LexemeType;
 
 typedef struct expressionAnalyzer {
@@ -57,6 +57,8 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 void verifyUnaryOperators(ExpressionAnalyzer **inFix);
 
 char unstackOperator(simpleStack **stack, char op);
+
+void freeSimpleStack(simpleStack **st);
 
 void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
 
