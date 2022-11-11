@@ -133,18 +133,19 @@ SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
 
 LexemeType getVarType(Symbol *l, char *lexeme) {
     bool sameScope = true;
-    //printStack(l);
+    printStack(l);
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
-        if(aux->scope){
-            sameScope = false;
-        }
         if(isEqualString(aux->lexeme, lexeme)){
+            printf("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
             if(aux->type == VarBooleana || aux->type == VarInteira)
                 return aux->type == VarBooleana ? Booleano : Inteiro;
-            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncBooleana))
+            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
                 return aux->type == FuncBooleana ? Booleano : Inteiro;
             else
                 return Rel;// Error
+        }
+        if(aux->scope){
+            sameScope = false;
         }
     }
 }
@@ -199,6 +200,7 @@ void unStack(Symbol **symbol) {
         free(aux);
         aux = aux2;
     }
+    aux->scope = false;
     *symbol = aux;
 }
 
@@ -269,7 +271,12 @@ void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
         ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer)), *nextInsert = NULL;
         new->next = NULL;
         strcpy(new->lexeme, aux->lexeme);
-        new->type = aux->type;
+        if(aux->type == FuncBool || aux->type == VarBool)
+            new->type = Booleano;
+        else if(aux->type == FuncInt || aux->type == VarInt)
+            new->type = Inteiro;
+        else
+            new->type = aux->type;
         if((*dest) == NULL){
             (*dest) = new;
         }else{ 
@@ -279,7 +286,6 @@ void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
             }
             nextInsert->next = new; 
         }
-        
         aux = aux->next;
     }
 }

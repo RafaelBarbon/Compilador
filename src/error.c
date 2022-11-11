@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "verifyChar.h"
 
 void detectError(int errorCode, int line, char symbol) {
+    error = true;
     switch(errorCode) {
         case 1:
             printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);

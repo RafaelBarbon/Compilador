@@ -20,6 +20,7 @@ FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
 bool insertArray = false;
+bool error = false;
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
@@ -59,7 +60,8 @@ int main(int argc, char *argv[]) {
     fclose(sourceFile);
 
     //printToken(tokenList);
-    printf("\n\nCOMPILOU\n\n");
+    printf("\n\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+
 
     freeToken(&tokenList);
     freeSymbol(&symbolList);

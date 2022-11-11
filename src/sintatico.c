@@ -88,11 +88,15 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo inteiro para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
-			if((Op1->type == FuncInt || Op1->type == VarInt || Op1->type == Inteiro) && (Op2->type == FuncInt || Op2->type == VarInt || Op2->type == Inteiro)){
+			if((Op1->type == Inteiro) && (Op2->type == Inteiro)){
 				typeResult->type = Inteiro;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
+				free(Op1);
+				free(Op2);
+				free(typeResult);
+				return;
 			}
 			free(Op1);
 			free(Op2);
@@ -101,24 +105,32 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
 
-			if((Op1->type == FuncBool || Op1->type == VarBool || Op1->type == Booleano ) && (Op2->type == FuncBool || Op2->type == VarBool || Op2->type == Booleano)){
+			if((Op1->type ==  Booleano) && (Op2->type == Booleano)){
 				typeResult->type = Booleano;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
+				free(Op1);
+				free(Op2);
+				free(typeResult);
+				return;
 			}
 			free(Op1);
 			free(Op2);
 		} else if(aux->type == UnarioN || aux->type == UnarioP || aux->type == Nao) {
 			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento 
 			if(aux->next != NULL) {
-				if(aux->next->type == FuncInt || aux->next->type == VarInt || aux->next->type == Inteiro) {
+				if(aux->next->type == Inteiro) {
 					typeResult->type = Inteiro;
 					push(&stack, aux);
 					aux = aux->next->next;
 					continue;
 				} else {
 					detectError(27, lineCount,'\0');
+					free(Op1);
+					free(Op2);
+					free(typeResult);
+					return;
 				}
 			}	
 
@@ -132,6 +144,10 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
+				free(Op1);
+				free(Op2);
+				free(typeResult);
+				return;
 			}
 			free(Op1);
 			free(Op2);
@@ -482,11 +498,11 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, Expres
 			else errorSintax(token, 1, ';');
 		} else errorSintax(token, 26, '\0');
 	} else errorSintax(token, 14, '\0');
-	printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
-	printStack((*symbol));
+	//printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
+	//printStack((*symbol));
 	unStack(symbol);// DESEMPILHA OU VOLTA NÍVEL();
-	printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
-	printStack((*symbol));
+	//printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
+	//printStack((*symbol));
 }
 
 // declaração de função
@@ -512,11 +528,11 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, Express
 		} else
 			errorSintax(token,23,'\0');
 	} else errorSintax(token, 15, '\0');
-	printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
-	printStack((*symbol));
+	//printf("\n\nANTEEESS DE DESMPILHAR O NIVEL\n");
+	//printStack((*symbol));
 	unStack(symbol);// DESEMPILHA OU VOLTA NÍVEL();
-	printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
-	printStack((*symbol));
+	// printf("\n\nDEPOIIISS DE DESMPILHAR O NIVEL\n");
+	// printStack((*symbol));
 }
 
 // expressão
