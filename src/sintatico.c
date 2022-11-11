@@ -78,7 +78,7 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 }
 
 void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType) {
-	ExpressionAnalyzer *aux = (*expression), *Op1, *Op2;
+	ExpressionAnalyzer *aux = (*expression), Op1, Op2, *ant = NULL;
 	simpleStack *stack = NULL;
 	ExpressionAnalyzer *typeResult = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
 	strcpy(typeResult->lexeme, "RESULT");
@@ -88,73 +88,59 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo inteiro para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
-			if((Op1->type == Inteiro) && (Op2->type == Inteiro)){
+			if((Op1.type == Inteiro) && (Op2.type == Inteiro)){
 				typeResult->type = Inteiro;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
-				free(Op1);
-				free(Op2);
 				free(typeResult);
 				return;
 			}
-			free(Op1);
-			free(Op2);
 		} else if(aux->type == E || aux->type == OU) {
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
 
-			if((Op1->type ==  Booleano) && (Op2->type == Booleano)){
+			if((Op1.type ==  Booleano) && (Op2.type == Booleano)){
 				typeResult->type = Booleano;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
-				free(Op1);
-				free(Op2);
 				free(typeResult);
 				return;
 			}
-			free(Op1);
-			free(Op2);
 		} else if(aux->type == UnarioN || aux->type == UnarioP || aux->type == Nao) {
 			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento 
 			if(aux->next != NULL) {
-				if(aux->next->type == Inteiro) {
+				if(ant->type == Inteiro) {
 					typeResult->type = Inteiro;
 					push(&stack, aux);
-					aux = aux->next->next;
-					continue;
+					//aux = aux->next->next;
+					//continue;
 				} else {
 					detectError(27, lineCount,'\0');
-					free(Op1);
-					free(Op2);
 					free(typeResult);
 					return;
 				}
-			}	
-
+			}
 		}else if(aux->type == Rel){ //Relacional (Pode ser inteiro ou boleano )
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
 
-			if((Op1->type == FuncInt || Op1->type == VarInt || Op1->type == Inteiro || Op1->type == FuncBool || Op1->type == VarBool || Op1->type == Booleano ) && (Op2->type == FuncInt || Op2->type == VarInt || Op2->type == Inteiro || Op2->type == FuncBool || Op2->type == VarBool || Op2->type == Booleano)){
+			if((Op1.type == Inteiro ||  Op1.type == Booleano ) && (Op2.type == Inteiro || Op2.type == Booleano)){
 				typeResult->type = Booleano;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
-				free(Op1);
-				free(Op2);
 				free(typeResult);
 				return;
 			}
-			free(Op1);
-			free(Op2);
 		}else {
 			// Variáveis e constantes
 			push(&stack, aux);
 		}
+		ant = aux;
 		aux = aux->next;
 	}
 	// No final deve haver a verificação do tipo do elemento restante, se houver mais de um: erro
@@ -162,24 +148,27 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 	if(stack != NULL){//ainda tem operandos na pilhar (A expressão não esta correta)
 		freeSimpleStack(&stack);
 		detectError(27, lineCount,'\0');
-	}else if(Op1->type != expectedType){
+	}else if(Op1.type != expectedType){
 		detectError(17, lineCount,'\0');
 	}
+	
 	free(typeResult);
-	free(Op1);
-	printf("\nType %d - Expected %d", Op1->type,  expectedType);
+	printf("\nType %d - Expected %d", Op1.type,  expectedType);
 }
 
 void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	ExpressionAnalyzer *posFix = NULL;
 	ExpressionAnalyzer *analyze = NULL;
-	printExpression(*inFix, "IN_FIX");
+	//if(debug)
+		printExpression(*inFix, "IN_FIX");
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	convertPosFix(inFix, &posFix);
-	printExpression(posFix, "POS_FIX");
+	//if(debug)
+		printExpression(posFix, "POS_FIX");
 	copyExpression(&analyze, posFix);
-	printExpression(analyze, "COPY_POS_FIX");
+	if(debug)
+		printExpression(analyze, "COPY_POS_FIX");
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	analyzeExpressionType(&analyze, type);

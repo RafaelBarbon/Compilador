@@ -50,7 +50,7 @@ typedef struct simpleStack {
 
 void push(simpleStack **stack, ExpressionAnalyzer *c);
 
-ExpressionAnalyzer* pop(simpleStack **stack);
+ExpressionAnalyzer pop(simpleStack **stack);
 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 

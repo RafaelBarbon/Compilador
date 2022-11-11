@@ -1,15 +1,14 @@
 programa testezaum;
-var freio,a,b,s: inteiro;
+var freio,b,s: booleano;
+a:inteiro;
 
 inicio      {corpo principal}
-  freio := (10+7*5div(30+5)<=(10*5+2))e(20>0)
-  
-  ;
-  a:= (203+(-120div2))ou(603-307);
-  b:= (1<=2)! (307div4>5);
-  s:= ((verdadeiro e verdadeiro)<(falso e verdadeiro) ou(verdadeiro ou verdadeiro)) * 20 + 3div2-490;
-  escreva(freio)
-  escreva(a)
-  escreva(b)
-  escreva(s)
+  freio := (10+7*5 div(30+5)<=(10*5+2))e(20>0);
+  {10 7 5 * + div 30 5 + 10 5 * 2 + <= 20 0 > e}
+  a:= (203+(-120 div 2)) * (603-307);
+  {}
+  b:= (1<=2)< (307 div 45);
+  {1 2 <= 307 45 div <}
+  s:= ((verdadeiro e verdadeiro)<(falso e verdadeiro) ou(verdadeiro ou verdadeiro)) < 20 = 3 div 2-490;
+  {verdadeiro verdadeiro e falso verdadeiro e < verdadeiro verdadeiro ou ou 20 3 2 div 490 - = <}
 fim.
