@@ -14,16 +14,21 @@
 ### Windows
 * Abra o terminal e execute o comando `.\exec.bat` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
-Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`
+Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`. Caso o programa fonte a ser analisado seja muito grande, utilize `.\compilador <nome do arquivo>.txt 1 > log.txt` para salvar os logs.
 
 ### Linux && MAC
 * Abra o terminal e execute o comando `make` para compilar o programa
 * Com o programa compilado, execute `.\compilador <nome do arquivo>.txt`
-Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`
+Obs: é possível obter os logs de debug executando o programa com o comando `.\compilador <nome do arquivo>.txt 1`. Caso o programa fonte a ser analisado seja muito grande, utilize `.\compilador <nome do arquivo>.txt 1 > log.txt` para salvar os logs.
 
 ## Descrição
 O presente compilador realiza a tradução da linguagem de programação conforme o diagrama sintático descrito a seguir:
+
 ![Diagrama sintático](diagrama%20sintatico.png)
+
+Os tokens utlizados para identificar cada tipo de palavra reservada ou símbolo reservado são descritos na tabela a seguir:
+
+![Tabela lexema-símbolo](Tabela_Lexama-Simbolo.jpeg)
 
 ## Autores
 [Derek Freire Quaresma](https://github.com/derekfq)

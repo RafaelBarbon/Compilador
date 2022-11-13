@@ -1,24 +1,27 @@
-{ teste procedimentos e funcoes aninhados recursivos OK }
-
+{ teste procedimentos e funcoes aninhados recursivos OK
+}
 
 programa test;
 var a,b,s: inteiro;                 
                               
  funcao soma: inteiro;
- var c,a,s: inteiro;                   
-     z: booleano;                    
-  procedimento ler;          
-  inicio
-     leia (c);    
-     leia (a);
-     s== soma;                  
-     escreva (s);
-  fim;
+  var c,a,s,x: inteiro;                   
+  {z: booleano;  }                  
+    procedimento ler;  
+    var h: booleano;        
+    inicio
+      leia (c);
+      se x < 10
+    entao ler;      leia (a);
+      s := a + 1-2*3;                  
+      a := 1+1;
+      escreva (s);
+    fim;
   procedimento loop;         
   var x: inteiro;
   inicio
-    leia (x);   {para parar digite um valor maior que@ 9 } 
-    se x:10
+    leia (x);   {para parar digite um valor maior que 9 }
+    se x < 10
     entao ler;               
   fim;
  
@@ -32,5 +35,4 @@ inicio      {corpo principal}
   s:= soma;                              
   escreva(s)
 fim.                               
-
 

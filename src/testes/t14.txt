@@ -1,0 +1,23 @@
+{* testar operadores unarios - OK - se (-a-b <=10) escreve  
+1o valor senao escreve 2o   
+digitar 2 e 3 escrevera 2 
+digitar -100 e 10 dar -100 *}
+ 
+programa teste; 
+ 
+var a,b: inteiro; 
+    x, y: booleano; 
+ 
+inicio 
+ 
+  leia (a); 
+  leia(b); 
+  x:= verdadeiro; 
+  se ((-a-b) <= 10) e (x) 
+  entao y:= x 
+  senao y:= falso; 
+  se y 
+  entao escreva (a) 
+  senao escreva(b) 
+ 
+fim.
