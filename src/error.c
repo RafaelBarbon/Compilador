@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "verifyChar.h"
 
 void detectError(int errorCode, int line, char symbol) {
+    error = true;
     switch(errorCode) {
         case 1:
             printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
@@ -81,6 +83,12 @@ void detectError(int errorCode, int line, char symbol) {
             break;
         case 26:
             printf("\nErro L%d: Procedimento duplicado\n", line);
+            break;
+        case 27:
+            printf("\nErro L%d: Expressao com conflito de tipo\n", line);
+            break;
+        case 28:
+            printf("\nErro L%d: Nao e posivel atribuir um valor a uma funcao fora de seu escopo\n", line);
             break;
         default:
             printf("\nErro desconhecido!\n");

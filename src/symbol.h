@@ -26,34 +26,47 @@ typedef struct symbol {
     struct symbol *next;
 }Symbol;
 
-
 //#################################################################
+
+typedef enum LexemeType{
+    VarInt, VarBool, FuncInt, FuncBool, AbreP, FechaP,
+    UnarioN, UnarioP,
+    OpMultDiv, OpMaisMenos, Rel,
+    Nao, E, OU,
+    Inteiro, Booleano, NaoFirst
+}LexemeType;
+
+typedef struct expressionAnalyzer {
+    char lexeme[30];
+    LexemeType type;
+    struct expressionAnalyzer *next;
+}ExpressionAnalyzer;
+
 //Simple stack functions (Posfix conversion)
 typedef struct simpleStack {
-    char c;
+    ExpressionAnalyzer *c;
     struct simpleStack *next;
 }simpleStack;
 
-void push(simpleStack **stack, char c);
+void push(simpleStack **stack, ExpressionAnalyzer *c);
 
-char pop(simpleStack **stack);
+ExpressionAnalyzer pop(simpleStack **stack);
 
-//Numero     -> N
-//Relação    -> R
-//div        -> /
-//variavel   -> V
-//Boleano    -> B
-//E          -> &
-//NAO        -> !
-//OU         -> |
-//UniárioNeg ->
-//UnárioPos  ->
+void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 
-char* convertPosFix(char *inFix, int size, char *ret);
+void verifyUnaryOperators(ExpressionAnalyzer **inFix);
 
 char unstackOperator(simpleStack **stack, char op);
 
-void searchStackMorePrecedence(simpleStack **stack, char op, int *j, char *stringRet);
+void freeSimpleStack(simpleStack **st);
+
+void printSimpleStack(simpleStack *s);
+
+void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
+
+void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type);
+
+void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 
 //#################################################################
 
@@ -73,6 +86,12 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
+void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
+
+void freeExpression(ExpressionAnalyzer **l);
+
+LexemeType getVarType(Symbol *l, char *lexeme);
+
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);
 
@@ -88,15 +107,13 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 // verify if the var/func was declared
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
 
-// Verify if the int var/func was declared
-bool verifyIntVarFuncDeclaration(Symbol *stack, char *lexeme);
-
 // Verify if the int var was declared
 bool verifyVarDeclaration(Symbol *stack, char *lexeme);
 
 // Unstack until the next scope (local variable region)
 void unStack(Symbol **symbol);
 
+SymbolType searchVarFuncType(Symbol *l, char *lexeme);
 
 bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
 

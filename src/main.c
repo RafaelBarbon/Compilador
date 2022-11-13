@@ -13,11 +13,14 @@
 // Control variables
 Token *tokenList = NULL;
 Symbol *symbolList = NULL;
+ExpressionAnalyzer *inFix = NULL;
+
 int lineCount = 1;
 FILE *sourceFile;
 bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
 bool insertArray = false;
+bool error = false;
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
@@ -47,20 +50,16 @@ int main(int argc, char *argv[]) {
 
     updateCursor(&c);
 
-    //syntacticAnalyzer(&c, &tokenList, &symbolList);
+    syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
     char ret[30] = {0};
 
-    //VVAR+VRAFA
-    // TODO - atribuir o nome e os operadores no infix para ser analisado no posFix, colocar espaços após o nome de var para não ocorrer de: Z<0 = VzR>N0
-    //TODO - Tratar Unário 
-    // TODO implementar no sintático
-
-    printf("%s",convertPosFix("(V+N*N/(N+V)R(V*V+N))&(VRN)",27, ret));
+    // TODO Geração de código
 
     fclose(sourceFile);
 
     //printToken(tokenList);
-    printf("\n\nCOMPILOU\n\n");
+    printf("\n\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+
 
     freeToken(&tokenList);
     freeSymbol(&symbolList);

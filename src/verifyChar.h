@@ -8,6 +8,8 @@
 
 extern bool debug;
 
+extern bool error;
+
 extern bool flagUpdate;
 
 extern bool insertArray;
