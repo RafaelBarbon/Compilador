@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "symbol.h"
+#include "error.h"
 #include "verifyChar.h"
 
 
@@ -19,6 +20,10 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
 }
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
+    
+    if(list == NULL)
+        return;
+        
     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
 
     //printf("\nInsert INFIX - %s", lexeme);
@@ -30,16 +35,17 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     new->type = type;
 
     new->next = NULL;
-    //printf("\n%s %d",new->lexeme, new->type);
-    //getchar();
+    printf("\n%s %d",new->lexeme, new->type);
+    getchar();
     if((*list) == NULL) {
+        printf("\nInsert Infix: %s", lexeme);
         //printf("\nSegmentation0");
         //getchar();
         *list = new;
         return;
     }
-    //printf("\nSegmentation1");
-    //getchar();
+    // printf("\nSegmentation1");
+    // getchar();
     ExpressionAnalyzer *aux = *list;
     while(aux->next != NULL) {
         aux = aux->next;
@@ -48,6 +54,8 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     aux->next = new;
     // printf("\nSegmentation2");
     // getchar();
+    printf("\nSaiu Inser Token");
+    getchar();
 }
 
 void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
@@ -136,7 +144,8 @@ LexemeType getVarType(Symbol *l, char *lexeme) {
     //printStack(l);
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(isEqualString(aux->lexeme, lexeme)){
-            //printf("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
+
+            printf("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
             if(aux->type == VarBooleana || aux->type == VarInteira)
                 return aux->type == VarBooleana ? Booleano : Inteiro;
             else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
@@ -148,6 +157,7 @@ LexemeType getVarType(Symbol *l, char *lexeme) {
             sameScope = false;
         }
     }
+    detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
 }
 
 bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
@@ -169,13 +179,6 @@ bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
         if(isEqualString(l->lexeme, lexeme) && (l->type == FuncBooleana || l->type == FuncInteira)){
             return true;
         }
-    return false;
-}
-
-bool verifyIntVarFuncDeclaration(Symbol *symbol, char *lexeme) {
-    for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(isEqualString(l->lexeme, lexeme) && (l->type == VarInteira || l->type == FuncInteira))
-            return true;
     return false;
 }
 
@@ -217,7 +220,6 @@ void push(simpleStack **stack, ExpressionAnalyzer *op){
 }
 
 ExpressionAnalyzer pop(simpleStack **stack) {
-    
 
     ExpressionAnalyzer ret;
 
@@ -237,6 +239,15 @@ ExpressionAnalyzer pop(simpleStack **stack) {
     free(old->c);
     free(old);
     return ret;
+}
+
+void printSimpleStack(simpleStack *s) {
+    simpleStack *pointer = s;
+    printf("\n\nSTACK:\n");
+    while(pointer != NULL) {
+        printf(" %d ", pointer->c->type);
+        pointer = pointer->next;
+    }
 }
 
 void freeSimpleStack(simpleStack **st) {
@@ -259,11 +270,14 @@ void freeExpression(ExpressionAnalyzer **l) {
     (*l) = NULL;
 }
 
-void printExpression(ExpressionAnalyzer *ex, char *ty) {
+void printExpression(ExpressionAnalyzer *ex, char *ty, bool type) {
     ExpressionAnalyzer *aux = ex;
     printf("\n\n%s\n",ty);
     while(aux != NULL) {
-        printf(" %s ",aux->lexeme);
+        if(type)
+            printf(" %d ",aux->type);
+        else
+            printf(" %s ",aux->lexeme);
         aux = aux->next;
     }
     printf("\n\n");
@@ -411,8 +425,10 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
                 aux->type = UnarioP;
             } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { //unário positivo (remove)
                 if(isEqualString(aux->lexeme, "+")){
+
                     aux->type = UnarioP;
                 } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
+                    
                     aux->type = UnarioN;
                 }
             }
@@ -420,7 +436,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
         last = aux;
         aux = aux->next;
     }
-
+    printExpression(*inFix, "Type VerifyUn",true);
 }
 
 

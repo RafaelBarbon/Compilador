@@ -60,11 +60,13 @@ char unstackOperator(simpleStack **stack, char op);
 
 void freeSimpleStack(simpleStack **st);
 
+void printSimpleStack(simpleStack *s);
+
 void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type);
 
-void printExpression(ExpressionAnalyzer *ex, char *ty);
+void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 
 //#################################################################
 
@@ -104,9 +106,6 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 
 // verify if the var/func was declared
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
-
-// Verify if the int var/func was declared
-bool verifyIntVarFuncDeclaration(Symbol *stack, char *lexeme);
 
 // Verify if the int var was declared
 bool verifyVarDeclaration(Symbol *stack, char *lexeme);

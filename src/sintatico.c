@@ -28,7 +28,7 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	//printf("\n%s\n", (*token)->lexeme);
 	//Used on expression analyzer
 	if(insertArray) {
-		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo 
+		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo
 		// TODO Posfix
 		//printf("\nTOKEN_TYPE_INSERT - %s - %s\n", (*token)->lexeme, (*token)->symbol);
 		if(isEqualString((*token)->symbol, "sidentificador")){
@@ -68,8 +68,13 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 			insertInFix(InFix, (*token)->lexeme, OU);
 		else if(isEqualString((*token)->symbol, "sabre_parenteses"))
 			insertInFix(InFix, (*token)->lexeme, AbreP);
-		else if(isEqualString((*token)->symbol, "sfecha_parenteses"))
+		else if(isEqualString((*token)->symbol, "sfecha_parenteses")) {
+			printf("\n%d\n", *InFix == NULL ? 0:1);
+
 			insertInFix(InFix, (*token)->lexeme, FechaP);
+			printf("\n\nO que vai colocar no print?\n\n");
+			getchar();
+		}
 		else if(isEqualString((*token)->symbol, "sverdadeiro"))
 			insertInFix(InFix, (*token)->lexeme, Booleano);
 		else if(isEqualString((*token)->symbol, "sfalso"))
@@ -78,13 +83,13 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 }
 
 void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType) {
-	ExpressionAnalyzer *aux = (*expression), Op1, Op2, *ant = NULL;
+	ExpressionAnalyzer *exp = (*expression), Op1, Op2, ant;
 	simpleStack *stack = NULL;
 	ExpressionAnalyzer *typeResult = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
 	strcpy(typeResult->lexeme, "RESULT");
 
-	while(aux != NULL) {
-		if(aux->type == OpMultDiv || aux->type == OpMaisMenos){
+	while(exp != NULL) {
+		if(exp->type == OpMultDiv || exp->type == OpMaisMenos){
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo inteiro para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
@@ -94,9 +99,10 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			}else{
 				detectError(27, lineCount,'\0');
 				free(typeResult);
+				//printf("\nT1_Type: %d   -   T2_Type: %d", Op1.type, Op2.type);
 				return;
 			}
-		} else if(aux->type == E || aux->type == OU) {
+		} else if(exp->type == E || exp->type == OU) {
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
@@ -109,12 +115,13 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 				free(typeResult);
 				return;
 			}
-		} else if(aux->type == UnarioN || aux->type == UnarioP || aux->type == Nao) {
-			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento 
-			if(aux->next != NULL) {
-				if(ant->type == Inteiro) {
+		} else if(exp->type == UnarioN || exp->type == UnarioP || exp->type == Nao) {
+			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento
+			if(exp->next != NULL) {
+				ant = pop(&stack);
+				if(ant.type == Inteiro) {
 					typeResult->type = Inteiro;
-					push(&stack, aux);
+					push(&stack, typeResult);
 					//aux = aux->next->next;
 					//continue;
 				} else {
@@ -123,7 +130,7 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 					return;
 				}
 			}
-		}else if(aux->type == Rel){ //Relacional (Pode ser inteiro ou boleano )
+		}else if(exp->type == Rel){ //Relacional (Pode ser inteiro ou boleano )
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo booleano para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
@@ -138,12 +145,14 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			}
 		}else {
 			// Variáveis e constantes
-			push(&stack, aux);
+			push(&stack, exp);
 		}
-		ant = aux;
-		aux = aux->next;
+		//ant = exp;
+		exp = exp->next;
 	}
 	// No final deve haver a verificação do tipo do elemento restante, se houver mais de um: erro
+	printSimpleStack(stack);
+	getchar();
 	Op1 = pop(&stack);
 	if(stack != NULL){//ainda tem operandos na pilhar (A expressão não esta correta)
 		freeSimpleStack(&stack);
@@ -151,7 +160,7 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 	}else if(Op1.type != expectedType){
 		detectError(17, lineCount,'\0');
 	}
-	
+
 	free(typeResult);
 	printf("\nType %d - Expected %d", Op1.type,  expectedType);
 }
@@ -160,21 +169,22 @@ void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	ExpressionAnalyzer *posFix = NULL;
 	ExpressionAnalyzer *analyze = NULL;
 	//if(debug)
-		printExpression(*inFix, "IN_FIX");
+		printExpression(*inFix, "IN_FIX", false);
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	convertPosFix(inFix, &posFix);
 	//if(debug)
-		printExpression(posFix, "POS_FIX");
+	printExpression(posFix, "POS_FIX", false);
+	printExpression(posFix, "TYPE_POSFIX", true);
 	copyExpression(&analyze, posFix);
 	if(debug)
-		printExpression(analyze, "COPY_POS_FIX");
+		printExpression(analyze, "COPY_POS_FIX", false);
 	//printf("\nSEGMENTATION?\n");
 	//getchar();
 	analyzeExpressionType(&analyze, type);
 	//generateExpressionCode(posFix);
 	//printExpression(*inFix);
-	
+
 	freeExpression(inFix);
 	freeExpression(&posFix);
 	freeExpression(&analyze);
@@ -385,7 +395,7 @@ void analyzeWrite(char *c, Token **token, Symbol **symbol) {
 	if (isEqualString((*token)->symbol, "sabre_parenteses")) {
 		getNewToken(c, token, NULL, NULL);
 		if (isEqualString((*token)->symbol, "sidentificador")) {
-			if (verifyIntVarFuncDeclaration(*symbol, (*token)->lexeme)){// Pesquisa declaração de função e variável do tipo inteiro /////// TODO escreva é só p/ variáveis
+			if (verifyVarDeclaration(*symbol, (*token)->lexeme)){// Pesquisa declaração de função e variável do tipo inteiro /////// TODO escreva é só p/ variáveis
 				getNewToken(c, token, NULL, NULL);
 				if (isEqualString((*token)->symbol,"sfecha_parenteses")) {
 					getNewToken(c, token, NULL, NULL);
