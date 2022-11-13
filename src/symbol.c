@@ -35,10 +35,10 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     new->type = type;
 
     new->next = NULL;
-    printf("\n%s %d",new->lexeme, new->type);
-    getchar();
+    //printf("\n%s %d",new->lexeme, new->type);
+    //getchar();
     if((*list) == NULL) {
-        printf("\nInsert Infix: %s", lexeme);
+        //printf("\nInsert Infix: %s", lexeme);
         //printf("\nSegmentation0");
         //getchar();
         *list = new;
@@ -54,8 +54,8 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     aux->next = new;
     // printf("\nSegmentation2");
     // getchar();
-    printf("\nSaiu Inser Token");
-    getchar();
+    //printf("\nSaiu Inser Token");
+    //getchar();
 }
 
 void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
@@ -145,7 +145,7 @@ LexemeType getVarType(Symbol *l, char *lexeme) {
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(isEqualString(aux->lexeme, lexeme)){
 
-            printf("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
+            //("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
             if(aux->type == VarBooleana || aux->type == VarInteira)
                 return aux->type == VarBooleana ? Booleano : Inteiro;
             else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
@@ -224,7 +224,7 @@ ExpressionAnalyzer pop(simpleStack **stack) {
     ExpressionAnalyzer ret;
 
     if((*stack) == NULL){
-        strcpy(ret.lexeme, "ERRO RAFAEL");
+        strcpy(ret.lexeme, "VAZIA");
         // ret.type = Inteiro;
         return ret;
     }
@@ -416,27 +416,41 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
     loop
         Se atual for + ou - e atual não for varint/funcint/num, atribui unario
     */
-    ExpressionAnalyzer *aux = (*inFix), *auxFree = NULL, *last = NULL;
+    ExpressionAnalyzer *aux = (*inFix), *auxFree = NULL, *last = NULL, *aux2 = NULL;
     while(aux != NULL) {
-        if(aux->type == OpMaisMenos && aux->next != NULL) {
-            if(last == NULL && isEqualString(aux->lexeme, "-")) { //unário negativo
-                aux->type = UnarioN;
-            } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
-                aux->type = UnarioP;
-            } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { //unário positivo (remove)
-                if(isEqualString(aux->lexeme, "+")){
-
-                    aux->type = UnarioP;
-                } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
-                    
+        if(aux->next != NULL){
+            if(aux->type == OpMaisMenos) {
+                if(last == NULL && isEqualString(aux->lexeme, "-")) { //unário negativo
                     aux->type = UnarioN;
+                } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
+                    aux->type = UnarioP;
+                } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { //unário positivo (remove)
+                    if(isEqualString(aux->lexeme, "+")){
+                        aux->type = UnarioP;
+                    } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
+                        aux->type = UnarioN;
+                    }
+                }
+            } else if(aux->type == Nao && aux->next != NULL && aux->next->type == Nao){ //(NAO NAO) (Se anulam)
+                if(last != NULL)
+                    last->next = aux->next->next;
+                else
+                    aux2 = aux->next->next;
+                free(aux->next);
+                free(aux);
+                if(last != NULL)
+                    aux = last;
+                else{
+                    aux = aux2;
+                    (*inFix) = aux2;
+                    continue;
                 }
             }
         }
         last = aux;
         aux = aux->next;
     }
-    printExpression(*inFix, "Type VerifyUn",true);
+    //printExpression(*inFix, "Type VerifyUn",true);
 }
 
 
@@ -457,6 +471,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
     verifyUnaryOperators(inFixIn);
+    printExpression(*inFixIn, "IN_FIX_DEPOIS", false);
     //printf("\nENTROU POSFIX");
     simpleStack *stack = NULL;
 

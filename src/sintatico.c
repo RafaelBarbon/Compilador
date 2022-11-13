@@ -29,7 +29,6 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	//Used on expression analyzer
 	if(insertArray) {
 		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo
-		// TODO Posfix
 		//printf("\nTOKEN_TYPE_INSERT - %s - %s\n", (*token)->lexeme, (*token)->symbol);
 		if(isEqualString((*token)->symbol, "sidentificador")){
 			SymbolType type = searchVarFuncType(symbolList, (*token)->lexeme);
@@ -69,11 +68,11 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 		else if(isEqualString((*token)->symbol, "sabre_parenteses"))
 			insertInFix(InFix, (*token)->lexeme, AbreP);
 		else if(isEqualString((*token)->symbol, "sfecha_parenteses")) {
-			printf("\n%d\n", *InFix == NULL ? 0:1);
+			//printf("\n%d\n", *InFix == NULL ? 0:1);
 
 			insertInFix(InFix, (*token)->lexeme, FechaP);
-			printf("\n\nO que vai colocar no print?\n\n");
-			getchar();
+			//printf("\n\nO que vai colocar no print?\n\n");
+			//getchar();
 		}
 		else if(isEqualString((*token)->symbol, "sverdadeiro"))
 			insertInFix(InFix, (*token)->lexeme, Booleano);
@@ -84,6 +83,7 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 
 void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType) {
 	ExpressionAnalyzer *exp = (*expression), Op1, Op2, ant;
+	bool FirstNao = false;
 	simpleStack *stack = NULL;
 	ExpressionAnalyzer *typeResult = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
 	strcpy(typeResult->lexeme, "RESULT");
@@ -93,13 +93,13 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			// Coleta os dois elementos no topo da pilha (pop) e realiza a verificação do tipo inteiro para realizar push do tipo final
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
-			if((Op1.type == Inteiro) && (Op2.type == Inteiro)){
+			if((Op1.type == Inteiro || Op1.type == FuncInt) && (Op2.type == Inteiro || Op2.type == FuncInt)){
 				typeResult->type = Inteiro;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
 				free(typeResult);
-				//printf("\nT1_Type: %d   -   T2_Type: %d", Op1.type, Op2.type);
+				printf("\nT1_Type: %d   -   T2_Type: %d", Op1.type, Op2.type);
 				return;
 			}
 		} else if(exp->type == E || exp->type == OU) {
@@ -107,19 +107,43 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
 
-			if((Op1.type ==  Booleano) && (Op2.type == Booleano)){
+			if((Op1.type ==  Booleano || Op1.type == FuncBool) && (Op2.type == Booleano || Op2.type == FuncBool)){
 				typeResult->type = Booleano;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
 				free(typeResult);
+				printf("\nT1_Type: %d   -   T2_Type: %d", Op1.type, Op2.type);
 				return;
 			}
 		} else if(exp->type == UnarioN || exp->type == UnarioP || exp->type == Nao) {
 			// Verifica unário (+-nao) e o tipo do próximo elemento, colocando na pilha o tipo do próximo elemento
 			if(exp->next != NULL) {
 				ant = pop(&stack);
-				if(ant.type == Inteiro) {
+				printf("\nPOP - %s", ant.lexeme);
+				if(exp->type == Nao){
+					// if(isEqualString(ant.lexeme, "VAZIA")){//Primeiro é uma negação{
+					// 	printf("\nNao ta entrano aqui\n");
+					// 	FirstNao = true;
+					// 	strcpy(typeResult->lexeme, "NAO_FIRST");
+					// 	typeResult->type = Nao;
+					// 	push(&stack, typeResult);
+					// }
+					// if(ant.type == Nao){
+					// 	//Ja fez POP (Anula o Não anterior)
+					// }
+					if(ant.type == Booleano || ant.type == FuncBool) {
+						typeResult->type = Booleano;
+						push(&stack, typeResult);
+						//aux = aux->next->next;
+						//continue;
+					} else {
+						detectError(27, lineCount,'\0');
+						free(typeResult);
+						printf("\nTBool_Type: %s" ,ant.lexeme);
+						return;
+					}
+				} else if(ant.type == Inteiro || ant.type == FuncInt) {
 					typeResult->type = Inteiro;
 					push(&stack, typeResult);
 					//aux = aux->next->next;
@@ -127,6 +151,7 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 				} else {
 					detectError(27, lineCount,'\0');
 					free(typeResult);
+					printf("\nTInt_Type: %d" ,ant.type);
 					return;
 				}
 			}
@@ -135,12 +160,13 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 			Op1 = pop(&stack);
 			Op2 = pop(&stack);
 
-			if((Op1.type == Inteiro ||  Op1.type == Booleano ) && (Op2.type == Inteiro || Op2.type == Booleano)){
+			if(((Op1.type == Inteiro ||  Op1.type == FuncInt) && (Op2.type == Inteiro || Op2.type == FuncInt)) || ((Op1.type == Booleano ||  Op1.type == FuncBool) && (Op2.type == Booleano || Op2.type == FuncBool))){
 				typeResult->type = Booleano;
 				push(&stack, typeResult);
 			}else{
 				detectError(27, lineCount,'\0');
 				free(typeResult);
+				printf("\nT1_Type: %d   -   T2_Type: %d", Op1.type, Op2.type);
 				return;
 			}
 		}else {
@@ -151,18 +177,26 @@ void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedT
 		exp = exp->next;
 	}
 	// No final deve haver a verificação do tipo do elemento restante, se houver mais de um: erro
-	printSimpleStack(stack);
-	getchar();
+	//printSimpleStack(stack);
+	//getchar();
 	Op1 = pop(&stack);
 	if(stack != NULL){//ainda tem operandos na pilhar (A expressão não esta correta)
-		freeSimpleStack(&stack);
+		//printf("\nTipo do pop: %d FirstNao: %s\n", Op1.type, FirstNao ? "TRUE":"FALSE");
+		// if(FirstNao && Op1.type == Booleano) { //Tem operadores NAO no Resto da Pilha
+		// 	for(simpleStack *i = stack; i != NULL; i = i->next){
+		// 	 	if(i->c->type != NaoFirst)
+		// 	 		detectError(27, lineCount,'\0');
+		// 	}
+		// } else 
 		detectError(27, lineCount,'\0');
+		freeSimpleStack(&stack);
 	}else if(Op1.type != expectedType){
 		detectError(17, lineCount,'\0');
 	}
 
 	free(typeResult);
-	printf("\nType %d - Expected %d", Op1.type,  expectedType);
+	//if(debug)
+		printf("\nType %d - Expected %d", Op1.type,  expectedType);
 }
 
 void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
@@ -175,7 +209,7 @@ void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type) {
 	convertPosFix(inFix, &posFix);
 	//if(debug)
 	printExpression(posFix, "POS_FIX", false);
-	printExpression(posFix, "TYPE_POSFIX", true);
+	//printExpression(posFix, "TYPE_POSFIX", true);
 	copyExpression(&analyze, posFix);
 	if(debug)
 		printExpression(analyze, "COPY_POS_FIX", false);
@@ -344,8 +378,6 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 		errorSintax(token,28,'\0');
 	semanticAnalyzer(inFix, type);
 
-	// TODO
-	// Implementação do posfix
 	// Verificar chamada de função e identificador seguido de expressões aritméticas e/ou booleana, terminando por ;
 }
 
@@ -353,20 +385,17 @@ void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol)
 	if(debug)
         printf("\nDEBUG - Sintatico - Chamada procedimento\n");
 
-	if(isEqualString((*token)->symbol, "sponto_virgula")) {
+	if(isEqualString((*token)->symbol, "sponto_virgula") || isEqualString((*token)->symbol, "sfim") || isEqualString((*token)->symbol, "ssenao")) { //Pode chamar no ultimo comando ou logo após um condicional com um comando comando so e o senao
 		if(verifyProcedureDeclaration((*symbol), nameProcedure)) {
 			// Geração de código
 		} else errorSintax(token, 25, '\0');
 	} else errorSintax(token, 20, '\0');
 }
 
-void analyzeFunctionCall(char *c, Token **token) {
+void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa chamada funcao\n");
-	// TODO
-	// Implementacao do posfix
-	// Verifica o retorno da função dentro do posfix
-	getNewToken(c, token, NULL, NULL);
+	getNewToken(c, token, symbol, inFix);
 }
 
 // comando leitura
@@ -578,10 +607,9 @@ void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **
     if (isEqualString((*token)->symbol,"sidentificador")) { // Variável ou Função
 		if (verifyVarFuncDeclaration(symbol,  (*token)->lexeme)) { // Coleta o identificador correspondente para verificar seu tipo
 			if (verifyFunctionDeclaration(symbol, (*token)->lexeme))
-        		analyzeFunctionCall(c, token);
-			else {
+				analyzeFunctionCall(c, token, symbol, inFix);
+			else
 				getNewToken(c, token, symbol, inFix);
-			}
 		} else errorSintax(token,24,'\0');
 	} else if (isEqualString((*token)->symbol,"snumero")) {
 		getNewToken(c, token, symbol, inFix);

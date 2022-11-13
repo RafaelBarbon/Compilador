@@ -78,7 +78,7 @@ void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol)
 
 void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, char *name);
 
-void analyzeFunctionCall(char *c, Token **token);
+void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
 
 #endif
 

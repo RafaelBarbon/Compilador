@@ -33,7 +33,7 @@ typedef enum LexemeType{
     UnarioN, UnarioP,
     OpMultDiv, OpMaisMenos, Rel,
     Nao, E, OU,
-    Inteiro, Booleano
+    Inteiro, Booleano, NaoFirst
 }LexemeType;
 
 typedef struct expressionAnalyzer {

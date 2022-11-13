@@ -53,8 +53,6 @@ int main(int argc, char *argv[]) {
     syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
     char ret[30] = {0};
 
-    // TODO implementar no sintático o PosFix
-    // TODO Fazer a análise da expressão posFix
     // TODO Geração de código
 
     fclose(sourceFile);
