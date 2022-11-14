@@ -16,7 +16,7 @@ Symbol *symbolList = NULL;
 ExpressionAnalyzer *inFix = NULL;
 
 int lineCount = 1;
-FILE *sourceFile;
+FILE *sourceFile, *outputCode;
 bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
 bool insertArray = false;

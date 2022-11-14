@@ -16,7 +16,11 @@ extern bool insertArray;
 
 extern int lineCount;
 
-extern FILE *sourceFile;
+extern int label;
+
+extern int address;
+
+extern FILE *sourceFile, *outputCode;
 
 extern void updateCursor(char *c);
 

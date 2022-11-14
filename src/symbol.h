@@ -70,7 +70,6 @@ void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 
 //#################################################################
 
-
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
 
@@ -108,10 +107,10 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
 
 // Verify if the int var was declared
-bool verifyVarDeclaration(Symbol *stack, char *lexeme);
+bool verifyVarDeclaration(Symbol *stack, char *lexeme, int *memory);
 
 // Unstack until the next scope (local variable region)
-void unStack(Symbol **symbol);
+int unStack(Symbol **symbol);
 
 SymbolType searchVarFuncType(Symbol *l, char *lexeme);
 
