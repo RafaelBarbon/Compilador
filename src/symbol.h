@@ -97,6 +97,10 @@ char* symbolTypeToString(SymbolType type);
 // Verify variable duplicity (need to check if duplicity on global variables are allowed)
 bool searchDuplicity(Symbol *stack, char *lexeme);
 
+int searchProcAddr(Symbol *symbol, char *lexeme);
+
+int searchVarFuncAddress(Symbol *symbol, char *lexeme);
+
 // Verify if the function was already declared (check if search duplicity can overwrite this)
 bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
 

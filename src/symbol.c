@@ -26,7 +26,7 @@ void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
 
     if(debug)
-        printf("\nInsert INFIX - %s", lexeme);
+        printf("\nDEBUG - Insert INFIX - %s", lexeme);
 
     strcpy(new->lexeme,lexeme);
     new->type = type;
@@ -148,6 +148,20 @@ bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
         if(isEqualString(l->lexeme, lexeme))
             return true;
     return false;
+}
+
+int searchProcAddr(Symbol *symbol, char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(isEqualString(l->lexeme, lexeme) && (l->type == Procedimento))
+            return l->memory;
+    return -1;
+}
+
+int searchVarFuncAddress(Symbol *symbol, char *lexeme){
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(isEqualString(l->lexeme, lexeme) && (l->type == VarBooleana || l->type == VarInteira || l->type == FuncInteira || l->type == FuncBooleana))
+            return l->memory;
+    return -1;
 }
 
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
@@ -447,7 +461,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
     verifyUnaryOperators(inFixIn);
-    printExpression(*inFixIn, "IN_FIX_DEPOIS", false);
+    //printExpression(*inFixIn, "IN_FIX_DEPOIS", false);
     if(debug)
         printf("DEBUG - Semantico - ENTROU POSFIX\n");
     simpleStack *stack = NULL;

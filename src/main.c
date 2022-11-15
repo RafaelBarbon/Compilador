@@ -21,6 +21,8 @@ bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
 bool insertArray = false;
 bool error = false;
+int label = 1;
+int address = 1; //Endereço 0 fica para o retorno de funções
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
@@ -44,7 +46,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     else if(debug)
-        printf("DEBUG - Arquivo aberto com sucesso.\n");
+        printf("DEBUG - Arquivo fonte aberto com sucesso.\n");
+
+    outputCode = fopen("AssemblyCode.obj", "w");
 
     char c;
 
@@ -56,9 +60,10 @@ int main(int argc, char *argv[]) {
     // TODO Geração de código
 
     fclose(sourceFile);
+    fclose(outputCode);
 
     //printToken(tokenList);
-    printf("\n\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+    printf("\n%s\n\n", error ? "FALHOU" : "COMPILOU");
 
 
     freeToken(&tokenList);
