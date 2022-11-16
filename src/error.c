@@ -90,6 +90,9 @@ void detectError(int errorCode, int line, char symbol) {
         case 28:
             printf("\nErro L%d: Nao e posivel atribuir um valor a uma funcao fora de seu escopo\n", line);
             break;
+        case 29:
+            printf("\nErro ao salvar o codigo gerado\n");
+            break;
         default:
             printf("\nErro desconhecido!\n");
     }

@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "token.h"
 
-void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type);
+void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbol);
 
 //
 void errorSintax(Token **token, int errorCode, char symbol);
