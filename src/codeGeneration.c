@@ -166,16 +166,16 @@ void generateAssembly(char *instruction, int param1, int param2) {
         strCatAssembly(line, instruction, 8, &tamLine);
         strCatAssembly(line, spaces, 4, &tamLine);
         strCatAssembly(line, spaces, 4, &tamLine);
-    } else if(isEqualString(instruction, "ALLOC   ")) { // Verify double situations of alloc
+    } else if(isEqualString(instruction, "ALLOC   ")) {
         strCatAssembly(line, spaces, 4, &tamLine);
         strCatAssembly(line, instruction, 8, &tamLine);
-        strCatAssembly(line, param1converted, 4, &tamLine);
         strCatAssembly(line, param2converted, 4, &tamLine);
-    } else if(isEqualString(instruction, "DALLOC  ")) { // Verify double situations of dalloc
+        strCatAssembly(line, param1converted, 4, &tamLine);
+    } else if(isEqualString(instruction, "DALLOC  ")) {
         strCatAssembly(line, spaces, 4, &tamLine);
         strCatAssembly(line, instruction, 8, &tamLine);
-        strCatAssembly(line, param1converted, 4, &tamLine);
         strCatAssembly(line, param2converted, 4, &tamLine);
+        strCatAssembly(line, param1converted, 4, &tamLine);
     } else if(isEqualString(instruction, "HLT     ")) {
         strCatAssembly(line, spaces, 4, &tamLine);
         strCatAssembly(line, instruction, 8, &tamLine);
@@ -197,8 +197,12 @@ void generateAssembly(char *instruction, int param1, int param2) {
         strCatAssembly(line, spaces, 4, &tamLine);
         strCatAssembly(line, spaces, 4, &tamLine);
     }
-    line[tamLine++] = '\n';
-    line[tamLine] = '\0';
+    if(isEqualString(instruction, "HLT     ")) {
+        line[tamLine++] = '\0';
+    } else {
+        line[tamLine++] = '\n';
+        line[tamLine] = '\0';
+    }
     int result = fprintf(outputCode,"%s",line);
     if(result == EOF)
         detectError(29,0,'\0');
@@ -270,6 +274,8 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
             break;
             case OU:
                 generateAssembly("OR      ", 0, 0);
+            break;
+            default:
             break;
         }
         posFix = posFix->next;
