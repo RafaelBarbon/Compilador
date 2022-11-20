@@ -193,10 +193,9 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyz
 			generateAssembly("START   ", label, 0);
 			getNewToken(c, token, *symbol, inFix);
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
-				int auxAdd = address;
+				generateAssembly("ALLOC   ", 1, address++);
 				analyzeBlock(c, token, symbol, inFix);
-					generateAssembly("DALLOC  ", (address - auxAdd), (address-1));
-					address -= auxAdd;
+				generateAssembly("DALLOC  ", address, (address-1));
 				if (isEqualString((*token)->symbol, "sponto")) {
 					if (!isNotEndOfFile(*c) || checkComment(c) || checkSpaces(c)) {
 						if(debug)
@@ -206,7 +205,6 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyz
 						errorSintax(token, 10, '\0');
                 } else
 					errorSintax(token, 1, '.');
-
 			} else
 				errorSintax(token, 1, ';');
 		} else
@@ -265,7 +263,6 @@ void analyzeVariables(char *c, Token **token, Symbol **symbol) {
 				} else errorSintax(token, 12, '\0');
         	} else errorSintax(token,21,'\0');
 		} else errorSintax(token, 11, '\0');
-
 	} while (!isEqualString((*token)->symbol, "sdoispontos"));
 	getNewToken(c, token, *symbol, NULL);
 	analyzeType(c, token, symbol);

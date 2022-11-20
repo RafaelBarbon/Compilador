@@ -3,130 +3,170 @@
 #include "stack.h"
 #include "instruction.h"
 #include <stdbool.h>
+#include <string.h>
 
 
 bool isEqualString(char *str1, char *str2){
     return strcmp(str1, str2) == 0;
 }
 
-void executeProgram(InstructionVector *instructions) {
-    int stack[500] = 0, addr = 1, aux; 
+int searchLabelIndex(InstructionVector *instructions, int numberOfInstructions, char *label){
+    for(int i = 0; i < numberOfInstructions; i++){
+        if(isEqualString(instructions[i].label, label))
+            return i;
+    }
+    return -1;
+}
 
-    while(instructions != NULL){
+void executeProgram(InstructionVector *instructions, int numberOfInstructions) {
+    int stack[500] = {0}, addr = 0, aux, instructionAddr = 0, n, m; 
 
-        if(isEqualString(instructions->instruction, "LDC     ")) {
+    while(instructionAddr != numberOfInstructions){
+        printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
+        getchar();
+        if(isEqualString(instructions[instructionAddr].instruction, "LDC     ")) {
             addr++;
-            stack[addr] = toInt(instructions->param1);
-        } else if(isEqualString(instructions->instruction, "LDV     ")) {
+            stack[addr] = toInt(instructions[instructionAddr].param1);
+        } else if(isEqualString(instructions[instructionAddr].instruction, "LDV     ")) {
             addr++;
-            stack[addr] = stack[toInt(instructions->param1)];
-        } else if(isEqualString(instructions->instruction, "ADD     ")) {
+            stack[addr] = stack[toInt(instructions[instructionAddr].param1)];
+        } else if(isEqualString(instructions[instructionAddr].instruction, "ADD     ")) {
             stack[addr-1] = stack[addr-1] + stack[addr];
             addr--;
-        } else if(isEqualString(instructions->instruction, "SUB     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "SUB     ")) {
             stack[addr-1] = stack[addr-1] - stack[addr];
             addr--;
-        } else if(isEqualString(instructions->instruction, "MULT    ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "MULT    ")) {
             stack[addr-1] = stack[addr-1] * stack[addr];
             addr--;
-        } else if(isEqualString(instructions->instruction, "DIVI    ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "DIVI    ")) {
             stack[addr-1] = stack[addr-1] / stack[addr];
             addr--;
-        } else if(isEqualString(instructions->instruction, "INV     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "INV     ")) {
             stack[addr] = - stack[addr];
-        } else if(isEqualString(instructions->instruction, "AND     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "AND     ")) {
             if(stack[addr-1] == 1 && stack[addr] == 1){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "OR      ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "OR      ")) {
             if(stack[addr-1] == 1 || stack[addr] == 1){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "NEG     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "NEG     ")) {
             stack[addr] = 1 - stack[addr];
-        } else if(isEqualString(instructions->instruction, "CME     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CME     ")) {
             if(stack[addr-1] < stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "CMA     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CMA     ")) {
             if(stack[addr-1] > stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "CEQ     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CEQ     ")) {
             if(stack[addr-1] == stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "CDIF    ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CDIF    ")) {
             if(stack[addr-1] != stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "CMEQ    ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CMEQ    ")) {
             if(stack[addr-1] <= stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "CMAQ    ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CMAQ    ")) {
             if(stack[addr-1] >= stack[addr]){
                 stack[addr-1] = 1;
             }else{
                 stack[addr-1] = 0;
             }
             addr--;
-        } else if(isEqualString(instructions->instruction, "STR     ")) {
-            stack[toInt(instructions->param1)] = stack[addr];
+        } else if(isEqualString(instructions[instructionAddr].instruction, "STR     ")) {
+            stack[toInt(instructions[instructionAddr].param1)] = stack[addr];
             addr--;
-        } else if(isEqualString(instructions->instruction, "JMP     ")) {
-            
-        } else if(isEqualString(instructions->instruction, "JMPF    ")) {
-
-        } else if(isEqualString(instructions->instruction, "RD      ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "JMP     ")) {
+            aux = searchLabelIndex(instructions, numberOfInstructions, instructions[instructionAddr].param1);
+            instructionAddr = aux;//Instrução logo após o "LABEL NULL";
+        } else if(isEqualString(instructions[instructionAddr].instruction, "JMPF    ")) {
+            if(stack[addr] == 0){
+                aux = searchLabelIndex(instructions, numberOfInstructions, instructions[instructionAddr].param1);
+                instructionAddr = aux;//Instrução logo após o "LABEL NULL";
+            }
+            addr--;
+        } else if(isEqualString(instructions[instructionAddr].instruction, "RD      ")) {
             addr++;
             scanf("%d", &aux);
             stack[addr] = aux;
-        } else if(isEqualString(instructions->instruction, "PRN     ")) {
-            printf("\n%d", stack[addr]);
+        } else if(isEqualString(instructions[instructionAddr].instruction, "PRN     ")) {
+            printf("\n\n\n\n\n\n%d", stack[addr]);
             addr--;
-        } else if(isEqualString(instructions->instruction, "START   ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "START   ")) {
             addr--;
-        } else if(isEqualString(instructions->instruction, "ALLOC   ")) {
-
-        } else if(isEqualString(instructions->instruction, "DALLOC  ")) {
-
-        } else if(isEqualString(instructions->instruction, "HLT     ")) {
+        } else if(isEqualString(instructions[instructionAddr].instruction, "ALLOC   ")) {
+            printf("\nANTES ALLOC\n\n");
+            printStack(stack, addr);
+            m = toInt(instructions[instructionAddr].param1);
+            n = toInt(instructions[instructionAddr].param2);
+            for(int k = 0; k < n; k++){
+                addr++;
+                stack[addr] = stack[m + k];
+            }
+            printf("\nDEPOIS ALLOC\n\n");
+            printStack(stack, addr);
+        } else if(isEqualString(instructions[instructionAddr].instruction, "DALLOC  ")) {
+            printf("\nANTES DALLOC\n\n");
+            printStack(stack, addr);
+            m = toInt(instructions[instructionAddr].param1);
+            n = toInt(instructions[instructionAddr].param2);
+            for(int k = n - 1; k >= 0; k--){
+                stack[m+k] = stack[addr];
+                addr--;
+            }
+            printf("\nDEPOIS DALLOC\n\n");
+            printStack(stack, addr);
+        } else if(isEqualString(instructions[instructionAddr].instruction, "HLT     ")) {
             return;
-        } else if(isEqualString(instructions->instruction, "CALL    ")) {
-
-        } else if(isEqualString(instructions->instruction, "RETURN  ")) {
-            
-        } else if(isEqualString(instructions->instruction, "RETURNF ")) {
-
+        } else if(isEqualString(instructions[instructionAddr].instruction, "CALL    ")) {
+            addr++;
+            stack[addr] = instructionAddr+1;
+            aux = searchLabelIndex(instructions, numberOfInstructions, instructions[instructionAddr].param1);
+            instructionAddr = aux;//Instrução logo após o "LABEL NULL";
+        } else if(isEqualString(instructions[instructionAddr].instruction, "RETURN  ")) {
+            instructionAddr = (stack[addr] - 1); //Atualiza no final 
+            addr--;
+        } else if(isEqualString(instructions[instructionAddr].instruction, "RETURNF ")) { //VERIFICAR SE Ë ESSE MESMO O RETORNO QUE PRECISA 
+            instructionAddr = stack[addr] - 1;
+            addr--;
         }
-        instructions = instructions->next;
+       
+        instructionAddr++;
     }
 }
 
 int main() {
     FILE *sourceFile; 
+    int instructionAddr = 0;
     sourceFile = fopen("AssemblyCode.obj", "r");
 
     if(!sourceFile) {
@@ -134,18 +174,18 @@ int main() {
         exit(1);
     }
 
-    InstructionVector *instructions = NULL;
-    Stack *stack = NULL;
+    InstructionVector instructions[2048] = {0};
+    // Stack *stack = NULL;
     
-    readInstructions(sourceFile, &instructions);
+    readInstructions(sourceFile, instructions, &instructionAddr);
 
-    printInstructions(instructions);
+    //printInstructions(instructions, instructionAddr);
 
-    //executeProgram(instructions);
+    executeProgram(instructions, instructionAddr);
 
     fclose(sourceFile);
-    freeInstructions(&instructions);
-    freeStack(&stack);
+    // freeInstructions(&instructions);
+    // freeStack(&stack);
 
     return 0; 
 }

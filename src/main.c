@@ -22,7 +22,7 @@ bool debug = false;
 bool insertArray = false;
 bool error = false;
 int label = 1;
-int address = 1; //Endereço 0 fica para o retorno de funções
+int address = 0; //Endereço 0 fica para o retorno de funções
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);

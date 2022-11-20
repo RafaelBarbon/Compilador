@@ -1,0 +1,6 @@
+programa vazio;
+var a: inteiro;
+inicio
+    a := 1;
+    escreva(a)
+fim.

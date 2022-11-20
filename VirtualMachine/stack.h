@@ -4,18 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//Simple stack functions (Posfix conversion)
-typedef struct Stack {
-    int value;
-    struct Stack *next;
-}Stack;
+// //Simple stack functions (Posfix conversion)
+// typedef struct Stack {
+//     int value;
+//     struct Stack *next;
+// }Stack;
 
 
-void push(Stack **stack, int value);
+// void push(Stack **stack, int value);
 
-int pop(Stack **stack);  
+// int pop(Stack **stack);  
 
-void printStack(Stack *s);
+void printStack(int *s, int addr);
 
-void freeStack(Stack **st);
+// void freeStack(Stack **st);
 #endif
