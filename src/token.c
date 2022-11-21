@@ -6,8 +6,8 @@
 #include "verifyChar.h"
 
 
+// Insert a new Token in the end of the list
 void insertToken(Token **l, char *lexeme, char *symbol) {
-
     if(debug)
         printf("\nDEBUG - Token - Inserindo lexema: { %s } - %s\n", lexeme, symbol);
 
@@ -22,11 +22,11 @@ void insertToken(Token **l, char *lexeme, char *symbol) {
         while(aux->next != NULL)
             aux = aux->next;
         aux->next = new;
-    }
-    else
+    } else
         (*l) = new;
 }
 
+// Free memory list
 void freeToken(Token **l) {
     Token *aux = (*l), *aux2;
     while(aux != NULL){
@@ -37,6 +37,7 @@ void freeToken(Token **l) {
     (*l) = NULL;
 }
 
+// Print all token list
 void printToken(Token *l){
     while(l != NULL){
         printf("\nLexeme: %-30s \t\t Symbol: %s\n", l->lexeme, l->symbol);

@@ -2,32 +2,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "lexico.h"
+#include "lexic.h"
 #include "error.h"
 #include "symbol.h"
 #include "token.h"
 #include "verifyChar.h"
-#include "sintatico.h"
+#include "syntatic.h"
 #include "codeGeneration.h"
 
+// Treat errors, files and structures
 void errorSintax(Token **token, int errorCode, char symbol) {
 	freeToken(token);
-	detectError(errorCode,lineCount, symbol);
+	detectError(errorCode, lineCount, symbol);
 	fclose(sourceFile);
+	fclose(outputCode);
 	exit(1);
 }
 
+// Verify if the symbol is relational
 bool verifyRelationalSymbol(Token *token) {
 	return isEqualString(token->symbol, "smaior") || isEqualString(token->symbol, "smaiorig") ||
 		   isEqualString(token->symbol, "sig") || isEqualString(token->symbol, "smenor") ||
 		   isEqualString(token->symbol, "smenorig") || isEqualString(token->symbol, "sdif");
 }
 
+// Calls lexic to get a new token in source file
 void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix) {
 	freeToken(token);
 	getToken(c, token);
-	if(insertArray) { //Used on expression analyzer
-		//Se for func ou var pesquisa na tabela de simbolos pra pega o tipo
+	if(insertArray) { // Store the expression to be analyze later
+		// If is an identifier, search on symbol table to get the type
 		if(isEqualString((*token)->symbol, "sidentificador")){
 			SymbolType type = searchVarFuncType(symbolList, (*token)->lexeme);
 			switch(type) {
@@ -71,6 +75,7 @@ void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer 
 	}
 }
 
+// Analyze if the expression matches with the expected type
 void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType) {
 	ExpressionAnalyzer *exp = (*expression), Op1, Op2, ant;
 	bool FirstNao = false;
@@ -323,7 +328,7 @@ void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAna
 void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa atribuicao chamada procedimento\n");
-	char nameVarOrProcedure[30];
+	char nameVarOrProcedure[maxIdentifierLength];
 	strcpy(nameVarOrProcedure, (*token)->lexeme);
 	getNewToken(c, token, *symbol, inFix);
 	if (isEqualString((*token)->symbol, "satribuicao")){
@@ -579,7 +584,6 @@ void analyzeTerm(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **in
 	}
 }
 
-
 // fator
 void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
     if(debug)
@@ -609,4 +613,3 @@ void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **
 		errorSintax(token, 17, '\0');
 	}
 }
-

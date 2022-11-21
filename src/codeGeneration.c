@@ -217,41 +217,41 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
         switch(type){
             case Inteiro:
                 generateAssembly("LDC     ", toInt(posFix->lexeme), 0);
-            break;
+                break;
             case Booleano:
                 if(isEqualString(posFix->lexeme, "verdadeiro"))
                     generateAssembly("LDC     ", 1, 0);
                 else
                     generateAssembly("LDC     ", 0, 0);
-            break;
+                break;
             case VarInt:
             case VarBool: //Buscar na tabela de simbolos o endereço
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Adress
                 generateAssembly("LDV     ", addr, 0);
-            break;
+                break;
             case FuncInt:
             case FuncBool://Buscar o rotulo na tabela de simbolos
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Rotulo
                 generateAssembly("JMP     ", addr, 0);
-            break;
+                break;
             case UnarioN:
                 generateAssembly("INV     ", 0, 0);
-            break;
+                break;
             case UnarioP:
                 continue;
-            break;
+                break;
             case OpMultDiv:
                 if(isEqualString(posFix->lexeme, "*"))
                     generateAssembly("MULT    ", 0, 0);
                 else
                     generateAssembly("DIVI    ", 0, 0);
-            break;
+                break;
             case OpMaisMenos:
                 if(isEqualString(posFix->lexeme, "+"))
                     generateAssembly("ADD     ", 0, 0);
                 else
                     generateAssembly("SUB     ", 0, 0);
-            break;
+                break;
             case Rel:
                 if(isEqualString(posFix->lexeme, ">"))
                     generateAssembly("CMA     ", 0, 0);
@@ -265,18 +265,16 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
                     generateAssembly("CDIF    ", 0, 0);
                 else if(isEqualString(posFix->lexeme, "=="))
                     generateAssembly("CEQ     ", 0, 0);
-            break;
+                break;
             case Nao:
                 generateAssembly("NEG     ", 0, 0);
-            break;
+                break;
             case E:
                 generateAssembly("AND     ", 0, 0);
-            break;
+                break;
             case OU:
                 generateAssembly("OR      ", 0, 0);
-            break;
-            default:
-            break;
+                break;
         }
         posFix = posFix->next;
     }

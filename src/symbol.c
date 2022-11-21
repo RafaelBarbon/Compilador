@@ -19,52 +19,6 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
     (*stack) = new;
 }
 
-void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
-    if(list == NULL)
-        return;
-
-    ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
-
-    if(debug)
-        printf("\nDEBUG - Insert INFIX - %s", lexeme);
-
-    strcpy(new->lexeme,lexeme);
-    new->type = type;
-
-    new->next = NULL;
-    if((*list) == NULL) {
-        *list = new;
-        return;
-    }
-    ExpressionAnalyzer *aux = *list;
-    while(aux->next != NULL) {
-        aux = aux->next;
-    }
-
-    aux->next = new;
-}
-
-void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
-     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
-
-    strcpy(new->lexeme, Expression->lexeme);
-    new->type = Expression->type;
-    new->next = NULL;
-
-    if((*PosFix) == NULL) {
-        (*PosFix) = new;
-        return;
-    }
-
-    ExpressionAnalyzer *aux = *PosFix;
-    while(aux->next != NULL) {
-        aux = aux->next;
-    }
-
-    aux->next = new;
-
-}
-
 void putType(Symbol **stack, SymbolType type) {
     Symbol *l = *stack;
     for(; l != NULL && l->type == Var; l = l->next) {
@@ -76,6 +30,13 @@ void putTypeFunc(Symbol **stack, SymbolType type) {
     (*stack)->type = type;
 }
 
+void printStack(Symbol *l){
+    while(l != NULL){
+        printf("\nLexeme: %-30s \t\t Type: %s\nScope: %s Memory: %d\n\n", l->lexeme, symbolTypeToString(l->type), l->scope ? "Sim" : "Nao", l->memory);
+        l = l->next;
+    }
+}
+
 void freeSymbol(Symbol **l) {
     Symbol *aux = (*l), *aux2;
     while(aux != NULL){
@@ -84,13 +45,6 @@ void freeSymbol(Symbol **l) {
         aux = aux2;
     }
     (*l) = NULL;
-}
-
-void printStack(Symbol *l){
-    while(l != NULL){
-        printf("\nLexeme: %-30s \t\t Type: %s\nScope: %s Memory: %d\n\n", l->lexeme, symbolTypeToString(l->type), l->scope ? "Sim" : "Nao", l->memory);
-        l = l->next;
-    }
 }
 
 char* symbolTypeToString(SymbolType type){
@@ -117,39 +71,6 @@ bool searchDuplicity(Symbol *l, char *lexeme){
     return false;
 }
 
-//Return the type of the var/func (Used on expression analyzer)
-SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
-    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
-        if(isEqualString(aux->lexeme, lexeme))
-            return aux->type;
-    }
-}
-
-LexemeType getVarType(Symbol *l, char *lexeme) {
-    bool sameScope = true;
-    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
-        if(isEqualString(aux->lexeme, lexeme)){
-            if(aux->type == VarBooleana || aux->type == VarInteira)
-                return aux->type == VarBooleana ? Booleano : Inteiro;
-            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
-                return aux->type == FuncBooleana ? Booleano : Inteiro;
-            else
-                return Rel;// Error
-        }
-        if(aux->scope){
-            sameScope = false;
-        }
-    }
-    detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
-}
-
-bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
-    for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(isEqualString(l->lexeme, lexeme))
-            return true;
-    return false;
-}
-
 int searchProcAddr(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && (l->type == Procedimento))
@@ -162,6 +83,21 @@ int searchVarFuncAddress(Symbol *symbol, char *lexeme){
         if(isEqualString(l->lexeme, lexeme) && (l->type == VarBooleana || l->type == VarInteira || l->type == FuncInteira || l->type == FuncBooleana))
             return l->memory;
     return -1;
+}
+
+//Return the type of the var/func (Used on expression analyzer)
+SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme))
+            return aux->type;
+    }
+}
+
+bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(isEqualString(l->lexeme, lexeme))
+            return true;
+    return false;
 }
 
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
@@ -211,6 +147,7 @@ int unStack(Symbol **symbol) {
 }
 
 //################################################################# Posfix conversion
+
 //Simple stack functions (Posfix conversion)
 void push(simpleStack **stack, ExpressionAnalyzer *op){
     simpleStack *new = (simpleStack *)malloc(sizeof(simpleStack));
@@ -310,6 +247,70 @@ void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
         }
         aux = aux->next;
     }
+}
+
+LexemeType getVarType(Symbol *l, char *lexeme) {
+    bool sameScope = true;
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme)){
+            if(aux->type == VarBooleana || aux->type == VarInteira)
+                return aux->type == VarBooleana ? Booleano : Inteiro;
+            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
+                return aux->type == FuncBooleana ? Booleano : Inteiro;
+            else
+                return Rel;// Error
+        }
+        if(aux->scope){
+            sameScope = false;
+        }
+    }
+    detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
+}
+
+void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type) {
+    if(list == NULL)
+        return;
+
+    ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    if(debug)
+        printf("\nDEBUG - Insert INFIX - %s", lexeme);
+
+    strcpy(new->lexeme,lexeme);
+    new->type = type;
+
+    new->next = NULL;
+    if((*list) == NULL) {
+        *list = new;
+        return;
+    }
+    ExpressionAnalyzer *aux = *list;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+}
+
+void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression) {
+     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    strcpy(new->lexeme, Expression->lexeme);
+    new->type = Expression->type;
+    new->next = NULL;
+
+    if((*PosFix) == NULL) {
+        (*PosFix) = new;
+        return;
+    }
+
+    ExpressionAnalyzer *aux = *PosFix;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+
 }
 
 //searchStackMorePrecedence(&stack, inFix, PosFix)
@@ -506,5 +507,3 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
         }while(stack != NULL);
     }
 }
-
-//################################################################

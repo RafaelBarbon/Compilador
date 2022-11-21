@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "verifyChar.h"
 
 // Enum for identify the symbol type declared
 typedef enum SymbolType{
@@ -19,7 +20,7 @@ typedef enum SymbolType{
 
 // Struct for identify a symbol
 typedef struct symbol {
-    char lexeme[30];
+    char lexeme[maxIdentifierLength];
     bool scope;
     SymbolType type;
     int memory;
@@ -33,11 +34,11 @@ typedef enum LexemeType{
     UnarioN, UnarioP,
     OpMultDiv, OpMaisMenos, Rel,
     Nao, E, OU,
-    Inteiro, Booleano, NaoFirst
+    Inteiro, Booleano
 }LexemeType;
 
 typedef struct expressionAnalyzer {
-    char lexeme[30];
+    char lexeme[maxIdentifierLength];
     LexemeType type;
     struct expressionAnalyzer *next;
 }ExpressionAnalyzer;
@@ -47,26 +48,6 @@ typedef struct simpleStack {
     ExpressionAnalyzer *c;
     struct simpleStack *next;
 }simpleStack;
-
-void push(simpleStack **stack, ExpressionAnalyzer *c);
-
-ExpressionAnalyzer pop(simpleStack **stack);
-
-void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
-
-void verifyUnaryOperators(ExpressionAnalyzer **inFix);
-
-char unstackOperator(simpleStack **stack, char op);
-
-void freeSimpleStack(simpleStack **st);
-
-void printSimpleStack(simpleStack *s);
-
-void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
-
-void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type);
-
-void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 
 //#################################################################
 
@@ -85,12 +66,6 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
-void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
-
-void freeExpression(ExpressionAnalyzer **l);
-
-LexemeType getVarType(Symbol *l, char *lexeme);
-
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);
 
@@ -101,11 +76,15 @@ int searchProcAddr(Symbol *symbol, char *lexeme);
 
 int searchVarFuncAddress(Symbol *symbol, char *lexeme);
 
-// Verify if the function was already declared (check if search duplicity can overwrite this)
-bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
+SymbolType searchVarFuncType(Symbol *l, char *lexeme);
+
+bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
 
 // Verify if the procedure was already declared (check if search duplicity can overwrite this)
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
+
+// Verify if the function was already declared (check if search duplicity can overwrite this)
+bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
 
 // verify if the var/func was declared
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
@@ -116,8 +95,32 @@ bool verifyVarDeclaration(Symbol *stack, char *lexeme, int *memory);
 // Unstack until the next scope (local variable region)
 int unStack(Symbol **symbol);
 
-SymbolType searchVarFuncType(Symbol *l, char *lexeme);
+//#################################################################
 
-bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
+void push(simpleStack **stack, ExpressionAnalyzer *c);
+
+ExpressionAnalyzer pop(simpleStack **stack);
+
+void printSimpleStack(simpleStack *s);
+
+void freeSimpleStack(simpleStack **st);
+
+void freeExpression(ExpressionAnalyzer **l);
+
+void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
+
+void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
+
+LexemeType getVarType(Symbol *l, char *lexeme);
+
+void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type);
+
+void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression);
+
+void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
+
+void verifyUnaryOperators(ExpressionAnalyzer **inFix);
+
+void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 
 #endif
