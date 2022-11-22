@@ -35,6 +35,6 @@ Os tokens utlizados para identificar cada tipo de palavra reservada ou símbolo 
 
 [Henrique Sartori Siqueira](https://github.com/h-ssiqueira)
 
-[Lucas Cicconi](https://github.com/LucasCicconi)
+[Lucas Cicconi Ferreira](https://github.com/LucasCicconi)
 
 [Rafael Silva Barbon](https://github.com/RafaelBarbon)
