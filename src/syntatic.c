@@ -200,7 +200,7 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyz
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
 				generateAssembly("ALLOC   ", 1, address++);
 				analyzeBlock(c, token, symbol, inFix);
-				generateAssembly("DALLOC  ", address, (address-1));
+				generateAssembly("DALLOC  ", address, 0);
 				if (isEqualString((*token)->symbol, "sponto")) {
 					if (!isNotEndOfFile(*c) || checkComment(c) || checkSpaces(c)) {
 						if(debug)
@@ -333,7 +333,7 @@ void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, Ex
 	getNewToken(c, token, *symbol, inFix);
 	if (isEqualString((*token)->symbol, "satribuicao")){
 		analyzeAttribution(c, token, (*symbol), inFix, nameVarOrProcedure);
-		generateAssembly("STR     ", searchVarFuncAddress(*symbol, nameVarOrProcedure), 0);
+		//printf("Teste %d", searchVarFuncAddress(*symbol, nameVarOrProcedure));
 	}else
 		procedureCall(c, token, nameVarOrProcedure, symbol);
 }
@@ -352,7 +352,9 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 	if(type == Rel)
 		errorSintax(token,28,'\0');
 	semanticAnalyzer(inFix, type, symbol);
-
+	type = isFunction(symbol, name);
+	if(type != FuncInt && type != FuncBool)
+		generateAssembly("STR     ", searchVarFuncAddress(symbol, name), 0);
 	// Verificar chamada de função e identificador seguido de expressões aritméticas e/ou booleana, terminando por ;
 }
 
@@ -371,7 +373,6 @@ void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol)
 void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa chamada funcao\n");
-	generateAssembly("CALL    ", searchVarFuncAddress(symbol, (*token)->lexeme), 0);
 	getNewToken(c, token, symbol, inFix);
 }
 
@@ -442,7 +443,7 @@ void analyzeWhile(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **
 void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix) {
 	if(debug)
         printf("\nDEBUG - Sintatico - Analisa Se\n");
-	int auxrot1 = label++, auxrot2 = label++;
+	int auxrot1 = label++, auxrot2;
 	insertArray = true;
 	getNewToken(c, token, *symbol, inFix);
 	analyzeExpression(c, token, (*symbol), inFix);
@@ -452,13 +453,14 @@ void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 	if (isEqualString((*token)->symbol, "sentao")) {
 		getNewToken(c, token, *symbol, inFix);
 		analyzeSimpleCommand(c, token, symbol, inFix);
-		generateAssembly("JMP     ", auxrot2, 0);
 		if (isEqualString((*token)->symbol, "ssenao")) {
-			generateAssembly("NULL    ", auxrot1, 0);
+			auxrot2 = label++;
+			generateAssembly("JMP     ", auxrot2, 0);
 			getNewToken(c, token, *symbol, inFix);
 			analyzeSimpleCommand(c, token, symbol, inFix);
+			generateAssembly("NULL    ", auxrot2, 0);
 		}
-		generateAssembly("NULL    ", auxrot2, 0);
+		generateAssembly("NULL    ", auxrot1, 0);
 	} else
 		errorSintax(token, 18, '\0');
 }
@@ -507,11 +509,11 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, Expres
 		} else errorSintax(token, 26, '\0');
 	} else errorSintax(token, 14, '\0');
 	int countAddressToDalloc = unStack(symbol);
-	if(countAddressToDalloc != 0){
-		generateAssembly("DALLOC  ", countAddressToDalloc, address-1);
+	if(countAddressToDalloc > 0){
+		generateAssembly("DALLOC  ", countAddressToDalloc, address - countAddressToDalloc); 
 		address -= countAddressToDalloc;
 	}
-	generateAssembly("RETURN  ", label++, 0);
+	generateAssembly("RETURN  ", label, 0);
 }
 
 // declaração de função
@@ -541,11 +543,11 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, Express
 	} else errorSintax(token, 15, '\0');
 	int countAddressToDalloc = unStack(symbol);
 	generateAssembly("STR     ", 0, 0);
-	if(countAddressToDalloc != 0) {
-		generateAssembly("DALLOC  ", countAddressToDalloc, address-1);
+	if(countAddressToDalloc > 0) {
+		generateAssembly("DALLOC  ", countAddressToDalloc, address  - countAddressToDalloc);
 		address -= countAddressToDalloc;
 	}
-	generateAssembly("RETURNF ", label++, 0);
+	generateAssembly("RETURNF ", label, 0);
 }
 
 // expressão

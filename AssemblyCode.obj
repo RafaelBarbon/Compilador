@@ -12,38 +12,36 @@
     RD              
     STR     5       
     CALL    2       
-    JMP     2       
+    LDV     0       
     STR     6       
     LDV     6       
     PRN             
-    DALLOC  7       
     RETURN          
-6   NULL            
-    ALLOC   9   1   
+5   NULL            
+    ALLOC   8   1   
     RD              
-    STR     9       
-    LDV     9       
+    STR     8       
+    LDV     8       
     LDC     10      
     CME             
-    JMPF    7       
+    JMPF    6       
     CALL    4       
-    JMP     8       
-8   NULL            
+6   NULL            
+    DALLOC  8   1   
     RETURN          
 3   NULL            
-    CALL    6       
+    CALL    5       
     LDV     4       
     LDV     5       
     ADD             
-    STR     2       
     STR     0       
-    DALLOC  9   5   
+    DALLOC  4   4   
     RETURNF         
 1   NULL            
     CALL    2       
-    JMP     2       
+    LDV     0       
     STR     3       
     LDV     3       
     PRN             
-    DALLOC  4   5   
+    DALLOC  0   4   
     HLT             

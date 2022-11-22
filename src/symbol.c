@@ -135,15 +135,17 @@ bool verifyVarDeclaration(Symbol *symbol, char *lexeme, int *memory){
 int unStack(Symbol **symbol) {
     int countVars = 0;
     Symbol *aux = (*symbol), *aux2;
-    while(aux != NULL && !aux->scope){
+    while(aux != NULL && !aux->scope) {
+        if(aux->type == VarInteira || aux->type == VarBooleana) {
+            countVars++;
+        }
         aux2 = aux->next;
         free(aux);
         aux = aux2;
-        countVars++;
     }
     aux->scope = false;
     *symbol = aux;
-    return --countVars;
+    return countVars;
 }
 
 //################################################################# Posfix conversion
@@ -265,6 +267,20 @@ LexemeType getVarType(Symbol *l, char *lexeme) {
         }
     }
     detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
+}
+
+LexemeType isFunction(Symbol *l, char *lexeme) {
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme)){
+            if(aux->type == FuncBooleana || aux->type == FuncInteira)
+                return aux->type;
+            else
+                return Rel;// Error
+        }
+        if(aux->scope){
+            return Rel;
+        }
+    }
 }
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type) {

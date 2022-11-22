@@ -229,10 +229,11 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Adress
                 generateAssembly("LDV     ", addr, 0);
                 break;
-            case FuncInt:
+            case FuncInt: 
             case FuncBool://Buscar o rotulo na tabela de simbolos
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Rotulo
-                generateAssembly("JMP     ", addr, 0);
+                generateAssembly("CALL    ", addr, 0); 
+	            generateAssembly("LDV     ", 0, 0); // Retorno de função 
                 break;
             case UnarioN:
                 generateAssembly("INV     ", 0, 0);

@@ -8,14 +8,14 @@
 
 // Enum for identify the symbol type declared
 typedef enum SymbolType{
-    Var,
-    Func,
-    FuncInteira,
-    FuncBooleana,
-    VarInteira,
-    VarBooleana,
-    Procedimento,
-    Programa
+    Var, // 0
+    Func, // 1
+    FuncInteira, // 2
+    FuncBooleana, // 3
+    VarInteira, // 4
+    VarBooleana, // 5
+    Procedimento, // 6
+    Programa // 7
 }SymbolType;
 
 // Struct for identify a symbol
@@ -112,6 +112,8 @@ void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
 
 LexemeType getVarType(Symbol *l, char *lexeme);
+
+LexemeType isFunction(Symbol *l, char *lexeme);
 
 void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type);
 
