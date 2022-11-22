@@ -70,6 +70,7 @@ void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
 
 //#################################################################
 
+
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
 
@@ -97,10 +98,6 @@ char* symbolTypeToString(SymbolType type);
 // Verify variable duplicity (need to check if duplicity on global variables are allowed)
 bool searchDuplicity(Symbol *stack, char *lexeme);
 
-int searchProcAddr(Symbol *symbol, char *lexeme);
-
-int searchVarFuncAddress(Symbol *symbol, char *lexeme);
-
 // Verify if the function was already declared (check if search duplicity can overwrite this)
 bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
 
@@ -111,10 +108,10 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
 
 // Verify if the int var was declared
-bool verifyVarDeclaration(Symbol *stack, char *lexeme, int *memory);
+bool verifyVarDeclaration(Symbol *stack, char *lexeme);
 
 // Unstack until the next scope (local variable region)
-int unStack(Symbol **symbol);
+void unStack(Symbol **symbol);
 
 SymbolType searchVarFuncType(Symbol *l, char *lexeme);
 

@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "token.h"
+#include <QApplication>
+#include <string.h>
+#include "symbol.h"
 
-void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbol);
+void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type);
 
 //
 void errorSintax(Token **token, int errorCode, char symbol);
