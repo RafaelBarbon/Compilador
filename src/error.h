@@ -4,6 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void detectError(int errorCode, int line, char symbol);
+char detectError(int errorCode, int line, char symbol);
 
 #endif

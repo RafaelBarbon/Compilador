@@ -32,8 +32,8 @@ set(PROJECT_SOURCES
         verifyChar.cpp
         verifyChar.h
         Teste1.txt
-        #codeGeneration.cpp
-        #codeGeneration.h
+        codeGeneration.cpp
+        codeGeneration.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

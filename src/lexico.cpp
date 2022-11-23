@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "error.h"
-#include "symbol.h"
+//#include "symbol.h"
 #include "token.h"
 #include "verifyChar.h"
 

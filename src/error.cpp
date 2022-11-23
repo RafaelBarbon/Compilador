@@ -1,11 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "verifyChar.h"
+
+int main(int argc, char const *argv[])
+{
+
+    char ***myTable = NULL;
+    /* I want to declare a matrix which will contain a string in each cell */
+    int end = 1;
+    int row = 0;
 
 
+    while(end) {
+        // TODO: Add NULL ptr check....
+        // Allocate space here:
+        // First, add a row
+        myTable = realloc(myTable, sizeof(char**) * (row + 1));
+        // Next, alloc 3 pointers in the new row
+        myTable[row] = malloc(3 * sizeof(char*));
+        // Then, alloc space for 3 strings
+        for(int j = 0; j < 3; j++)
+            myTable[row][j] = malloc(MAX_STRING_LENGTH * sizeof(char));
 
-void detectError(int errorCode, int line, char symbol) {
-    bool error = true;
+        //filling the matrix from the file no matter how many row
+        //the file has
+        for(int j = 0; j < 3; j++) {
+            scanf("%s", myTable[row][j]);
+        }
+        row++;
+        //if(getc(file) == EOF) end = 0;
+    }
+
+
+    for(int rows = 0; rows < row; rows++) {
+        for(int col = 0; col < 3; col++)
+            printf("numero: %s ", myTable[rows][col]);
+        printf("\n");
+    }
+    return 0;
+}
+
+
+char detectError(int errorCode, int line, char symbol) {
+    error = true;
+
     switch(errorCode) {
         case 1:
             printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
@@ -91,7 +130,11 @@ void detectError(int errorCode, int line, char symbol) {
         case 28:
             printf("\nErro L%d: Nao e posivel atribuir um valor a uma funcao fora de seu escopo\n", line);
             break;
+        case 29:
+            printf("\nErro ao salvar o codigo gerado\n");
+            break;
         default:
             printf("\nErro desconhecido!\n");
     }
+    return **myTable;
 }

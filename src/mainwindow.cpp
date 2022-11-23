@@ -26,11 +26,13 @@ Symbol *symbolList = NULL;
 ExpressionAnalyzer *inFix = NULL;
 
 int lineCount = 1;
-FILE *sourceFile;
+FILE *sourceFile, *outputCode;
 bool flagUpdate = true; // Flag to allow the update cursor
 bool debug = false;
 bool insertArray = false;
 bool error = false;
+int label = 1;
+int address = 1; //Endereço 0 fica para o retorno de funções
 
 void updateCursor(char *c) {
     *c = getc(sourceFile);
@@ -163,38 +165,42 @@ void MainWindow::on_actionRun_triggered()
 
     //path file -> renomeia pra run.txt
 
-if(argc < 1) {
-        detectError(6, 0, '\0');
-        exit(1);
-    } else if(argc > 2 && strcmp(argv[2],"1") == 0) {
-        debug = true;
-        printf("\n\nWARN - Modo debug ativo\n\n");
-    }
+    if(argc < 1) {
+            detectError(6, 0, '\0');
+            exit(1);
+        } else if(argc > 2 && strcmp(argv[2],"1") == 0) {
+            debug = true;
+            printf("\n\nWARN - Modo debug ativo\n\n");
+        }
 
-    sourceFile = fopen("C:", "r");
+        sourceFile = fopen(argv[1], "r");
 
-    if(!sourceFile) {
-        detectError(7, 0, '\0');
-        exit(1);
-    }
-    else if(debug)
-        printf("DEBUG - Arquivo aberto com sucesso.\n");
+        if(!sourceFile) {
+            detectError(7, 0, '\0');
+            exit(1);
+        }
+        else if(debug)
+            printf("DEBUG - Arquivo fonte aberto com sucesso.\n");
 
-    char c;
+        outputCode = fopen("AssemblyCode.obj", "w");
 
-    updateCursor(&c);
+        char c;
 
-    syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
-    char ret[30] = {0};
+        updateCursor(&c);
 
-    // TODO Geração de código
+        syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
+        char ret[30] = {0};
 
-    fclose(sourceFile);
+        // TODO Geração de código
 
-    //printToken(tokenList);
-    printf("\n\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+        fclose(sourceFile);
+        fclose(outputCode);
 
-    freeToken(&tokenList);
-    freeSymbol(&symbolList);
+        //printToken(tokenList);
+        printf("\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+
+
+        freeToken(&tokenList);
+        freeSymbol(&symbolList);
 }
 

@@ -5,7 +5,6 @@
 #include "token.h"
 #include "verifyChar.h"
 
-
 void insertToken(Token **l, char *lexeme, char *symbol) {
 
     if(debug)
