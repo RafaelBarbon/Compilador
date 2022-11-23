@@ -2,8 +2,11 @@
 *.out
 *.exe
 compilador
+compiler
+AssemblyCode.obj
 /bin
 all
 .vscode
 output.txt
 log.txt
+vm

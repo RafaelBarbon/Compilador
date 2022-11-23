@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "verifyChar.h"
 
 // Struct for identify a token
 typedef struct Token{
-    char lexeme[30];
+    char lexeme[maxIdentifierLength];
     char symbol[20];
     struct Token *next;
 }Token;

@@ -1,0 +1,8 @@
+programa test; {START}
+var a,b,s: inteiro; {ALLOC 3}
+
+inicio      {NULL?}
+  s:= a+b;  {LDV 1, LDV 2, ADD, STR 3}
+  escreva(s) {LDV 3, PRN}
+fim. {DALLOC 3, HLT}
+

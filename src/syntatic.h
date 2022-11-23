@@ -6,13 +6,20 @@
 #include <stdbool.h>
 #include "token.h"
 
-void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type);
 
-//
+// Treat errors, files and structures
 void errorSintax(Token **token, int errorCode, char symbol);
 
-// Get a new token
+// Verify if the symbol is relational
+bool verifyRelationalSymbol(Token *token);
+
+// Calls lexic to get a new token in source file
 void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix);
+
+// Analyze if the expression matches with the expected type
+void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType);
+
+void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbol);
 
 // programa
 void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix);
@@ -37,6 +44,12 @@ void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAna
 
 //atribuição_chprocedimento
 void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix);
+
+void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, char *name);
+
+void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol);
+
+void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
 
 //comando leitura
 void analyzeRead(char *c, Token **token, Symbol **symbol);
@@ -70,15 +83,6 @@ void analyzeTerm(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **in
 
 //fator
 void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
-
-//usado no Analisa_expressao
-bool verifyRelationalSymbol(Token *token);
-
-void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol);
-
-void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, char *name);
-
-void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
 
 #endif
 

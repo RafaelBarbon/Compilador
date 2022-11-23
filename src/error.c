@@ -3,6 +3,8 @@
 #include "error.h"
 #include "verifyChar.h"
 
+
+// Find the specific error to be shown
 void detectError(int errorCode, int line, char symbol) {
     error = true;
     switch(errorCode) {
@@ -13,10 +15,10 @@ void detectError(int errorCode, int line, char symbol) {
             printf("\nErro L%d: Identificador iniciando com digitos.\n", line);
             break;
         case 3:
-            printf("\nErro L%d: Numero informado excede o limite de 30 digitos.\n", line);
+            printf("\nErro L%d: Numero informado excede o limite de %d digitos.\n", line, maxIdentifierLength);
             break;
         case 4:
-            printf("\nErro L%d: Identificador excede o tamanho limite de 30 caracteres.\n", line);
+            printf("\nErro L%d: Identificador excede o tamanho limite de %d caracteres.\n", line, maxIdentifierLength);
             break;
         case 5:
             printf("\nErro L%d: Comentario nao concluido.\n", line);
@@ -89,6 +91,9 @@ void detectError(int errorCode, int line, char symbol) {
             break;
         case 28:
             printf("\nErro L%d: Nao e posivel atribuir um valor a uma funcao fora de seu escopo\n", line);
+            break;
+        case 29:
+            printf("\nErro ao salvar o codigo gerado\n");
             break;
         default:
             printf("\nErro desconhecido!\n");

@@ -7,6 +7,7 @@
 #include "verifyChar.h"
 
 
+// Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory) {
     Symbol *new = (Symbol *)malloc(sizeof(Symbol));
 
@@ -19,66 +20,7 @@ void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int
     (*stack) = new;
 }
 
-void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type) {
-    
-    if(list == NULL)
-        return;
-        
-    ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
-
-    //printf("\nInsert INFIX - %s", lexeme);
-    //getchar();
-
-    strcpy(new->lexeme,lexeme);
-    // printf("\nPassou STRCPY");
-    // getchar();
-    new->type = type;
-
-    new->next = NULL;
-    //printf("\n%s %d",new->lexeme, new->type);
-    //getchar();
-    if((*list) == NULL) {
-        //printf("\nInsert Infix: %s", lexeme);
-        //printf("\nSegmentation0");
-        //getchar();
-        *list = new;
-        return;
-    }
-    // printf("\nSegmentation1");
-    // getchar();
-    ExpressionAnalyzer *aux = *list;
-    while(aux->next != NULL) {
-        aux = aux->next;
-    }
-
-    aux->next = new;
-    // printf("\nSegmentation2");
-    // getchar();
-    //printf("\nSaiu Inser Token");
-    //getchar();
-}
-
-void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression){
-     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
-
-    strcpy(new->lexeme, Expression->lexeme);
-    new->type = Expression->type;
-    new->next = NULL;
-
-    if((*PosFix) == NULL) {
-        (*PosFix) = new;
-        return;
-    }
-
-    ExpressionAnalyzer *aux = *PosFix;
-    while(aux->next != NULL) {
-        aux = aux->next;
-    }
-
-    aux->next = new;
-
-}
-
+// Insert the type of symbol of variables
 void putType(Symbol **stack, SymbolType type) {
     Symbol *l = *stack;
     for(; l != NULL && l->type == Var; l = l->next) {
@@ -86,10 +28,20 @@ void putType(Symbol **stack, SymbolType type) {
     }
 }
 
+// Insert the type of symbol of function
 void putTypeFunc(Symbol **stack, SymbolType type) {
     (*stack)->type = type;
 }
 
+// Print all symbols in stack
+void printStack(Symbol *l) {
+    while(l != NULL){
+        printf("\nLexeme: %-30s \t\t Type: %s\nScope: %s Memory: %d\n\n", l->lexeme, symbolTypeToString(l->type), l->scope ? "Sim" : "Nao", l->memory);
+        l = l->next;
+    }
+}
+
+// Free memory
 void freeSymbol(Symbol **l) {
     Symbol *aux = (*l), *aux2;
     while(aux != NULL){
@@ -100,14 +52,8 @@ void freeSymbol(Symbol **l) {
     (*l) = NULL;
 }
 
-void printStack(Symbol *l){
-    while(l != NULL){
-        printf("\nLexeme: %-30s \t\t Type: %s\nScope: %s Memory: %d\n\n", l->lexeme, symbolTypeToString(l->type), l->scope ? "Sim" : "Nao", l->memory);
-        l = l->next;
-    }
-}
-
-char* symbolTypeToString(SymbolType type){
+// Convert enum to string
+char* symbolTypeToString(SymbolType type) {
     switch(type) {
         case Var: return "Var";
         case Func: return "Func";
@@ -120,7 +66,8 @@ char* symbolTypeToString(SymbolType type){
     }
 }
 
-bool searchDuplicity(Symbol *l, char *lexeme){
+// Verify variable duplicity (need to check if duplicity on global variables are allowed)
+bool searchDuplicity(Symbol *l, char *lexeme) {
     bool sameScope = true;
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(aux->scope)
@@ -131,7 +78,23 @@ bool searchDuplicity(Symbol *l, char *lexeme){
     return false;
 }
 
-//Return the type of the var/func (Used on expression analyzer)
+// Returns the address of the declared procedure
+int searchProcAddr(Symbol *symbol, char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(isEqualString(l->lexeme, lexeme) && (l->type == Procedimento))
+            return l->memory;
+    return -1;
+}
+
+// Returns the address of the declared function or variable
+int searchVarFuncAddress(Symbol *symbol, char *lexeme) {
+    for(Symbol *l = symbol; l != NULL; l = l->next)
+        if(isEqualString(l->lexeme, lexeme) && (l->type == VarBooleana || l->type == VarInteira || l->type == FuncInteira || l->type == FuncBooleana))
+            return l->memory;
+    return -1;
+}
+
+// Return the type of the var/func (Used on expression analyzer)
 SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(isEqualString(aux->lexeme, lexeme))
@@ -139,27 +102,7 @@ SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
     }
 }
 
-LexemeType getVarType(Symbol *l, char *lexeme) {
-    bool sameScope = true;
-    //printStack(l);
-    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
-        if(isEqualString(aux->lexeme, lexeme)){
-
-            //("\n\nTIIIPOOOOO %d bool %s",aux->type,sameScope?"t":"s");
-            if(aux->type == VarBooleana || aux->type == VarInteira)
-                return aux->type == VarBooleana ? Booleano : Inteiro;
-            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
-                return aux->type == FuncBooleana ? Booleano : Inteiro;
-            else
-                return Rel;// Error
-        }
-        if(aux->scope){
-            sameScope = false;
-        }
-    }
-    detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
-}
-
+// Returns the type of the specified function or variable name
 bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme))
@@ -167,6 +110,7 @@ bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {
     return false;
 }
 
+// Verify if the procedure or function have been already declared
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && l->type == Procedimento)
@@ -174,6 +118,7 @@ bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
+// Verify if the procedure was already declared (check if search duplicity can overwrite this)
 bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && (l->type == FuncBooleana || l->type == FuncInteira)){
@@ -182,6 +127,7 @@ bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
+// Verify if the function was already declared (check if search duplicity can overwrite this)
 bool verifyVarFuncDeclaration(Symbol *symbol, char *lexeme) {
     for(Symbol *l = symbol; l != NULL; l = l->next)
         if(isEqualString(l->lexeme, lexeme) && (l->type == VarBooleana || l->type == FuncBooleana || l->type == VarInteira || l->type == FuncInteira))
@@ -189,26 +135,37 @@ bool verifyVarFuncDeclaration(Symbol *symbol, char *lexeme) {
     return false;
 }
 
-bool verifyVarDeclaration(Symbol *symbol, char *lexeme){
-    for(Symbol *l = symbol; l != NULL; l = l->next)
-        if(isEqualString(l->lexeme, lexeme) && l->type == VarInteira)
+// verify if the var/func was declared
+bool verifyVarDeclaration(Symbol *symbol, char *lexeme, int *memory){
+    for(Symbol *l = symbol; l != NULL; l = l->next) {
+        if(isEqualString(l->lexeme, lexeme) && l->type == VarInteira) {
+            *memory = l->memory;
             return true;
+        }
+    }
     return false;
 }
 
-void unStack(Symbol **symbol) {
+// Unstack until the next scope (local variable region)
+int unStack(Symbol **symbol) {
+    int countVars = 0;
     Symbol *aux = (*symbol), *aux2;
-    while(aux != NULL && !aux->scope){
+    while(aux != NULL && !aux->scope) {
+        if(aux->type == VarInteira || aux->type == VarBooleana) {
+            countVars++;
+        }
         aux2 = aux->next;
         free(aux);
         aux = aux2;
     }
     aux->scope = false;
     *symbol = aux;
+    return countVars;
 }
 
 //################################################################# Posfix conversion
-//Simple stack functions (Posfix conversion)
+
+// Push stack (Used on expression analyzer) 
 void push(simpleStack **stack, ExpressionAnalyzer *op){
     simpleStack *new = (simpleStack *)malloc(sizeof(simpleStack));
     ExpressionAnalyzer *ex = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
@@ -219,13 +176,13 @@ void push(simpleStack **stack, ExpressionAnalyzer *op){
     *stack = new;
 }
 
+// Pop stack (Used on expression analyzer) 
 ExpressionAnalyzer pop(simpleStack **stack) {
 
     ExpressionAnalyzer ret;
 
     if((*stack) == NULL){
         strcpy(ret.lexeme, "VAZIA");
-        // ret.type = Inteiro;
         return ret;
     }
 
@@ -241,6 +198,7 @@ ExpressionAnalyzer pop(simpleStack **stack) {
     return ret;
 }
 
+// Print the simple stack used to analyze the expression
 void printSimpleStack(simpleStack *s) {
     simpleStack *pointer = s;
     printf("\n\nSTACK:\n");
@@ -250,6 +208,7 @@ void printSimpleStack(simpleStack *s) {
     }
 }
 
+// Free the simple stack memory allocated used to analyze the expression
 void freeSimpleStack(simpleStack **st) {
     simpleStack *aux = (*st), *aux2;
     while(aux != NULL){
@@ -260,6 +219,7 @@ void freeSimpleStack(simpleStack **st) {
     *st = aux;
 }
 
+// Free the expression memory allocated used on semantic to analyze expressions
 void freeExpression(ExpressionAnalyzer **l) {
     ExpressionAnalyzer *aux = (*l), *aux2;
     while(aux != NULL){
@@ -270,9 +230,10 @@ void freeExpression(ExpressionAnalyzer **l) {
     (*l) = NULL;
 }
 
+// Print the expression (Used on DEBUG mode to POS_FIX conversion)
 void printExpression(ExpressionAnalyzer *ex, char *ty, bool type) {
     ExpressionAnalyzer *aux = ex;
-    printf("\n\n%s\n",ty);
+    printf("\n\nDEBUG - Semantico - %s\n",ty);
     while(aux != NULL) {
         if(type)
             printf(" %d ",aux->type);
@@ -283,7 +244,10 @@ void printExpression(ExpressionAnalyzer *ex, char *ty, bool type) {
     printf("\n\n");
 }
 
+// Make a copy of a expression (Used to make a copy from POS_FIX expression to analyze the expression type (Semantic Analayzer))
 void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
+    if(debug)
+        printf("DEBUG - Semantico - Copy Expression");
     ExpressionAnalyzer *aux = src;
     while(aux != NULL){
         ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer)), *nextInsert = NULL;
@@ -308,21 +272,102 @@ void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src) {
     }
 }
 
-//searchStackMorePrecedence(&stack, inFix, PosFix)
+// Get the variable type (integer or boolean)
+LexemeType getVarType(Symbol *l, char *lexeme) {
+    bool sameScope = true;
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) { //Search in the Symbol Table
+        if(isEqualString(aux->lexeme, lexeme)){
+            if(aux->type == VarBooleana || aux->type == VarInteira)
+                return aux->type == VarBooleana ? Booleano : Inteiro;
+            else if(sameScope && (aux->type == FuncBooleana || aux->type == FuncInteira))
+                return aux->type == FuncBooleana ? Booleano : Inteiro;
+            else
+                return Rel;// Error
+        }
+        if(aux->scope){
+            sameScope = false;
+        }
+    }
+    detectError(22, lineCount, '\0');// Did't find the variable in the Symbol Table - variable undeclared or not in the same scope 
+}
+
+// Check if the lexeme informed is a function and returns it's type
+LexemeType isFunction(Symbol *l, char *lexeme) {
+    for(Symbol *aux = l; aux != NULL; aux = aux->next) {
+        if(isEqualString(aux->lexeme, lexeme)){
+            if(aux->type == FuncBooleana || aux->type == FuncInteira)
+                return aux->type;
+            else
+                return Rel;// Error
+        }
+        if(aux->scope){
+            return Rel;
+        }
+    }
+}
+
+// Used on syntatic to insert the found expression part
+void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type) {
+    if(list == NULL)
+        return;
+
+    ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    if(debug)
+        printf("\nDEBUG - Insert INFIX - %s", lexeme);
+
+    strcpy(new->lexeme,lexeme);
+    new->type = type;
+
+    new->next = NULL;
+    if((*list) == NULL) {
+        *list = new;
+        return;
+    }
+    ExpressionAnalyzer *aux = *list;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+}
+
+// Used on semantic to insert the IN_FIX convertion of the expression
+void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression) {
+     ExpressionAnalyzer *new = (ExpressionAnalyzer *)malloc(sizeof(ExpressionAnalyzer));
+
+    strcpy(new->lexeme, Expression->lexeme);
+    new->type = Expression->type;
+    new->next = NULL;
+
+    if((*PosFix) == NULL) {
+        (*PosFix) = new;
+        return;
+    }
+
+    ExpressionAnalyzer *aux = *PosFix;
+    while(aux->next != NULL) {
+        aux = aux->next;
+    }
+
+    aux->next = new;
+
+}
+
+// Find the next operator with more precedence to insert correctly in the POS_FIX expression
 void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix){
+    if(debug)
+        printf("DEBUG - Semantico - Search Stack more precedence");
     simpleStack *aux = (*stack);
     int i = 0;
     LexemeType auxType = op->type;
     ExpressionAnalyzer ret;
-    //printf("\nAUXTYPE - %s %d", op->lexeme, auxType);
     switch (auxType){
         case OpMaisMenos:
             while(aux != NULL){
-                //printf("\nDEBUG - %s   %d", aux-c->lexeme, aux->c->type);
-                //getchar();
-                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) {//copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { // Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -332,9 +377,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
             break;
         case OpMultDiv:
             while(aux != NULL){
-                if(aux->c->type == AbreP || aux->c->type == OpMaisMenos || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == OpMaisMenos || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == OpMultDiv || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == OpMultDiv || aux->c->type == UnarioN || aux->c->type == UnarioP) { // Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);;
@@ -344,9 +389,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
             break;
         case E:
             while(aux != NULL){
-                if(aux->c->type == AbreP || aux->c->type == OU)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == OU) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == Nao || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == Nao || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -356,9 +401,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
             break;
         case Nao:
             while(aux != NULL){
-                if(aux->c->type == AbreP || aux->c->type == E || aux->c->type == OU)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == E || aux->c->type == OU) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == Nao || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == Nao || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP) { //Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -368,9 +413,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
             break;
         case OU:
             while(aux != NULL){
-                if(aux->c->type == AbreP)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == E || aux->c->type == Nao || aux->c->type == OU || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == E || aux->c->type == Nao || aux->c->type == OU || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -380,9 +425,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
             break;
         case Rel:
             while(aux != NULL){
-                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E) // Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos || aux->c->type == UnarioN || aux->c->type == UnarioP){ //Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -393,9 +438,9 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
         case UnarioN:
         case UnarioP:
             while(aux != NULL){
-                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos)//Até encontrar (, final da pilha ou primeiro operador com precedência menor
+                if(aux->c->type == AbreP || aux->c->type == Nao || aux->c->type == OU || aux->c->type == E || aux->c->type == Rel || aux->c->type == OpMultDiv || aux->c->type == OpMaisMenos)//Util find '(' OR empty stack or the first operator with less procedence 
                     return;
-                if(aux->c->type == UnarioN || aux->c->type == UnarioP){ //copiando na saída todos os operadores com precedência maior ou igual ao que será empilhado
+                if(aux->c->type == UnarioN || aux->c->type == UnarioP){ //Insert POS_FIX all operators with precedence grather than or equals to the one that will be inserted in the STACK 
                     aux = aux->next;
                     ret = pop(stack);
                     insertPosFix(PosFix, &ret);
@@ -408,30 +453,32 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
     }
 }
 
+// Used to identify Unary operators in the IN_FIX expression and change their type to 'UnarioP' or 'UnarioN' (Used before POS_FIX conversion)
 void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
     /*
-    Se é o primeiro:
-        Se é +, descarta
-        Se é -, atribui unario
-    loop
-        Se atual for + ou - e atual não for varint/funcint/num, atribui unario
+    If is the first and the lexeme is + or -:
+        Attribute unary
+    If actual is + or - and previous token is not varint/funcInt/num:
+        Attribute unary
     */
+    if(debug)
+        printf("DEBUG - Semantico - Verify Unary Operators");
     ExpressionAnalyzer *aux = (*inFix), *auxFree = NULL, *last = NULL, *aux2 = NULL;
     while(aux != NULL) {
-        if(aux->next != NULL){
+        if(aux->next != NULL) {
             if(aux->type == OpMaisMenos) {
-                if(last == NULL && isEqualString(aux->lexeme, "-")) { //unário negativo
+                if(last == NULL && isEqualString(aux->lexeme, "-")) { // Negative unary
                     aux->type = UnarioN;
-                } else if(last == NULL && isEqualString(aux->lexeme, "+")) { //unário positivo (remove)
+                } else if(last == NULL && isEqualString(aux->lexeme, "+")) { // Positive unary
                     aux->type = UnarioP;
-                } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { //unário positivo (remove)
-                    if(isEqualString(aux->lexeme, "+")){
+                } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { // Positive unary
+                    if(isEqualString(aux->lexeme, "+")) {
                         aux->type = UnarioP;
-                    } else if(isEqualString(aux->lexeme, "-")) { //unário negativo
+                    } else if(isEqualString(aux->lexeme, "-")) { // Negative unary
                         aux->type = UnarioN;
                     }
                 }
-            } else if(aux->type == Nao && aux->next != NULL && aux->next->type == Nao){ //(NAO NAO) (Se anulam)
+            } else if(aux->type == Nao && aux->next != NULL && aux->next->type == Nao) { // (NAO NAO) anulate themselves
                 if(last != NULL)
                     last->next = aux->next->next;
                 else
@@ -440,7 +487,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
                 free(aux);
                 if(last != NULL)
                     aux = last;
-                else{
+                else {
                     aux = aux2;
                     (*inFix) = aux2;
                     continue;
@@ -450,48 +497,37 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
         last = aux;
         aux = aux->next;
     }
-    //printExpression(*inFix, "Type VerifyUn",true);
+    if(debug)
+        printExpression(*inFix, "Type VerifyUn",true);
 }
 
-
-//Número               -> N(simbolo)
-//Relação              -> R(simbolo)
-//div                  -> /
-//variável ou função   -> V(simbolo)
-//Boleano              -> B(simbolo)
-//E                    -> &
-//NAO                  -> !
-//OU                   -> |
-//UniárioNeg           -> U
-//UnárioPos            -> N
-
-//[V, +, R]
-//[Vestrela, +, Rmenor]
-
-
+// Convert the IN_FIX expression to POS_FIX expression 
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
-    verifyUnaryOperators(inFixIn);
-    printExpression(*inFixIn, "IN_FIX_DEPOIS", false);
-    //printf("\nENTROU POSFIX");
+    verifyUnaryOperators(inFixIn); // Check and convert the types of proper unary operators
+    
+    if(debug) {
+        printf("DEBUG - Semantico - ENTROU POSFIX\n");
+        printExpression(*inFixIn, "IN_FIX_DEPOIS", false);
+    }
     simpleStack *stack = NULL;
 
     /*
-    Se num ou var ou func, copia
-    Se (, empilha
-    Se ), desempilha até o primeiro (
-    Se o tipo for OpMultDiv, OpMaisMenos, Rel, Nao, E, OU
+    If number or variable or function, copy
+    If (, push on stack
+    If ), unstack (pop) until the first (
+    If the type is OpMultDiv, OpMaisMenos, Rel, Nao, E, OU, UnarioN, UnarioP analyze the stack to search the operators with more precedence and stack the current operator
     */
 
     ExpressionAnalyzer aux;
     for(ExpressionAnalyzer *inFix = (*inFixIn); inFix != NULL; inFix = inFix->next) {
         if(inFix->type == VarInt || inFix->type == VarBool || inFix->type == Inteiro || inFix->type == FuncBool || inFix->type == FuncInt || inFix->type == Booleano)//variable or number or function
             insertPosFix(PosFix, inFix);
-        else if(inFix->type == AbreP){//Empilha
+        else if(inFix->type == AbreP){// Insert Stack
             push(&stack, inFix);
         }
-        else if(inFix->type == FechaP){//Desempilha
+        else if(inFix->type == FechaP){// Unstack
             do{
-                aux = pop(&stack);//Joga na PosFix até achar o '('
+                aux = pop(&stack);// Insert POS_FIX until find '('
                 if(aux.type != AbreP)
                     insertPosFix(PosFix, &aux);
             } while(aux.type != AbreP);
@@ -501,19 +537,17 @@ void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix){
                 push(&stack, inFix);
             }
             else{
-                searchStackMorePrecedence(&stack, inFix, PosFix);
+                searchStackMorePrecedence(&stack, inFix, PosFix); // Unstack operators with equal or more precendece
                 push(&stack,inFix);
             }
         }
     }
 
-    if(stack != NULL) {
+    if(stack != NULL) { // Unstack the operators that remains in the stack
         do{
             aux = pop(&stack);
             if(aux.type != AbreP || aux.type != FechaP)
                 insertPosFix(PosFix, &aux);
-        }while(stack != NULL);
+        } while(stack != NULL);
     }
 }
-
-//################################################################
