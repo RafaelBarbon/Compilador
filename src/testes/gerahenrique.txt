@@ -1,0 +1,31 @@
+
+{% teste 3}
+programa leitura;
+var x,r:booleano;
+    a,y,b:booleano;
+funcao func1: inteiro;
+var a,b,c: inteiro;
+inicio
+                        func1:= +a-(-b);
+                     fim;                     
+procedimento ver;
+var i: inteiro;
+inicio
+  i:= 3;
+  x:=verdadeiro;
+  enquanto (i>1) ou (+i*(-100) >(-func1) ) e (nao x)
+  faca inicio
+       i:= i-1;
+       se i = 2
+       entao a:= b;
+       escreva(i)
+     fim;
+     escreva(i);
+fim;
+
+
+inicio
+  x:= verdadeiro;
+  y:= falso;
+  ver;
+fim.

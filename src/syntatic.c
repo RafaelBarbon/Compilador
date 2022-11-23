@@ -183,7 +183,7 @@ void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbo
 	analyzeExpressionType(&analyze, type);
 
 	generateExpressionCode(posFix, symbol); //TODO
-
+	
 	freeExpression(inFix);
 	freeExpression(&posFix);
 	freeExpression(&analyze);
@@ -456,11 +456,13 @@ void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 		if (isEqualString((*token)->symbol, "ssenao")) {
 			auxrot2 = label++;
 			generateAssembly("JMP     ", auxrot2, 0);
-			getNewToken(c, token, *symbol, inFix);
-			analyzeSimpleCommand(c, token, symbol, inFix);
-			generateAssembly("NULL    ", auxrot2, 0);
 		}
 		generateAssembly("NULL    ", auxrot1, 0);
+		if (isEqualString((*token)->symbol, "ssenao")) {
+			getNewToken(c, token, *symbol, inFix);
+			analyzeSimpleCommand(c, token, symbol, inFix);
+			generateAssembly("NULL    ", auxrot2, 0);			
+		}
 	} else
 		errorSintax(token, 18, '\0');
 }

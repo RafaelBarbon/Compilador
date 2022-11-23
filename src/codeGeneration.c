@@ -239,7 +239,6 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
                 generateAssembly("INV     ", 0, 0);
                 break;
             case UnarioP:
-                continue;
                 break;
             case OpMultDiv:
                 if(isEqualString(posFix->lexeme, "*"))
@@ -264,7 +263,7 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
                     generateAssembly("CMAQ    ", 0, 0);
                 else if(isEqualString(posFix->lexeme, "!="))
                     generateAssembly("CDIF    ", 0, 0);
-                else if(isEqualString(posFix->lexeme, "=="))
+                else if(isEqualString(posFix->lexeme, "="))
                     generateAssembly("CEQ     ", 0, 0);
                 break;
             case Nao:
