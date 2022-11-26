@@ -9,14 +9,14 @@
 
 // Enum for identify the symbol type declared
 typedef enum SymbolType{
-    Var,
-    Func,
-    FuncInteira,
-    FuncBooleana,
-    VarInteira,
-    VarBooleana,
-    Procedimento,
-    Programa
+    Var, // 0
+    Func, // 1
+    FuncInteira, // 2
+    FuncBooleana, // 3
+    VarInteira, // 4
+    VarBooleana, // 5
+    Procedimento, // 6
+    Programa // 7
 }SymbolType;
 
 // Struct for identify a symbol
@@ -50,28 +50,6 @@ typedef struct simpleStack {
     struct simpleStack *next;
 }simpleStack;
 
-void push(simpleStack **stack, ExpressionAnalyzer *c);
-
-ExpressionAnalyzer pop(simpleStack **stack);
-
-void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
-
-void verifyUnaryOperators(ExpressionAnalyzer **inFix);
-
-char unstackOperator(simpleStack **stack, char op);
-
-void freeSimpleStack(simpleStack **st);
-
-void printSimpleStack(simpleStack *s);
-
-void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
-
-void insertInFix(ExpressionAnalyzer **list, char lexeme[30], LexemeType type);
-
-void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
-
-//#################################################################
-
 // Insert a new symbol into stack
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory);
 
@@ -87,27 +65,29 @@ void printStack(Symbol *stack);
 // Free memory
 void freeSymbol(Symbol **l);
 
-void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
-
-void freeExpression(ExpressionAnalyzer **l);
-
-LexemeType getVarType(Symbol *l, char *lexeme,Ui::MainWindow *ui);
-
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);
 
 // Verify variable duplicity (need to check if duplicity on global variables are allowed)
 bool searchDuplicity(Symbol *stack, char *lexeme);
 
+// Returns the address of the declared procedure
 int searchProcAddr(Symbol *symbol, char *lexeme);
 
+// Returns the address of the declared function or variable
 int searchVarFuncAddress(Symbol *symbol, char *lexeme);
 
-// Verify if the function was already declared (check if search duplicity can overwrite this)
-bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
+// Returns the type of the specified function or variable name
+SymbolType searchVarFuncType(Symbol *l, char *lexeme);
+
+// Verify if the procedure or function have been already declared
+bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
 
 // Verify if the procedure was already declared (check if search duplicity can overwrite this)
 bool verifyProcedureDeclaration(Symbol *symbol, char *lexeme);
+
+// Verify if the function was already declared (check if search duplicity can overwrite this)
+bool verifyFunctionDeclaration(Symbol *symbol, char *lexeme);
 
 // verify if the var/func was declared
 bool verifyVarFuncDeclaration(Symbol *stack, char *lexeme);
@@ -118,8 +98,48 @@ bool verifyVarDeclaration(Symbol *stack, char *lexeme, int *memory);
 // Unstack until the next scope (local variable region)
 int unStack(Symbol **symbol);
 
-SymbolType searchVarFuncType(Symbol *l, char *lexeme);
+//#################################################################
 
-bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme);
+// Push stack (Used on expression analyzer)
+void push(simpleStack **stack, ExpressionAnalyzer *c);
+
+// Pop stack (Used on expression analyzer)
+ExpressionAnalyzer pop(simpleStack **stack);
+
+// Print the simple stack used to analyze the expression
+void printSimpleStack(simpleStack *s);
+
+// Free the simple stack memory allocated used to analyze the expression
+void freeSimpleStack(simpleStack **st);
+
+// Free the expression memory allocated used on semantic to analyze expressions
+void freeExpression(ExpressionAnalyzer **l);
+
+// Print the expression (Used on DEBUG mode to POS_FIX conversion)
+void printExpression(ExpressionAnalyzer *ex, char *ty, bool type);
+
+//Make a copy of a expression (Used to make a copy from POS_FIX expression to analyze the expression type (Semantic Analayzer))
+void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
+
+// Get the variable type (integer or boolean)
+LexemeType getVarType(Symbol *l, char *lexeme,Ui::MainWindow *ui);
+
+// Check if the lexeme informed is a function and returns it's type
+LexemeType isFunction(Symbol *l, char *lexeme);
+
+// Used on syntatic to insert the found expression part
+void insertInFix(ExpressionAnalyzer **list, char lexeme[maxIdentifierLength], LexemeType type);
+
+// Used on semantic to insert the IN_FIX convertion of the expression
+void insertPosFix(ExpressionAnalyzer **PosFix, ExpressionAnalyzer *Expression);
+
+// Find the next operator with more precedence to insert correctly in the POS_FIX expression
+void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, ExpressionAnalyzer **PosFix);
+
+// Used to identify Unary operators in the IN_FIX expression and change their type to 'UnarioP' or 'UnarioN' (Used before POS_FIX conversion)
+void verifyUnaryOperators(ExpressionAnalyzer **inFix);
+
+// Convert the IN_FIX expression to POS_FIX expression
+void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 
 #endif

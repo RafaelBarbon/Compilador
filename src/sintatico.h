@@ -11,79 +11,86 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbol,Ui::MainWindow *ui);
-
-//
+// Treat errors, files and structures
 void errorSintax(Token **token, int errorCode, char symbol,Ui::MainWindow *ui);
 
-// Get a new token
-void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix);
-
-// programa
-void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//bloco
-void analyzeBlock(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//declaração de variáveis
-void analyzeEtVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
-
-//declaração de variáveis
-void analyzeVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
-
-//tipo
-void analyzeType(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
-
-//comandos
-void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//comandos
-void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//atribuição_chprocedimento
-void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//comando leitura
-void analyzeRead(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
-
-// comando escrita
-void analyzeWrite(char *c, Token **token, Symbol **Symbol,Ui::MainWindow *ui);
-
-//comando repetição
-void analyzeWhile(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui) ;
-
-// comando condicional
-void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-// etapa de declaração de sub-rotinas
-void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//declaração de procedimento
-void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//declaração de função
-void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//expressão
-void analyzeExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//expressão simples
-void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//termo
-void analyzeTerm(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//fator
-void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
-
-//usado no Analisa_expressao
+// Verify if the symbol is relational
 bool verifyRelationalSymbol(Token *token);
 
-void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol,Ui::MainWindow *ui);
+// Calls lexic to get a new token in source file
+void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix,Ui::MainWindow *ui);
 
+// Analyze if the expression matches with the expected type
+void analyzeExpressionType(ExpressionAnalyzer **expression, LexemeType expectedType);
+
+// Responsible for convert the expression to POS_FIX, verify if the expression is correct and generate the assembly code for the expression
+void semanticAnalyzer(ExpressionAnalyzer **inFix, LexemeType type, Symbol *symbol,Ui::MainWindow *ui);
+
+// Starts the compilation of the code
+void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze a block of program
+void analyzeBlock(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze the declarion of variables
+void analyzeEtVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
+
+// Also used to analyze the declarion of variables
+void analyzeVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
+
+// Analyze the type of the token and put it on the symbol table
+void analyzeType(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
+
+// Analyze the program commands
+void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Also used to analyze the program commands
+void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze an attribution or a procedure call
+void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze attributions
 void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, char *name,Ui::MainWindow *ui);
 
+// Analyze a procedure call
+void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze a function call
 void analyzeFunctionCall(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze the read command
+void analyzeRead(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
+
+// Analyze the write command
+void analyzeWrite(char *c, Token **token, Symbol **Symbol,Ui::MainWindow *ui);
+
+// Analyze the while command
+void analyzeWhile(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui) ;
+
+// Analyze the conditional command
+void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze declaration of subroutines=
+void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Analyze procedure declarations
+void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Function declaration
+void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix);
+
+// Expression - Verify expression and possible relational operator
+void analyzeExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
+
+// Simple expression - Analyze the lower precedence of expressions
+void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Term - Analyze the higher precedence of the operations
+void analyzeTerm(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
+
+// Factor - used to extract each token of an expression
+void analyzeFactor(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
 
 #endif
 

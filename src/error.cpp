@@ -7,6 +7,7 @@
 #include <string.h>
 
 
+// Find the specific error to be shown
 char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
     error = true;
 
