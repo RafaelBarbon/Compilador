@@ -33,7 +33,7 @@ bool insertArray = false;
 bool error = false;
 int label = 1;
 int address = 1; //Endereço 0 fica para o retorno de funções
-
+QString caminho;
 void updateCursor(char *c) {
     *c = getc(sourceFile);
     if(*c == '\n')
@@ -68,6 +68,7 @@ void MainWindow::on_actionOpen_triggered(){
     QString file_name = QFileDialog::getOpenFileName (this, "Open the file");
     QFile File (file_name);
     QString file_path_ = file_name;
+    caminho = file_name;
      if (File.open (QIODevice::ReadOnly)){
          QTextStream stream (&File);
          QString FileData;
@@ -99,6 +100,7 @@ void MainWindow::on_actionDelete_File_triggered(){
     QString file_name = QFileDialog::getSaveFileName (this, "Open the file");
     QFile File (file_name);
     QString file_path_ = file_name;
+    caminho= file_name;
     File.remove();
 }
 
@@ -162,11 +164,10 @@ void MainWindow::on_actionRun_triggered()
     QMessageBox::information(this,"Teste", "2");
     qDebug()<<"2";
 
-
     //path file -> renomeia pra run.txt
 
     if(argc < 1) {
-            detectError(6, 0, '\0');
+            detectError(6, 0, '\0',ui);
             exit(1);
         } else if(argc > 2 && strcmp(argv[2],"1") == 0) {
             debug = true;
@@ -176,7 +177,7 @@ void MainWindow::on_actionRun_triggered()
         sourceFile = fopen(argv[1], "r");
 
         if(!sourceFile) {
-            detectError(7, 0, '\0');
+            detectError(7, 0, '\0',ui);
             exit(1);
         }
         else if(debug)
@@ -188,7 +189,7 @@ void MainWindow::on_actionRun_triggered()
 
         updateCursor(&c);
 
-        syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix);
+        syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix, ui);
         char ret[30] = {0};
 
         // TODO Geração de código

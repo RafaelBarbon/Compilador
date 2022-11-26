@@ -42,11 +42,11 @@ void strCatAssembly(char *result, char *op2, int tam, int *tamLine){
     }
 }
 
-void generateAssembly(char *instruction, int param1, int param2) {
+void generateAssembly(char *instruction, int param1, int param2,Ui::MainWindow *ui) {
     //TODO VERIFICAR ADDRESS PARA GERAR O ALLOC, DALOC
     //TODO SE FOR NULL COLOCAR "PARAM1 NULL"
     int tamLine = 0;
-    char line[21] = {0}, spaces[4] ="   ";
+    char line[21] = {0}, spaces[4] = "   ";
     char param1converted[4] = {0}, param2converted[4] = {0};
     toString(param1, param1converted);
     toString(param2, param2converted);
@@ -205,10 +205,10 @@ void generateAssembly(char *instruction, int param1, int param2) {
     }
     int result = fprintf(outputCode,"%s",line);
     if(result == EOF)
-        detectError(29,0,'\0');
+        detectError(29,0,'\0',ui);
 }
 
-void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
+void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol,Ui::MainWindow *ui) {
     LexemeType type;
     int addr;
     char converted[4];
@@ -216,65 +216,65 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
         type = posFix->type;
         switch(type){
             case Inteiro:
-                generateAssembly("LDC     ", toInt(posFix->lexeme), 0);
+                generateAssembly("LDC     ", toInt(posFix->lexeme), 0,ui);
                 break;
             case Booleano:
                 if(isEqualString(posFix->lexeme, "verdadeiro"))
-                    generateAssembly("LDC     ", 1, 0);
+                    generateAssembly("LDC     ", 1, 0,ui);
                 else
-                    generateAssembly("LDC     ", 0, 0);
+                    generateAssembly("LDC     ", 0, 0,ui);
                 break;
             case VarInt:
             case VarBool: //Buscar na tabela de simbolos o endereço
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Adress
-                generateAssembly("LDV     ", addr, 0);
+                generateAssembly("LDV     ", addr, 0,ui);
                 break;
-            case FuncInt: 
+            case FuncInt:
             case FuncBool://Buscar o rotulo na tabela de simbolos
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Rotulo
-                generateAssembly("CALL    ", addr, 0); 
-	            generateAssembly("LDV     ", 0, 0); // Retorno de função 
+                generateAssembly("CALL    ", addr, 0,ui);
+                generateAssembly("LDV     ", 0, 0,ui); // Retorno de função
                 break;
             case UnarioN:
-                generateAssembly("INV     ", 0, 0);
+                generateAssembly("INV     ", 0, 0,ui);
                 break;
             case UnarioP:
                 continue;
                 break;
             case OpMultDiv:
                 if(isEqualString(posFix->lexeme, "*"))
-                    generateAssembly("MULT    ", 0, 0);
+                    generateAssembly("MULT    ", 0, 0,ui);
                 else
-                    generateAssembly("DIVI    ", 0, 0);
+                    generateAssembly("DIVI    ", 0, 0,ui);
                 break;
             case OpMaisMenos:
                 if(isEqualString(posFix->lexeme, "+"))
-                    generateAssembly("ADD     ", 0, 0);
+                    generateAssembly("ADD     ", 0, 0,ui);
                 else
-                    generateAssembly("SUB     ", 0, 0);
+                    generateAssembly("SUB     ", 0, 0,ui);
                 break;
             case Rel:
                 if(isEqualString(posFix->lexeme, ">"))
-                    generateAssembly("CMA     ", 0, 0);
+                    generateAssembly("CMA     ", 0, 0,ui);
                 else if(isEqualString(posFix->lexeme, "<"))
-                    generateAssembly("CME     ", 0, 0);
+                    generateAssembly("CME     ", 0, 0,ui);
                 else if(isEqualString(posFix->lexeme, "<="))
-                    generateAssembly("CMEQ    ", 0, 0);
+                    generateAssembly("CMEQ    ", 0, 0,ui);
                 else if(isEqualString(posFix->lexeme, ">="))
-                    generateAssembly("CMAQ    ", 0, 0);
+                    generateAssembly("CMAQ    ", 0, 0,ui);
                 else if(isEqualString(posFix->lexeme, "!="))
-                    generateAssembly("CDIF    ", 0, 0);
+                    generateAssembly("CDIF    ", 0, 0,ui);
                 else if(isEqualString(posFix->lexeme, "=="))
-                    generateAssembly("CEQ     ", 0, 0);
+                    generateAssembly("CEQ     ", 0, 0,ui);
                 break;
             case Nao:
-                generateAssembly("NEG     ", 0, 0);
+                generateAssembly("NEG     ", 0, 0,ui);
                 break;
             case E:
-                generateAssembly("AND     ", 0, 0);
+                generateAssembly("AND     ", 0, 0,ui);
                 break;
             case OU:
-                generateAssembly("OR      ", 0, 0);
+                generateAssembly("OR      ", 0, 0,ui);
                 break;
         }
         posFix = posFix->next;

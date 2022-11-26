@@ -2,52 +2,18 @@
 #include <stdlib.h>
 #include "error.h"
 #include "verifyChar.h"
-
-int main(int argc, char const *argv[])
-{
-
-    char ***myTable = NULL;
-    /* I want to declare a matrix which will contain a string in each cell */
-    int end = 1;
-    int row = 0;
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
+#include <string.h>
 
 
-    while(end) {
-        // TODO: Add NULL ptr check....
-        // Allocate space here:
-        // First, add a row
-        myTable = realloc(myTable, sizeof(char**) * (row + 1));
-        // Next, alloc 3 pointers in the new row
-        myTable[row] = malloc(3 * sizeof(char*));
-        // Then, alloc space for 3 strings
-        for(int j = 0; j < 3; j++)
-            myTable[row][j] = malloc(MAX_STRING_LENGTH * sizeof(char));
-
-        //filling the matrix from the file no matter how many row
-        //the file has
-        for(int j = 0; j < 3; j++) {
-            scanf("%s", myTable[row][j]);
-        }
-        row++;
-        //if(getc(file) == EOF) end = 0;
-    }
-
-
-    for(int rows = 0; rows < row; rows++) {
-        for(int col = 0; col < 3; col++)
-            printf("numero: %s ", myTable[rows][col]);
-        printf("\n");
-    }
-    return 0;
-}
-
-
-char detectError(int errorCode, int line, char symbol) {
+char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
     error = true;
 
     switch(errorCode) {
         case 1:
-            printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
+            ui->QListWidget->addItem("\nErro" + std::to_string(line) + "Simbolo" + symbol + "nao encontrado.\n");
+            //printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
             break;
         case 2:
             printf("\nErro L%d: Identificador iniciando com digitos.\n", line);
@@ -136,5 +102,5 @@ char detectError(int errorCode, int line, char symbol) {
         default:
             printf("\nErro desconhecido!\n");
     }
-    return **myTable;
+    ui->listWidget->addItem(aux);
 }

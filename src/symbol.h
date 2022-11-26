@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
 // Enum for identify the symbol type declared
 typedef enum SymbolType{
@@ -89,7 +91,7 @@ void copyExpression(ExpressionAnalyzer **dest, ExpressionAnalyzer *src);
 
 void freeExpression(ExpressionAnalyzer **l);
 
-LexemeType getVarType(Symbol *l, char *lexeme);
+LexemeType getVarType(Symbol *l, char *lexeme,Ui::MainWindow *ui);
 
 // Convert enum to string
 char* symbolTypeToString(SymbolType type);

@@ -6,21 +6,23 @@
 //#include "symbol.h"
 #include "token.h"
 #include "verifyChar.h"
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
 // Biblioteca QT para interface grafica
 
 
 
-void symbolError(char c, Token **tokenList) {
+void symbolError(char c, Token **tokenList,Ui::MainWindow *ui) {
     char error[2] = {0};
     error[0] = c;
     if(debug)
         printf("\nDEBUG - Lexico - ERROR %d { %c }\n", c, c);
     insertToken(tokenList, error, "serro");
-    detectError(1,lineCount,c);
+    detectError(1,lineCount,c,ui);
 }
 
-void treatDigit(char *c, Token **tokenList) {
+void treatDigit(char *c, Token **tokenList,Ui::MainWindow *ui) {
     char word[30] = {0};
     int i=0;
     bool erro = false;
@@ -41,13 +43,13 @@ void treatDigit(char *c, Token **tokenList) {
     }
     // Identifier starting with digits
     if(isIdentifier(*c)) {
-        detectError(2,lineCount, '\0');
+        detectError(2,lineCount, '\0',ui);
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(c);
         insertToken(tokenList, "Identificador inicio digito", "serro");
         erro = true;
     } else if(erro) {
-        detectError(3,lineCount,'\0');
+        detectError(3,lineCount,'\0',ui);
         insertToken(tokenList, "Numero execede o limite", "serro");
     }
     flagUpdate = false;
@@ -67,7 +69,7 @@ void treatAttribution(char *c, Token **tokenList) {
     }
 }
 
-void treatArithmeticOperator(char *c, Token **tokenList) {
+void treatArithmeticOperator(char *c, Token **tokenList,Ui::MainWindow *ui) {
     if(debug)
         printf("\nDEBUG - Lexico - Trata operador aritmetico\n");
     switch(*c){
@@ -80,11 +82,11 @@ void treatArithmeticOperator(char *c, Token **tokenList) {
         case '*':
             insertToken(tokenList, "*", "smult");
         break;
-            symbolError(*c, tokenList);
+            symbolError(*c, tokenList,ui);
     }
 }
 
-void treatRelationalOperator(char *c, Token **tokenList) {
+void treatRelationalOperator(char *c, Token **tokenList,Ui::MainWindow *ui) {
     if(debug)
         printf("\nDEBUG - Lexico - Trata operador relacional\n");
     switch(*c) {
@@ -93,7 +95,7 @@ void treatRelationalOperator(char *c, Token **tokenList) {
             if(isNotEndOfFile(*c) && *c == '=')
                 insertToken(tokenList, "!=", "sdif");
             else{
-               symbolError('!', tokenList);
+               symbolError('!', tokenList,ui);
                flagUpdate = false;
             }
             break;
@@ -119,11 +121,11 @@ void treatRelationalOperator(char *c, Token **tokenList) {
             insertToken(tokenList, "=", "sig");
             break;
         default:
-            symbolError(*c, tokenList);
+            symbolError(*c, tokenList,ui);
     }
 }
 
-void treatPunctuation(char *c, Token **tokenList) {
+void treatPunctuation(char *c, Token **tokenList,Ui::MainWindow *ui) {
     if(debug)
         printf("\nDEBUG - Lexico - Pontuacao\n");
     switch(*c) {
@@ -143,11 +145,11 @@ void treatPunctuation(char *c, Token **tokenList) {
             insertToken(tokenList, ".", "sponto");
             break;
         default:
-            symbolError(*c, tokenList);
+            symbolError(*c, tokenList,ui);
     }
 }
 
-void identifyReservedWord(char *c, Token **tokenList) {
+void identifyReservedWord(char *c, Token **tokenList,Ui::MainWindow *ui) {
     char word[30] = {0};
     int i = 0; // Contador para tamanho máximo do identificador
 
@@ -161,7 +163,7 @@ void identifyReservedWord(char *c, Token **tokenList) {
     }
     // identifier Length Error
     if(i == 30) {
-        detectError(4,lineCount, '\0');
+        detectError(4,lineCount, '\0',ui);
         while(isIdentifier(*c) && isNotEndOfFile(*c))
             updateCursor(c);
         insertToken(tokenList, "Identificador muito longo", "serro");
@@ -214,33 +216,33 @@ void identifyReservedWord(char *c, Token **tokenList) {
         insertToken(tokenList, word, "sidentificador");
 }
 
-void colectToken(char *c, Token **tokenList) {
+void colectToken(char *c, Token **tokenList,Ui::MainWindow *ui) {
     if(debug)
         printf("\nDEBUG - Lexico - Coleta token: [ %c ]\n", *c);
     if(isDigit(*c))
-        treatDigit(c, tokenList);
+        treatDigit(c, tokenList,ui);
     else if(isLetter(*c))
-        identifyReservedWord(c, tokenList);
+        identifyReservedWord(c, tokenList,ui);
     else if(*c == ':')
         treatAttribution(c, tokenList);
     else if(isAritmeticOperator(*c))
-        treatArithmeticOperator(c, tokenList);
+        treatArithmeticOperator(c, tokenList,ui);
     else if(isRelationalOperator(*c))
-        treatRelationalOperator(c, tokenList);
+        treatRelationalOperator(c, tokenList,ui);
     else if(isPonctuation(*c))
-        treatPunctuation(c, tokenList);
+        treatPunctuation(c, tokenList,ui);
     else
-        symbolError(*c, tokenList);
+        symbolError(*c, tokenList,ui);
 }
 
-bool checkComment(char *c) {
+bool checkComment(char *c,Ui::MainWindow *ui) {
     if(*c == '{') {
         int openCommentLine = lineCount;
         updateCursor(c);
         while(*c != '}' && isNotEndOfFile(*c))
             updateCursor(c);
         if(!isNotEndOfFile(*c)){
-            detectError(5,openCommentLine,'\0');
+            detectError(5,openCommentLine,'\0',ui);
             return false;
         }
         updateCursor(c);
@@ -259,12 +261,12 @@ bool checkSpaces(char *c) {
     return false;
 }
 
-void getToken(char *c, Token **tokenList) {
+void getToken(char *c, Token **tokenList,Ui::MainWindow *ui) {
     while(isNotEndOfFile(*c) && *tokenList == NULL) {
-        if(checkComment(c) || checkSpaces(c))
+        if(checkComment(c,ui) || checkSpaces(c))
             continue;
         else {
-            colectToken(c, tokenList);
+            colectToken(c, tokenList,ui);
 
             if(flagUpdate)
                 updateCursor(c);

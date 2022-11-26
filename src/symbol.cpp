@@ -5,6 +5,8 @@
 #include "symbol.h"
 #include "error.h"
 #include "verifyChar.h"
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
 void insertSymbol(Symbol **stack, char *lexeme, bool scope, SymbolType type, int memory) {
     Symbol *novo = (Symbol *)malloc(sizeof(Symbol));
@@ -124,7 +126,7 @@ SymbolType searchVarFuncType(Symbol *l, char *lexeme) {
     }
 }
 
-LexemeType getVarType(Symbol *l, char *lexeme) {
+LexemeType getVarType(Symbol *l, char *lexeme,Ui::MainWindow *ui) {
     bool sameScope = true;
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(isEqualString(aux->lexeme, lexeme)){
@@ -139,7 +141,7 @@ LexemeType getVarType(Symbol *l, char *lexeme) {
             sameScope = false;
         }
     }
-    detectError(22, lineCount, '\0');//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
+    detectError(22, lineCount, '\0',ui);//Não encontrou a variável na tabela de simbolos(Nao esta declarada ou não é visivel)
 }
 
 bool verifyProcedureFunctionDuplicity(Symbol *symbol, char *lexeme) {

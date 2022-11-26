@@ -3,7 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
-char detectError(int errorCode, int line, char symbol);
+
+char detectError(int errorCode, int line, char symbol,Ui::MainWindow *ui);
 
 #endif
