@@ -44,7 +44,7 @@ typedef enum LexemeType{
     Nao, // 11
     E, // 12
     OU, // 13
-    Inteiro, // 14 
+    Inteiro, // 14
     Booleano // 15
 }LexemeType;
 
@@ -113,10 +113,10 @@ int unStack(Symbol **symbol);
 
 //#################################################################
 
-// Push stack (Used on expression analyzer) 
+// Push stack (Used on expression analyzer)
 void push(simpleStack **stack, ExpressionAnalyzer *c);
 
-// Pop stack (Used on expression analyzer) 
+// Pop stack (Used on expression analyzer)
 ExpressionAnalyzer pop(simpleStack **stack);
 
 // Print the simple stack used to analyze the expression
@@ -152,7 +152,7 @@ void searchStackMorePrecedence(simpleStack **stack, ExpressionAnalyzer *op, Expr
 // Used to identify Unary operators in the IN_FIX expression and change their type to 'UnarioP' or 'UnarioN' (Used before POS_FIX conversion)
 void verifyUnaryOperators(ExpressionAnalyzer **inFix);
 
-// Convert the IN_FIX expression to POS_FIX expression 
+// Convert the IN_FIX expression to POS_FIX expression
 void convertPosFix(ExpressionAnalyzer **inFixIn, ExpressionAnalyzer **PosFix);
 
 #endif

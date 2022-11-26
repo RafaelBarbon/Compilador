@@ -4,6 +4,7 @@
 #include "symbol.h"
 #include "verifyChar.h"
 
+//Transforms the integer parameter to string (Used to create the .obj file)
 void toString(int param, char result[4]) {
     if(param == 0){
         result[0] = '0';
@@ -26,6 +27,8 @@ void toString(int param, char result[4]) {
     }
 }
 
+
+//Transforms the string parameter to integer (Used to get lexeme values and use it on generateAssembly)
 int toInt(char *number) {
     int result = 0;
     for(int i = 0; number[i] >= 48 && number[i] <= 57; i++) {
@@ -36,15 +39,15 @@ int toInt(char *number) {
     return result;
 }
 
+//Used to concatenate the instructions with their parameters
 void strCatAssembly(char *result, char *op2, int tam, int *tamLine){
     for(int i = 0; i < tam; i++){
         result[(*tamLine)++] = op2[i];
     }
 }
 
+//Create the instruction according to the parameters and insert it in the .obj file
 void generateAssembly(char *instruction, int param1, int param2) {
-    //TODO VERIFICAR ADDRESS PARA GERAR O ALLOC, DALOC
-    //TODO SE FOR NULL COLOCAR "PARAM1 NULL"
     int tamLine = 0;
     char line[21] = {0}, spaces[4] = "    ";
     char param1converted[4] = {0}, param2converted[4] = {0};
@@ -208,11 +211,12 @@ void generateAssembly(char *instruction, int param1, int param2) {
         detectError(29,0,'\0');
 }
 
+//Generate the commands from the POS_FIX Expression
 void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
     LexemeType type;
     int addr;
     char converted[4];
-    while(posFix != NULL){
+    while(posFix != NULL){ //It goes through the posFix expression and generate the assembly commands
         type = posFix->type;
         switch(type){
             case Inteiro:
@@ -225,15 +229,15 @@ void generateExpressionCode(ExpressionAnalyzer *posFix, Symbol *symbol) {
                     generateAssembly("LDC     ", 0, 0);
                 break;
             case VarInt:
-            case VarBool: //Buscar na tabela de simbolos o endereço
+            case VarBool: //Search the adress of the variable on the Symbol Table
                 addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Adress
                 generateAssembly("LDV     ", addr, 0);
                 break;
-            case FuncInt: 
-            case FuncBool://Buscar o rotulo na tabela de simbolos
-                addr = searchVarFuncAddress(symbol, posFix->lexeme);//Search Rotulo
-                generateAssembly("CALL    ", addr, 0); 
-	            generateAssembly("LDV     ", 0, 0); // Retorno de função 
+            case FuncInt:
+            case FuncBool://Search the label of the variable on the Symbol Table
+                addr = searchVarFuncAddress(symbol, posFix->lexeme);
+                generateAssembly("CALL    ", addr, 0);
+	            generateAssembly("LDV     ", 0, 0); //The return value of the function will be stored on the zero adress of the memory stack
                 break;
             case UnarioN:
                 generateAssembly("INV     ", 0, 0);
