@@ -296,8 +296,10 @@ LexemeType getVarType(Symbol *l, char *lexeme, Ui::MainWindow *ui) {
 LexemeType isFunction(Symbol *l, char *lexeme) {
     for(Symbol *aux = l; aux != NULL; aux = aux->next) {
         if(isEqualString(aux->lexeme, lexeme)){
-            if(aux->type == FuncBooleana || aux->type == FuncInteira)
-                return aux->type;
+            if(aux->type == FuncBooleana)
+                return FuncBool;
+            else if(aux->type == FuncInteira)
+                return FuncInt;
             else
                 return Rel; // Error
         }
