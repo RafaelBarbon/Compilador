@@ -29,7 +29,7 @@ bool verifyRelationalSymbol(Token *token) {
 // Calls lexic to get a new token in source file
 void getNewToken(char *c, Token **token, Symbol *symbolList, ExpressionAnalyzer **InFix,Ui::MainWindow *ui) {
 	freeToken(token);
-	getToken(c, token);
+    getToken(c, token,ui);
 	if(insertArray) { // Store the expression to be analyze later
 		// If is an identifier, search on symbol table to get the type
 		if(isEqualString((*token)->symbol, "sidentificador")){
@@ -200,7 +200,7 @@ void syntacticAnalyzer(char *c, Token **token, Symbol **symbol, ExpressionAnalyz
 			getNewToken(c, token, *symbol, inFix,ui);
 			if (isEqualString((*token)->symbol, "sponto_virgula")) {
 				generateAssembly("ALLOC   ", 1, address++,ui);
-				analyzeBlock(c, token, symbol, inFix);
+                analyzeBlock(c, token, symbol, inFix,ui);
 				generateAssembly("DALLOC  ", address, 0,ui);
 				if (isEqualString((*token)->symbol, "sponto")) {
 					if (!isNotEndOfFile(*c) || checkComment(c,ui) || checkSpaces(c)) {
@@ -325,6 +325,19 @@ void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAna
 		analyzeCommands(c, token, symbol, inFix,ui);
 }
 
+// Analyze a procedure call
+void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol,Ui::MainWindow *ui) {
+    if(debug)
+        printf("\nDEBUG - Sintatico - Chamada procedimento\n");
+
+    if(isEqualString((*token)->symbol, "sponto_virgula") || isEqualString((*token)->symbol, "sfim") || isEqualString((*token)->symbol, "ssenao")) { //Can be called in the last command, or right after a conditional command with only one command and with 'senao'
+        if(!verifyProcedureDeclaration((*symbol), nameProcedure))
+            errorSintax(token, 25, '\0',ui);
+        else
+            generateAssembly("CALL    ", searchProcAddr(*symbol, nameProcedure), 0,ui);
+    } else errorSintax(token, 20, '\0',ui);
+}
+
 // Analyze an attribution or a procedure call
 void analyzeAttributionProcedureCall(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui) {
 	if(debug)
@@ -347,7 +360,7 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 	insertArray = true;
 	getNewToken(c, token, symbol, inFix,ui); // Also adds in inFix to analyze later
 
-	analyzeExpression(c, token, symbol, inFix,ui);
+    analyzeExpression(c, token, symbol, inFix,ui);
 
 	insertArray = false;
 	LexemeType type = getVarType(symbol, name,ui);
@@ -357,19 +370,6 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 	type = isFunction(symbol, name);
 	if(type != FuncInt && type != FuncBool) //Generate the assembly code to store the attribution in the destination variable address
 		generateAssembly("STR     ", searchVarFuncAddress(symbol, name), 0,ui);
-}
-
-// Analyze a procedure call
-void procedureCall(char *c, Token **token, char *nameProcedure, Symbol **symbol,Ui::MainWindow *ui) {
-	if(debug)
-        printf("\nDEBUG - Sintatico - Chamada procedimento\n");
-
-	if(isEqualString((*token)->symbol, "sponto_virgula") || isEqualString((*token)->symbol, "sfim") || isEqualString((*token)->symbol, "ssenao")) { //Can be called in the last command, or right after a conditional command with only one command and with 'senao'
-		if(!verifyProcedureDeclaration((*symbol), nameProcedure))
-			errorSintax(token, 25, '\0',ui);
-		else
-			generateAssembly("CALL    ", searchProcAddr(*symbol, nameProcedure), 0,ui);
-	} else errorSintax(token, 20, '\0',ui);
 }
 
 // Analyze a function call
@@ -462,8 +462,8 @@ void analyzeConditional(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 		}
 		generateAssembly("NULL    ", auxrot1, 0,ui);
 		if (isEqualString((*token)->symbol, "ssenao")) {
-			getNewToken(c, token, *symbol, inFix);
-			analyzeSimpleCommand(c, token, symbol, inFix);
+            getNewToken(c, token, *symbol, inFix,ui);
+            analyzeSimpleCommand(c, token, symbol, inFix,ui);
 			generateAssembly("NULL    ", auxrot2, 0,ui);
 		}
 	} else

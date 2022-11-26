@@ -279,7 +279,7 @@ bool checkSpaces(char *c) {
 // Collect the next valid token in source file
 void getToken(char *c, Token **tokenList,Ui::MainWindow *ui) {
     while(isNotEndOfFile(*c) && *tokenList == NULL) {
-        if(checkComment(c) || checkSpaces(c)) // ignores spaces and comments
+        if(checkComment(c,ui) || checkSpaces(c)) // ignores spaces and comments
             continue;
         else {
             colectToken(c, tokenList,ui);

@@ -151,7 +151,10 @@ void MainWindow::on_textBrowser_textChanged()
 void MainWindow::on_actionRun_triggered()
 {
     int argc;
-    char *argv[99];
+    char argv[2][99];
+    for(int i = 0; i<caminho.length(); i++)
+        argv[1][i] = caminho.data()[i].toLatin1();
+
 
     QWidget *parent;
         ui->setupUi(this);

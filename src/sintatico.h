@@ -44,6 +44,9 @@ void analyzeType(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui);
 // Analyze the program commands
 void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
 
+// Analyze an attribution or a procedure call
+void analyzeAttributionProcedureCall(char *c, Token token, Symbol symbol, ExpressionAnalyzer **inFix);
+
 // Also used to analyze the program commands
 void analyzeSimpleCommand(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
 
@@ -78,10 +81,10 @@ void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
 
 // Function declaration
-void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix);
+void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);
 
 // Expression - Verify expression and possible relational operator
-void analyzeExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix);
+void analyzeExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix, Ui::MainWindow *ui);
 
 // Simple expression - Analyze the lower precedence of expressions
 void analyzeSimpleExpression(char *c, Token **token, Symbol *symbol, ExpressionAnalyzer **inFix,Ui::MainWindow *ui);

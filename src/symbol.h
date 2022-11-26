@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "verifyChar.h"
 
 // Enum for identify the symbol type declared
 typedef enum SymbolType{
@@ -31,11 +32,22 @@ typedef struct symbol {
 //#################################################################
 
 typedef enum LexemeType{
-    VarInt, VarBool, FuncInt, FuncBool, AbreP, FechaP,
-    UnarioN, UnarioP,
-    OpMultDiv, OpMaisMenos, Rel,
-    Nao, E, OU,
-    Inteiro, Booleano, NaoFirst
+    VarInt, // 0
+    VarBool, // 1
+    FuncInt, // 2
+    FuncBool, // 3
+    AbreP, // 4
+    FechaP, // 5
+    UnarioN, // 6
+    UnarioP, // 7
+    OpMultDiv, // 8
+    OpMaisMenos, // 9
+    Rel, // 10
+    Nao, // 11
+    E, // 12
+    OU, // 13
+    Inteiro, // 14
+    Booleano // 15
 }LexemeType;
 
 typedef struct expressionAnalyzer {

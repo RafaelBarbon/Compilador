@@ -13,7 +13,7 @@ char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
 
     switch(errorCode) {
         case 1:
-            ui->QListWidget->addItem("\nErro" + std::to_string(line) + "Simbolo" + symbol + "nao encontrado.\n");
+            //ui->QListWidget->addItem("\nErro" + std::to_string(line) + "Simbolo" + symbol + "nao encontrado.\n");
             //printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
             break;
         case 2:
@@ -103,5 +103,5 @@ char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
         default:
             printf("\nErro desconhecido!\n");
     }
-    ui->listWidget->addItem(aux);
+    //ui->listWidget->addItem(aux);
 }
