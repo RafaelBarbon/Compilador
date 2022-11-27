@@ -4,19 +4,21 @@
 #include "verifyChar.h"
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include <string.h>
+#include <sstream>
+using namespace std;
 
 
 // Find the specific error to be shown
 char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
     error = true;
-
+    std::ostringstream ss;
     switch(errorCode) {
         case 1:
-            //ui->QListWidget->addItem("\nErro" + std::to_string(line) + "Simbolo" + symbol + "nao encontrado.\n");
-            //printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
+            ss << "\nErro L:"<< line << " Simbolo "<< symbol <<" nao encontrado.\n";
+            printf("\nErro L%d: Simbolo \'%c\' nao encontrado.\n", line, symbol);
             break;
         case 2:
+        ss << "\nErro L:"<< line << "Identificador iniciando com digitos.\n";
             printf("\nErro L%d: Identificador iniciando com digitos.\n", line);
             break;
         case 3:
@@ -59,6 +61,7 @@ char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
             printf("\nErro L%d: Nome de funcao esperado nao encontrado\n", line);
             break;
         case 16:
+            ss << "\nErro L:"<< line << " Palavra reservada \"inicio\" nao encontrada\n";
             printf("\nErro L%d: Palavra reservada \"inicio\" nao encontrada\n", line);
             break;
         case 17:
@@ -103,5 +106,7 @@ char detectError(int errorCode, int line, char symbol, Ui::MainWindow *ui) {
         default:
             printf("\nErro desconhecido!\n");
     }
-    //ui->listWidget->addItem(aux);
+    std::string str = ss.str();
+    ui->listWidget->addItem(str.c_str());
+
 }

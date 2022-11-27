@@ -65,7 +65,6 @@ void MainWindow::on_actionNew_triggered(){
     ui->textEdit->setText("");
 }
 
-
 void MainWindow::on_actionOpen_triggered(){
     QString file_name = QFileDialog::getOpenFileName (this, "Open the file");
     QFile File (file_name);
@@ -130,7 +129,6 @@ void MainWindow::on_actionUndo_triggered(){
     ui->textEdit->undo();
 }
 
-
 void MainWindow::on_actionCompiler_triggered(){
     QString about_text;
      about_text = "Compilador : Grupo 2\n";
@@ -141,45 +139,10 @@ void MainWindow::on_actionCompiler_triggered(){
 }
 
 
-
-void MainWindow::on_textBrowser_textChanged()
-{
-
-
-}
-
 void MainWindow::on_actionRun_triggered()
 {
-    int argc;
-    char argv[2][99];
-    for(int i = 0; i<caminho.length(); i++)
-        argv[1][i] = caminho.data()[i].toLatin1();
 
-
-    QWidget *parent;
-        ui->setupUi(this);
-        //this->setCentralWidget(ui->textEdit);
-
-        for (int i= 1; i<=10; i++){
-            QIcon ic = QApplication::style()->standardPixmap(QStyle::SP_DirHomeIcon);
-            ui->listWidget->addItem("Erro-"+QString::number(i));
-            ui->listWidget->item(i - 1)->setIcon(ic);
-        }
-
-    QMessageBox::information(this,"Teste", "2");
-    qDebug()<<"2";
-
-    //path file -> renomeia pra run.txt
-
-    if(argc < 1) { // Check if source file have been informed
-        detectError(6, 0, '\0',ui);
-        exit(1);
-    } else if(argc > 2 && strcmp(argv[2],"1") == 0) { // Check for debug mode activation
-        debug = true;
-        printf("\n\nWARN - Modo debug ativo\n\n");
-    }
-
-    sourceFile = fopen(argv[1], "r");
+    sourceFile = fopen(caminho.toLocal8Bit().data(), "r");
 
     if(!sourceFile) {
         detectError(7, 0, '\0',ui);
@@ -192,20 +155,20 @@ void MainWindow::on_actionRun_triggered()
     char c;
 
     updateCursor(&c);
-
+    ui->listWidget->clear();
     syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix, ui);
 
     fclose(sourceFile);
     fclose(outputCode);
 
     //printToken(tokenList);
-    printf("\n%s\n\n", error ? "FALHOU" : "COMPILOU");
+     error ? ui->listWidget->addItem("Falhou "): ui->listWidget->addItem("Compilou") ;
+
 
 
     freeToken(&tokenList);
     freeSymbol(&symbolList);
     freeExpression(&inFix);
-
     lineCount = 1; // Source file line counter
     flagUpdate = true; // Flag to allow cursor update to next character in source file (lexic)
     debug = false; // Flag to allow logs in debug mode

@@ -49,7 +49,7 @@ void strCatAssembly(char *result, char *op2, int tam, int *tamLine){
 //Create the instruction according to the parameters and insert it in the .obj file
 void generateAssembly(char *instruction, int param1, int param2,Ui::MainWindow *ui) {
     int tamLine = 0;
-    char line[21] = {0}, spaces[4] = "    ";
+    char line[21] = {0}, spaces[5] = "    ";
     char param1converted[4] = {0}, param2converted[4] = {0};
     toString(param1, param1converted);
     toString(param2, param2converted);

@@ -38,11 +38,11 @@ private slots:
 
     void on_actionDelete_File_triggered();
 
-    void on_textBrowser_textChanged();
-
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_actionRun_triggered();
+
+    void on_textEdit_copyAvailable(bool b);
 
 private:
     Ui::MainWindow *ui;

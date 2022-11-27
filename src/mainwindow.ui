@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1099</width>
-    <height>722</height>
+    <width>831</width>
+    <height>600</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>831</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>831</width>
+    <height>600</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -19,8 +31,8 @@
      <rect>
       <x>140</x>
       <y>0</y>
-      <width>361</width>
-      <height>261</height>
+      <width>691</width>
+      <height>341</height>
      </rect>
     </property>
    </widget>
@@ -28,9 +40,9 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>260</y>
-      <width>361</width>
-      <height>121</height>
+      <y>340</y>
+      <width>691</width>
+      <height>191</height>
      </rect>
     </property>
     <property name="whatsThis">
@@ -39,8 +51,8 @@
     <property name="styleSheet">
      <string notr="true">QListWidget:item{
    	border:2px solid black;
-   	background-color.green;
-   	color:cyan;
+   	background-color.white;
+   	color:red;
 }
 QListWidget:item:hover{
 	color:red;
@@ -59,7 +71,7 @@ QListWidget:item:selected{
       <x>0</x>
       <y>0</y>
       <width>141</width>
-      <height>381</height>
+      <height>531</height>
      </rect>
     </property>
    </widget>
@@ -70,7 +82,7 @@ QListWidget:item:selected{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1099</width>
+     <width>831</width>
      <height>21</height>
     </rect>
    </property>

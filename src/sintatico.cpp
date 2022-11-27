@@ -12,11 +12,11 @@
 
 // Treat errors, files and structures
 void errorSintax(Token **token, int errorCode, char symbol,Ui::MainWindow *ui) {
-	freeToken(token);
+    //freeToken(token);
 	detectError(errorCode,lineCount, symbol,ui);
-	fclose(sourceFile);
-	fclose(outputCode);
-	exit(1);
+    //fclose(sourceFile);
+    //fclose(outputCode);
+    //exit(1);
 }
 
 // Verify if the symbol is relational
