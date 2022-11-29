@@ -301,7 +301,10 @@ void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer
 				if (!isEqualString((*token)->symbol, "sfim")) {
 					analyzeSimpleCommand(c, token, symbol, inFix,ui);
 				}
-			} else errorSintax(token, 1, ';',ui);
+			} else {
+				errorSintax(token, 1, ';',ui);
+				break;
+			}
 		}
 		getNewToken(c, token, *symbol, inFix,ui);
 	} else errorSintax(token, 16, '\0',ui);
@@ -370,6 +373,8 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 	type = isFunction(symbol, name);
 	if(type != FuncInt && type != FuncBool) //Generate the assembly code to store the attribution in the destination variable address
 		generateAssembly("STR     ", searchVarFuncAddress(symbol, name), 0,ui);
+	else
+		generateAssembly("STR     ", 0, 0,ui);
 }
 
 // Analyze a function call
@@ -550,7 +555,6 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, Express
 	} else
 		errorSintax(token, 15, '\0',ui);
 	int countAddressToDalloc = unStack(symbol);
-	generateAssembly("STR     ", 0, 0,ui); // Address 0 represents the function return value
 	if(countAddressToDalloc > 0) {
 		generateAssembly("DALLOC  ", countAddressToDalloc, address  - countAddressToDalloc,ui);
 		address -= countAddressToDalloc;
