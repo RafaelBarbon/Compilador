@@ -1,12 +1,13 @@
 programa test1;
 var a,b,c,x: inteiro;
 procedimento analisa1;
-var x: inteiro;
-       z: booleano;
+    var x: inteiro;
+           z: booleano;
     funcao func1: inteiro;
- inicio
-  func1:= +a-(-b);
- fim;
+        inicio
+          func1:= +a-(-b);
+        fim;
+
 inicio
   leia(x);
   z:= verdadeiro;
@@ -15,13 +16,15 @@ inicio
            x:= func1;
            z:= falso;
            escreva(x);
-      fim;
-inicio
-inicio
-    leia(c); 
-    analisa1;
-    se b > (c+ a*a)
-    entao escreva(b)
-    senao escreva(c)
+    fim;
 fim;
+
+inicio
+    inicio
+        leia(c); 
+        analisa1;
+        se b > (c+ a*a)
+        entao escreva(b)
+        senao escreva(c)
+    fim;
 fim.

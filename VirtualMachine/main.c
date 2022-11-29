@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "stack.h"
 #include "instruction.h"
 #include <stdbool.h>
 #include <string.h>
@@ -8,6 +7,14 @@
 
 bool isEqualString(char *str1, char *str2){
     return strcmp(str1, str2) == 0;
+}
+
+void printStack(int *s, int addr) {
+    printf("\nSTACK");
+    while(addr != -1) {
+       printf("\n%d", s[addr]);
+       addr--;
+    }
 }
 
 int searchLabelIndex(InstructionVector *instructions, int numberOfInstructions, char *label){

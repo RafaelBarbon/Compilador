@@ -12,11 +12,11 @@
 
 // Treat errors, files and structures
 void errorSintax(Token **token, int errorCode, char symbol) {
-	freeToken(token);
+	//freeToken(token);
 	detectError(errorCode, lineCount, symbol);
-	fclose(sourceFile);
-	fclose(outputCode);
-	exit(1);
+	//fclose(sourceFile);
+	//fclose(outputCode);
+	//exit(1);
 }
 
 // Verify if the symbol is relational
@@ -301,7 +301,10 @@ void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer
 				if (!isEqualString((*token)->symbol, "sfim")) {
 					analyzeSimpleCommand(c, token, symbol, inFix);
 				}
-			} else errorSintax(token, 1, ';');
+			} else{ 
+				errorSintax(token, 1, ';');
+				break;
+			}
 		}
 		getNewToken(c, token, *symbol, inFix);
 	} else errorSintax(token, 16, '\0');
@@ -357,6 +360,8 @@ void analyzeAttribution(char *c, Token **token, Symbol *symbol, ExpressionAnalyz
 	type = isFunction(symbol, name);
 	if(type != FuncInt && type != FuncBool) //Generate the assembly code to store the attribution in the destination variable address
 		generateAssembly("STR     ", searchVarFuncAddress(symbol, name), 0);
+	else
+		generateAssembly("STR     ", 0, 0); // Address 0 represents the function return value
 }
 
 // Analyze a procedure call
@@ -549,7 +554,6 @@ void analyzeFunctionDeclaration(char *c, Token **token, Symbol **symbol, Express
 	} else
 		errorSintax(token, 15, '\0');
 	int countAddressToDalloc = unStack(symbol);
-	generateAssembly("STR     ", 0, 0); // Address 0 represents the function return value
 	if(countAddressToDalloc > 0) {
 		generateAssembly("DALLOC  ", countAddressToDalloc, address  - countAddressToDalloc);
 		address -= countAddressToDalloc;
