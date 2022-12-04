@@ -187,7 +187,7 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
     while(instructionAddr != numberOfInstructions){
         std::ostringstream instructions_Print,text_PRN,text_STEP,text_STEP2,text_Error;
         std::string textStep,textStep2,textError;
-        instructions_Print << "\nInstruction:" << instructions[instructionAddr].label<< instructions[instructionAddr].instruction << instructions[instructionAddr].param1<< instructions[instructionAddr].param2;
+        instructions_Print << "\nInstruction: " << instructions[instructionAddr].label<< instructions[instructionAddr].instruction << instructions[instructionAddr].param1<< instructions[instructionAddr].param2;
         printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
         //getchar();
         if(isEqualString(instructions[instructionAddr].instruction, "LDC     ")) {
@@ -342,6 +342,7 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
             printf("\nDEPOIS DALLOC\n\n");
             printStack(stack, addr,ui);
         } else if(isEqualString(instructions[instructionAddr].instruction, "HLT     ")) {
+            ui->listWidget->addItem("\nInstruction:     HLT");
             return;
         } else if(isEqualString(instructions[instructionAddr].instruction, "CALL    ")) {
             addr++;
