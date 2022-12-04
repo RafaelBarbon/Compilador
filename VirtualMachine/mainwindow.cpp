@@ -34,6 +34,15 @@ void MainWindow::on_pushButton_clicked()
 {
     int instructionAddr = 0;
     //sourceFile
+    QString file_name =caminho;
+    QFile File (file_name);
+    QString file_path_ = file_name;
+    if (File .open (QIODevice::Truncate| QIODevice::ReadWrite)){
+        QTextStream stream (&File);
+        stream << ui->textEdit->toPlainText();
+    }
+    File.flush();
+    File.close();
     sourceFile = fopen(caminho.toLocal8Bit().data(), "r");
     if(!sourceFile) {
         printf("\nError! File could not be opened!\n");
@@ -141,6 +150,7 @@ void MainWindow::on_actionSobre_a_Vm_triggered()
 
 bool isEqualString(char *str1, char *str2){
     return strcmp(str1, str2) == 0;
+
 }
 
 int searchLabelIndex(InstructionVector *instructions, int numberOfInstructions, char *label){
@@ -165,6 +175,7 @@ void printStack(int *s, int addr,Ui::MainWindow *ui) {
 }
 
 void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui::MainWindow *ui) {
+
     int stack[500] = {0}, addr = 0, aux, instructionAddr = 0, n, m;
     ui->listWidget->clear();
     ui->listWidget_2->clear();
@@ -172,7 +183,7 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
 
     while(instructionAddr != numberOfInstructions){
         std::ostringstream instructions_Print,text_PRN,text_STEP,text_STEP2,text_Error;
-         std::string textStep,textStep2,textError;
+        std::string textStep,textStep2,textError;
         instructions_Print << "\nInstruction:" << instructions[instructionAddr].label<< instructions[instructionAddr].instruction << instructions[instructionAddr].param1<< instructions[instructionAddr].param2;
         printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
         //getchar();
