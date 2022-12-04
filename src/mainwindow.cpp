@@ -66,10 +66,12 @@ void MainWindow::on_actionNew_triggered(){
 }
 
 void MainWindow::on_actionOpen_triggered(){
+    ui->listWidget_2->clear();
     QString file_name = QFileDialog::getOpenFileName (this, "Open the file");
     QFile File (file_name);
     QString file_path_ = file_name;
     caminho = file_name;
+    ui->listWidget_2->addItem(caminho);
      if (File.open (QIODevice::ReadOnly)){
          QTextStream stream (&File);
          QString FileData;
@@ -141,6 +143,15 @@ void MainWindow::on_actionCompiler_triggered(){
 
 void MainWindow::on_actionRun_triggered()
 {
+    QString file_name = caminho;
+    QFile File (file_name);
+    QString file_path_ = file_name;
+    if (File .open (QIODevice::Truncate| QIODevice::ReadWrite)){
+        QTextStream stream (&File);
+        stream << ui->textEdit->toPlainText();
+    }
+    File.flush();
+    File.close();
 
     sourceFile = fopen(caminho.toLocal8Bit().data(), "r");
 
