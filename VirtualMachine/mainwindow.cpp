@@ -59,10 +59,16 @@ void MainWindow::on_actionOpen_triggered()
      if (File.open (QIODevice::ReadOnly)){
          QTextStream stream (&File);
          QString FileData;
+
          while (stream.atEnd() == false){
-             FileData += stream.readLine () + "\n";
+             FileData += stream.readLine () + "\n" ;
+
          }
+
+
         ui->textEdit->setPlainText(FileData);
+
+
      }
      else {
           QMessageBox::warning (this,"..", "file not open");
@@ -147,9 +153,10 @@ int searchLabelIndex(InstructionVector *instructions, int numberOfInstructions, 
 
 void printStack(int *s, int addr,Ui::MainWindow *ui) {
     printf("\nSTACK");
-    std::ostringstream stack_Print;
+
     while(addr != -1) {
-        stack_Print << "\n" << s[addr];
+       std::ostringstream stack_Print;
+       stack_Print << "\n" << addr<<"    "<< s[addr];
        printf("\n%d", s[addr]);
        addr--;
        std::string textStack = stack_Print.str();
@@ -159,10 +166,13 @@ void printStack(int *s, int addr,Ui::MainWindow *ui) {
 
 void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui::MainWindow *ui) {
     int stack[500] = {0}, addr = 0, aux, instructionAddr = 0, n, m;
+    ui->listWidget->clear();
+    ui->listWidget_2->clear();
+    ui->listWidget_3->clear();
 
-
-    std::ostringstream instructions_Print;
     while(instructionAddr != numberOfInstructions){
+        std::ostringstream instructions_Print,text_PRN,text_STEP,text_STEP2;
+         std::string textStep,textStep2;
         instructions_Print << "\nInstruction:" << instructions[instructionAddr].label<< instructions[instructionAddr].instruction << instructions[instructionAddr].param1<< instructions[instructionAddr].param2;
         printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
         //getchar();
@@ -263,21 +273,38 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
             stack[addr] = aux;
         } else if(isEqualString(instructions[instructionAddr].instruction, "PRN     ")) {
             printf("\n\n\n\n\n\n%d", stack[addr]);
+            text_PRN <<"\n" << stack[addr];
+            std::string textPRN = text_PRN.str();
+            ui->listWidget_3->addItem(textPRN.c_str());
             addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "START   ")) {
             addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "ALLOC   ")) {
-            printf("\nANTES ALLOC\n\n");
+            //printf("\nANTES ALLOC\n\n");
+            text_STEP.clear();
+            text_STEP <<"\nANTES ALLOC";
+            textStep = text_STEP.str();
+            ui->listWidget_2->addItem(textStep.c_str());
             printStack(stack, addr,ui);
+
             m = toInt(instructions[instructionAddr].param1);
             n = toInt(instructions[instructionAddr].param2);
             for(int k = 0; k < n; k++){
                 addr++;
                 stack[addr] = stack[m + k];
             }
-            printf("\nDEPOIS ALLOC\n\n");
+            text_STEP2.clear();
+            text_STEP2 <<"\nDEPOIS ALLOC";
+            textStep2 = text_STEP2.str();
+            ui->listWidget_2->addItem(textStep2.c_str());
+            //printf("\nDEPOIS ALLOC\n\n");
             printStack(stack, addr,ui);
+
         } else if(isEqualString(instructions[instructionAddr].instruction, "DALLOC  ")) {
+            text_STEP.clear();
+            text_STEP <<"\nANTES DALLOC";
+            textStep = text_STEP.str();
+            ui->listWidget_2->addItem(textStep.c_str());
             printf("\nANTES DALLOC\n\n");
             printStack(stack, addr,ui);
             m = toInt(instructions[instructionAddr].param1);
@@ -286,6 +313,10 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
                 stack[m+k] = stack[addr];
                 addr--;
             }
+            text_STEP2.clear();
+            text_STEP2 <<"\nDEPOIS DALLOC";
+            textStep2 = text_STEP2.str();
+            ui->listWidget_2->addItem(textStep2.c_str());
             printf("\nDEPOIS DALLOC\n\n");
             printStack(stack, addr,ui);
         } else if(isEqualString(instructions[instructionAddr].instruction, "HLT     ")) {
@@ -309,5 +340,6 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
         ui->listWidget->addItem(textInstructions.c_str());
 
     }
+
 
 }

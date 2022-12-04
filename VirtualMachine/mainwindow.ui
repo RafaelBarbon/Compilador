@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Virtual Machine</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPlainTextEdit" name="textEdit">
@@ -51,9 +51,19 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>50</y>
+      <y>20</y>
       <width>256</width>
       <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>230</y>
+      <width>111</width>
+      <height>201</height>
      </rect>
     </property>
    </widget>
