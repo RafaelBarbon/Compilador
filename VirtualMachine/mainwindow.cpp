@@ -61,6 +61,9 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_actionOpen_triggered()
 {
+    ui->listWidget->clear();
+    ui->listWidget_2->clear();
+    ui->listWidget_3->clear();
     QString file_name = QFileDialog::getOpenFileName (this, "Open the file");
     QFile File (file_name);
     QString file_path_ = file_name;
