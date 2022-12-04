@@ -171,8 +171,8 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
     ui->listWidget_3->clear();
 
     while(instructionAddr != numberOfInstructions){
-        std::ostringstream instructions_Print,text_PRN,text_STEP,text_STEP2;
-         std::string textStep,textStep2;
+        std::ostringstream instructions_Print,text_PRN,text_STEP,text_STEP2,text_Error;
+         std::string textStep,textStep2,textError;
         instructions_Print << "\nInstruction:" << instructions[instructionAddr].label<< instructions[instructionAddr].instruction << instructions[instructionAddr].param1<< instructions[instructionAddr].param2;
         printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
         //getchar();
@@ -192,8 +192,16 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions,Ui
             stack[addr-1] = stack[addr-1] * stack[addr];
             addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "DIVI    ")) {
-            stack[addr-1] = stack[addr-1] / stack[addr];
-            addr--;
+            int op1 = stack[addr-1], op2 = stack[addr];
+                        if(op2 == 0){
+                            text_Error <<"\nDivisao Por Zero";
+                            std::string textError = text_Error.str();
+                            ui->listWidget_3->addItem(textError.c_str());
+                            printf("Divisao Por Zero");
+                            break;
+                        }
+                        stack[addr-1] = op1 / op2;
+                        addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "INV     ")) {
             stack[addr] = - stack[addr];
         } else if(isEqualString(instructions[instructionAddr].instruction, "AND     ")) {
