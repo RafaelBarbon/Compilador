@@ -31,7 +31,6 @@ set(PROJECT_SOURCES
         token.h
         verifyChar.cpp
         verifyChar.h
-        Teste1.txt
         codeGeneration.cpp
         codeGeneration.h
 )
