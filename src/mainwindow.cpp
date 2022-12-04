@@ -90,7 +90,9 @@ void MainWindow::on_actionOpen_triggered(){
 }
 
 void MainWindow::on_actionSave_As_triggered(){
+    ui->listWidget_2->clear();
     QString file_name = QFileDialog::getSaveFileName (this, "Open the file");
+    ui->listWidget_2->addItem(file_name);
     QFile File (file_name);
     QString file_path_ = file_name;
     if (File .open (QIODevice::Truncate| QIODevice::ReadWrite)){
