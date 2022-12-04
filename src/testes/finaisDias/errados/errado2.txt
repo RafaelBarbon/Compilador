@@ -1,0 +1,18 @@
+{Teste errado z:= booleano e escreva(z)}
+programa test1;
+var a,b,c,x: inteiro;
+{proc 1}
+
+procedimento analisa1;
+    var x: inteiro;
+        z: booleano;
+
+    inicio
+      leia(x);
+      z:= verdadeiro;
+      escreva(z);
+    fim;
+
+inicio
+    analisa1;
+fim.

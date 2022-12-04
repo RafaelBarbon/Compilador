@@ -1,0 +1,28 @@
+{ TESTE SENAO COM BLOCO DE INICIO/FIM }
+programa Mancini_teste;
+
+procedimento proc;
+var x:inteiro;
+
+funcao func1:inteiro;
+var w:inteiro;
+inicio
+ se x = 1
+  entao func1:=1
+  senao
+    inicio
+       w := x;
+       x := x - 1;
+       func1:= w * func1;
+     fim;
+fim;
+
+inicio
+ leia(x);
+ x:= func1;
+ escreva(x);
+fim;
+
+inicio
+ proc;
+fim.

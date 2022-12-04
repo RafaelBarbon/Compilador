@@ -1,0 +1,5 @@
+programa t;
+
+inicio
+   1:= 2;
+fim.
