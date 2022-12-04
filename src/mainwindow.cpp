@@ -67,6 +67,7 @@ void MainWindow::on_actionNew_triggered(){
 
 void MainWindow::on_actionOpen_triggered(){
     ui->listWidget_2->clear();
+    ui->listWidget->clear();
     QString file_name = QFileDialog::getOpenFileName (this, "Open the file");
     QFile File (file_name);
     QString file_path_ = file_name;
@@ -85,6 +86,7 @@ void MainWindow::on_actionOpen_triggered(){
           return;
       }
      File.close();
+
 }
 
 void MainWindow::on_actionSave_As_triggered(){
@@ -142,6 +144,55 @@ void MainWindow::on_actionCompiler_triggered(){
 
 
 void MainWindow::on_actionRun_triggered()
+{
+    QString file_name = caminho;
+    QFile File (file_name);
+    QString file_path_ = file_name;
+    if (File .open (QIODevice::Truncate| QIODevice::ReadWrite)){
+        QTextStream stream (&File);
+        stream << ui->textEdit->toPlainText();
+    }
+    File.flush();
+    File.close();
+
+    sourceFile = fopen(caminho.toLocal8Bit().data(), "r");
+
+    if(!sourceFile) {
+        detectError(7, 0, '\0',ui);
+        exit(1);
+    } else if(debug)
+        printf("DEBUG - Arquivo fonte aberto com sucesso.\n");
+
+    outputCode = fopen("AssemblyCode.obj", "w");
+
+    char c;
+
+    updateCursor(&c);
+    ui->listWidget->clear();
+    syntacticAnalyzer(&c, &tokenList, &symbolList, &inFix, ui);
+
+    fclose(sourceFile);
+    fclose(outputCode);
+
+    //printToken(tokenList);
+     error ? ui->listWidget->addItem("Falhou "): ui->listWidget->addItem("Compilou") ;
+
+
+
+    freeToken(&tokenList);
+    freeSymbol(&symbolList);
+    freeExpression(&inFix);
+    lineCount = 1; // Source file line counter
+    flagUpdate = true; // Flag to allow cursor update to next character in source file (lexic)
+    debug = false; // Flag to allow logs in debug mode
+    insertArray = false; // Flag used to collect the expressions (attributions, conditionals and loops) (semantic)
+    error = false; // Flag to identify if any errors have occur
+    label = 1; // Label for code generation
+    address = 0; // Address 0 is used for store function return values
+}
+
+
+void MainWindow::on_pushButton_clicked()
 {
     QString file_name = caminho;
     QFile File (file_name);

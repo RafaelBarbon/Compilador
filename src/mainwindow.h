@@ -42,7 +42,7 @@ private slots:
 
     void on_actionRun_triggered();
 
-    void on_textEdit_copyAvailable(bool b);
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
