@@ -1,0 +1,15 @@
+programa testeExpressao;
+var x,a,b,c,d,s:inteiro;
+inicio
+	a:=5;
+	b:=4;
+	c:= 3;
+	d:=10;
+	s:=-1;
+	leia(x);
+	se x + a * b -c + ( d div s -a ) = a
+	entao
+		escreva(a)
+	senao
+		escreva(b)
+fim.

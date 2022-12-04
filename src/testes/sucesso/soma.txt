@@ -1,0 +1,20 @@
+programa soma_primeiros;
+var Total,Entrada: inteiro;
+
+funcao soma_n:inteiro;
+var aux:inteiro;
+inicio
+ se Entrada = 0 entao soma_n:=0
+ senao
+  inicio
+   aux:=Entrada;
+   Entrada := Entrada - 1;
+   soma_n:= aux + soma_n;
+  fim;
+fim;
+
+inicio
+leia(Entrada);
+Total := soma_n;
+escreva (Total);
+fim.

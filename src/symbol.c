@@ -486,7 +486,7 @@ void verifyUnaryOperators(ExpressionAnalyzer **inFix) {
                     aux->type = UnarioN;
                 } else if(last == NULL && isEqualString(aux->lexeme, "+")) { // Positive unary
                     aux->type = UnarioP;
-                } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro)) { // Positive unary
+                } else if((last->type != FuncInt && last->type != VarInt && last->type != Inteiro && last->type != FechaP)) { // Positive unary
                     if(isEqualString(aux->lexeme, "+")) {
                         aux->type = UnarioP;
                     } else if(isEqualString(aux->lexeme, "-")) { // Negative unary

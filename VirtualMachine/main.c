@@ -26,7 +26,7 @@ int searchLabelIndex(InstructionVector *instructions, int numberOfInstructions, 
 }
 
 void executeProgram(InstructionVector *instructions, int numberOfInstructions) {
-    int stack[500] = {0}, addr = 0, aux, instructionAddr = 0, n, m; 
+    int stack[500] = {0}, addr = 0, aux, instructionAddr = 0, n, m;
 
     while(instructionAddr != numberOfInstructions){
         printf("\n\nInstruction: %s %s %s %s", instructions[instructionAddr].label, instructions[instructionAddr].instruction, instructions[instructionAddr].param1, instructions[instructionAddr].param2);
@@ -47,7 +47,12 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions) {
             stack[addr-1] = stack[addr-1] * stack[addr];
             addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "DIVI    ")) {
-            stack[addr-1] = stack[addr-1] / stack[addr];
+            int op1 = stack[addr-1], op2 = stack[addr];
+            if(op2 == 0){
+                printf("Divisao Por Zero");
+                break;
+            }
+            stack[addr-1] = op1 / op2;
             addr--;
         } else if(isEqualString(instructions[instructionAddr].instruction, "INV     ")) {
             stack[addr] = - stack[addr];
@@ -160,19 +165,19 @@ void executeProgram(InstructionVector *instructions, int numberOfInstructions) {
             aux = searchLabelIndex(instructions, numberOfInstructions, instructions[instructionAddr].param1);
             instructionAddr = aux;//Instrução logo após o "LABEL NULL";
         } else if(isEqualString(instructions[instructionAddr].instruction, "RETURN  ")) {
-            instructionAddr = (stack[addr] - 1); //Atualiza no final 
+            instructionAddr = (stack[addr] - 1); //Atualiza no final
             addr--;
-        } else if(isEqualString(instructions[instructionAddr].instruction, "RETURNF ")) { //VERIFICAR SE Ë ESSE MESMO O RETORNO QUE PRECISA 
+        } else if(isEqualString(instructions[instructionAddr].instruction, "RETURNF ")) { //VERIFICAR SE Ë ESSE MESMO O RETORNO QUE PRECISA
             instructionAddr = stack[addr] - 1;
             addr--;
         }
-       
+
         instructionAddr++;
     }
 }
 
 int main() {
-    FILE *sourceFile; 
+    FILE *sourceFile;
     int instructionAddr = 0;
     sourceFile = fopen("AssemblyCode.obj", "r");
 
@@ -183,7 +188,7 @@ int main() {
 
     InstructionVector instructions[2048] = {0};
     // Stack *stack = NULL;
-    
+
     readInstructions(sourceFile, instructions, &instructionAddr);
 
     //printInstructions(instructions, instructionAddr);
@@ -194,5 +199,5 @@ int main() {
     // freeInstructions(&instructions);
     // freeStack(&stack);
 
-    return 0; 
+    return 0;
 }

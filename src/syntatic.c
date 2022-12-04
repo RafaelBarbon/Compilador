@@ -241,7 +241,10 @@ void analyzeEtVariables(char *c, Token **token, Symbol **symbol) {
 				analyzeVariables(c, token, symbol);
 				if (isEqualString((*token)->symbol, "sponto_virgula"))
 					getNewToken(c, token, *symbol, NULL);
-				else errorSintax(token, 1,';');
+				else {
+					errorSintax(token, 1,';');
+					break;
+				}
 			}
         } else
 			errorSintax(token, 11, '\0');
@@ -263,12 +266,23 @@ void analyzeVariables(char *c, Token **token, Symbol **symbol) {
 				if (isEqualString((*token)->symbol,"svirgula") || isEqualString((*token)->symbol,"sdoispontos")) {
 					if (isEqualString((*token)->symbol, "svirgula")) {
 						getNewToken(c, token, *symbol, NULL);
-						if (isEqualString((*token)->symbol,"sdoispontos"))
+						if (isEqualString((*token)->symbol,"sdoispontos")){
 							errorSintax(token, 11, '\0');
+							break;
+						}
 					}
-				} else errorSintax(token, 12, '\0');
-        	} else errorSintax(token,21,'\0');
-		} else errorSintax(token, 11, '\0');
+				} else {
+					errorSintax(token, 12, '\0');
+					break;
+				}
+        	} else{
+				errorSintax(token,21,'\0');
+				break;
+			}
+		} else {
+			errorSintax(token, 11, '\0');
+			break;
+		}
 	} while (!isEqualString((*token)->symbol, "sdoispontos"));
 	getNewToken(c, token, *symbol, NULL);
 	analyzeType(c, token, symbol);
@@ -301,7 +315,7 @@ void analyzeCommands(char *c, Token **token, Symbol **symbol, ExpressionAnalyzer
 				if (!isEqualString((*token)->symbol, "sfim")) {
 					analyzeSimpleCommand(c, token, symbol, inFix);
 				}
-			} else{ 
+			} else{
 				errorSintax(token, 1, ';');
 				break;
 			}
@@ -494,8 +508,10 @@ void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnaly
 			analyzeFunctionDeclaration(c, token, symbol, inFix);
 		if (isEqualString((*token)->symbol, "sponto_virgula")) {
 			getNewToken(c, token, *symbol, inFix);
-		}else
+		}else{
 			errorSintax(token, 1, ';');
+			break;
+		}
 	}
 
 	if(flag)
@@ -516,8 +532,10 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, Expres
 				analyzeBlock(c, token, symbol, inFix);
 			else
 				errorSintax(token, 1, ';');
-		} else
+		} else {
 			errorSintax(token, 26, '\0');
+			return;
+		}
 	} else
 		errorSintax(token, 14, '\0');
 	int countAddressToDalloc = unStack(symbol);
