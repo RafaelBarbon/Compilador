@@ -241,7 +241,10 @@ void analyzeEtVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *
 				analyzeVariables(c, token, symbol,ui);
 				if (isEqualString((*token)->symbol, "sponto_virgula"))
 					getNewToken(c, token, *symbol, NULL,ui);
-				else errorSintax(token, 1,';',ui);
+				else {
+					errorSintax(token, 1,';',ui);
+					break;
+				}
 			}
         } else
 			errorSintax(token, 11, '\0',ui);
@@ -263,12 +266,23 @@ void analyzeVariables(char *c, Token **token, Symbol **symbol,Ui::MainWindow *ui
 				if (isEqualString((*token)->symbol,"svirgula") || isEqualString((*token)->symbol,"sdoispontos")) {
 					if (isEqualString((*token)->symbol, "svirgula")) {
 						getNewToken(c, token, *symbol, NULL,ui);
-						if (isEqualString((*token)->symbol,"sdoispontos"))
+						if (isEqualString((*token)->symbol,"sdoispontos")){
 							errorSintax(token, 11, '\0',ui);
+							break;
+						}
 					}
-				} else errorSintax(token, 12, '\0',ui);
-        	} else errorSintax(token,21,'\0',ui);
-		} else errorSintax(token, 11, '\0',ui);
+				} else {
+					errorSintax(token, 12, '\0',ui);
+					break;
+				}
+        	} else {
+				errorSintax(token,21,'\0',ui);
+				break;
+			}
+		} else {
+			errorSintax(token, 11, '\0',ui);
+			break;
+		}
 	} while (!isEqualString((*token)->symbol, "sdoispontos"));
 	getNewToken(c, token, *symbol, NULL,ui);
 	analyzeType(c, token, symbol,ui);
@@ -494,8 +508,10 @@ void analyzeSubroutines(char *c, Token **token, Symbol **symbol, ExpressionAnaly
             analyzeFunctionDeclaration(c, token, symbol, inFix,ui);
 		if (isEqualString((*token)->symbol, "sponto_virgula")) {
             getNewToken(c, token, *symbol, inFix,ui);
-		}else
+		}else{
             errorSintax(token, 1, ';',ui);
+			break;
+		}
 	}
 
 	if(flag)
@@ -517,8 +533,10 @@ void analyzeProcedureDeclaration(char *c, Token **token, Symbol **symbol, Expres
 				analyzeBlock(c, token, symbol, inFix,ui);
 			else
 				errorSintax(token, 1, ';',ui);
-		} else
+		} else{
 			errorSintax(token, 26, '\0',ui);
+			return;
+		}
 	} else
 		errorSintax(token, 14, '\0',ui);
 	int countAddressToDalloc = unStack(symbol);
