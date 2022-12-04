@@ -156,7 +156,7 @@ void printStack(int *s, int addr,Ui::MainWindow *ui) {
 
     while(addr != -1) {
        std::ostringstream stack_Print;
-       stack_Print << "\n" << addr<<"    "<< s[addr];
+       stack_Print << "\n       " << addr<<"\t    "<< s[addr];
        printf("\n%d", s[addr]);
        addr--;
        std::string textStack = stack_Print.str();
